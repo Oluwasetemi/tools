@@ -1,0 +1,12 @@
+{
+  "$schema": "https://www.partykit.io/schema.json",
+  "name": "-party",
+  "main": "party/index.ts",
+  "compatibilityDate": "2025-11-10",
+  "parties": {
+    "polls": "party/polls.ts",
+    "kahoot": "party/kahoot.ts",
+    "feedback": "party/feedback.ts",
+    "feelings": "party/feelings.ts"
+  }
+}
