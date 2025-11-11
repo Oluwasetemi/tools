@@ -1,31 +1,7 @@
-import PartySocket from 'partysocket'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/button'
 import { Textarea } from '@/components/textarea'
-
-type FeedbackType = 'emoji' | 'text' | 'score'
-
-interface EmojiOption {
-  emoji: string
-  label: string
-  count: number
-}
-
-interface FeedbackSession {
-  id: string
-  title: string
-  type: FeedbackType
-  isActive: boolean
-  emojiOptions?: EmojiOption[]
-  scoreRange?: { min: number, max: number }
-}
-
-type ServerMessage
-  = | { type: 'feedback_created', session: FeedbackSession }
-    | { type: 'feedback_updated', session: FeedbackSession }
-    | { type: 'feedback_closed', session: FeedbackSession }
-    | { type: 'response_submitted' }
-    | { type: 'error', message: string }
+import { useFeedbackSocket } from '@/hooks/use-feedback-socket'
 
 interface FeedbackClientProps {
   roomId: string
@@ -33,58 +9,13 @@ interface FeedbackClientProps {
 }
 
 export function FeedbackClient({ roomId, host = 'localhost:1999' }: FeedbackClientProps) {
-  const [socket, setSocket] = useState<PartySocket | null>(null)
-  const [session, setSession] = useState<FeedbackSession | null>(null)
   const [hasSubmitted, setHasSubmitted] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   // Form state
   const [textFeedback, setTextFeedback] = useState('')
   const [selectedScore, setSelectedScore] = useState<number | null>(null)
 
-  useEffect(() => {
-    const ws = new PartySocket({
-      host,
-      room: roomId,
-      party: 'feedback',
-    })
-
-    ws.addEventListener('message', (event) => {
-      const data: ServerMessage = JSON.parse(event.data)
-
-      switch (data.type) {
-        case 'feedback_created':
-        case 'feedback_updated':
-          setSession(data.session)
-          setError(null)
-          break
-
-        case 'feedback_closed':
-          setSession(data.session)
-          break
-
-        case 'response_submitted':
-          setHasSubmitted(true)
-          setError(null)
-          break
-
-        case 'error':
-          setError(data.message)
-          break
-      }
-    })
-
-    ws.addEventListener('open', () => {
-      console.warn('Connected to feedback server')
-      setError(null)
-    })
-
-    setSocket(ws)
-
-    return () => {
-      ws.close()
-    }
-  }, [roomId, host])
+  const { socket, session, error } = useFeedbackSocket(roomId, host)
 
   const submitEmoji = (emoji: string) => {
     if (!socket || hasSubmitted)
@@ -108,6 +39,8 @@ export function FeedbackClient({ roomId, host = 'localhost:1999' }: FeedbackClie
         text: textFeedback.trim(),
       }),
     )
+
+    setHasSubmitted(true)
   }
 
   const submitScore = (score: number) => {
@@ -122,6 +55,7 @@ export function FeedbackClient({ roomId, host = 'localhost:1999' }: FeedbackClie
     )
 
     setSelectedScore(score)
+    setHasSubmitted(true)
   }
 
   if (!session) {

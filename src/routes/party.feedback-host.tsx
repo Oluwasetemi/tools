@@ -7,6 +7,11 @@ import { FeedbackHost } from '@/components/ui/feedback'
 
 export const Route = createFileRoute('/party/feedback-host')({
   component: FeedbackHostDemo,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      room: (search.room as string) || `feedback-${randomStr(7)}`,
+    }
+  },
   head: () => ({
     meta: [
       {
@@ -48,12 +53,11 @@ export const Route = createFileRoute('/party/feedback-host')({
 })
 
 function FeedbackHostDemo() {
-  const [roomId] = useState(() => {
-    const params = new URLSearchParams(window.location.search)
-    return params.get('room') || `feedback-${randomStr(7)}`
-  })
+  const { room: roomId } = Route.useSearch()
 
-  const clientUrl = `${window.location.origin}/party/feedback-client?room=${roomId}`
+  const clientUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/party/feedback-client?room=${roomId}`
+    : ''
 
   return (
     <div className="min-h-screen py-8">

@@ -13,3 +13,6 @@ count.txt
 todos.json
 mcp-todos.json
 .partykit/
+
+# Local Netlify folder
+.netlify

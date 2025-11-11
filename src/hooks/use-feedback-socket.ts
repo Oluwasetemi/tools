@@ -1,6 +1,8 @@
+import type PartySocket from 'partysocket'
 import type { FeedbackSession, ServerMessage } from '@/components/ui/feedback/types'
-import PartySocket from 'partysocket'
-import { useEffect, useState } from 'react'
+import usePartySocket from 'partysocket/react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 interface UseFeedbackSocketReturn {
   readonly socket: PartySocket | null
@@ -13,19 +15,19 @@ export function useFeedbackSocket(
   roomId: string,
   host: string = 'localhost:1999',
 ): UseFeedbackSocketReturn {
-  const [socket, setSocket] = useState<PartySocket | null>(null)
   const [session, setSession] = useState<FeedbackSession | null>(null)
   const [connectionCount, setConnectionCount] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const ws = new PartySocket({
-      host,
-      room: roomId,
-      party: 'feedback',
-    })
+  const socket = usePartySocket({
+    host,
+    room: roomId,
+    party: 'feedback',
 
-    ws.addEventListener('message', (event) => {
+    onMessage(event: any) {
+      if (typeof event.data !== 'string')
+        return
+
       const data: ServerMessage = JSON.parse(event.data)
 
       switch (data.type) {
@@ -47,19 +49,20 @@ export function useFeedbackSocket(
           setError(data.message)
           break
       }
-    })
+    },
 
-    ws.addEventListener('open', () => {
+    onOpen() {
       console.warn('Connected to feedback server')
       setError(null)
-    })
+    },
 
-    setSocket(ws)
-
-    return () => {
-      ws.close()
-    }
-  }, [roomId, host])
+    onError(error) {
+      console.error('Feedback socket error:', error)
+      const errorMessage = 'Failed to connect to feedback server'
+      setError(errorMessage)
+      toast.error(errorMessage)
+    },
+  })
 
   return { socket, session, connectionCount, error }
 }

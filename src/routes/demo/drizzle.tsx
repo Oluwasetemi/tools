@@ -2,49 +2,50 @@ import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { desc } from 'drizzle-orm'
 import { db } from '@/db/index'
-import { todos } from '@/db/schema'
+import { kahootGames } from '@/db/schema'
 
-const getTodos = createServerFn({
+const getGames = createServerFn({
   method: 'GET',
 }).handler(async () => {
-  return await db.query.todos.findMany({
-    orderBy: [desc(todos.createdAt)],
+  return await db.query.kahootGames.findMany({
+    orderBy: [desc(kahootGames.createdAt)],
   })
 })
 
-const createTodo = createServerFn({
+const createGame = createServerFn({
   method: 'POST',
 })
-  .inputValidator((data: { title: string }) => data)
+  .inputValidator((data: { gameName: string }) => data)
   .handler(async ({ data }) => {
-    await db.insert(todos).values({ title: data.title })
+    const roomId = `room-${Date.now()}`
+    await db.insert(kahootGames).values({ gameName: data.gameName, roomId })
     return { success: true }
   })
 
 export const Route = createFileRoute('/demo/drizzle')({
   component: DemoDrizzle,
-  loader: async () => await getTodos(),
+  loader: async () => await getGames(),
 })
 
 function DemoDrizzle() {
   const router = useRouter()
-  const todos = Route.useLoaderData()
+  const games = Route.useLoaderData()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.target as HTMLFormElement)
-    const title = formData.get('title') as string
+    const gameName = formData.get('gameName') as string
 
-    if (!title)
+    if (!gameName)
       return
 
     try {
-      await createTodo({ data: { title } })
+      await createGame({ data: { gameName } })
       router.invalidate()
       ;(e.target as HTMLFormElement).reset()
     }
     catch (error) {
-      console.error('Failed to create todo:', error)
+      console.error('Failed to create game:', error)
     }
   }
 
@@ -87,12 +88,12 @@ function DemoDrizzle() {
           </h1>
         </div>
 
-        <h2 className="text-2xl font-bold mb-4 text-indigo-200">Todos</h2>
+        <h2 className="text-2xl font-bold mb-4 text-indigo-200">Kahoot Games</h2>
 
         <ul className="space-y-3 mb-6">
-          {todos.map(todo => (
+          {games.map(game => (
             <li
-              key={todo.id}
+              key={game.id}
               className="rounded-lg p-4 shadow-md border transition-all hover:scale-[1.02] cursor-pointer group"
               style={{
                 background:
@@ -102,18 +103,17 @@ function DemoDrizzle() {
             >
               <div className="flex items-center justify-between">
                 <span className="text-lg font-medium text-white group-hover:text-indigo-200 transition-colors">
-                  {todo.title}
+                  {game.gameName}
                 </span>
                 <span className="text-xs text-indigo-300/70">
-                  #
-                  {todo.id}
+                  Room: {game.roomId}
                 </span>
               </div>
             </li>
           ))}
-          {todos.length === 0 && (
+          {games.length === 0 && (
             <li className="text-center py-8 text-indigo-300/70">
-              No todos yet. Create one below!
+              No games yet. Create one below!
             </li>
           )}
         </ul>
@@ -121,8 +121,8 @@ function DemoDrizzle() {
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
             type="text"
-            name="title"
-            placeholder="Add a new todo..."
+            name="gameName"
+            placeholder="Add a new game..."
             className="flex-1 px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all text-white placeholder-indigo-300/50"
             style={{
               background: 'rgba(93, 103, 227, 0.1)',
@@ -138,7 +138,7 @@ function DemoDrizzle() {
               color: 'white',
             }}
           >
-            Add Todo
+            Add Game
           </button>
         </form>
 
