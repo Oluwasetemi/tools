@@ -10,21 +10,23 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as R404RouteImport } from './routes/$404'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PartyPollsRouteImport } from './routes/party.polls'
+import { Route as PartyPollVoterRouteImport } from './routes/party.poll-voter'
+import { Route as PartyKahootProjectorRouteImport } from './routes/party.kahoot-projector'
+import { Route as PartyKahootPlayerRouteImport } from './routes/party.kahoot-player'
+import { Route as PartyKahootHostRouteImport } from './routes/party.kahoot-host'
+import { Route as PartyFeelingsRouteImport } from './routes/party.feelings'
+import { Route as PartyFeedbackHostRouteImport } from './routes/party.feedback-host'
+import { Route as PartyFeedbackClientRouteImport } from './routes/party.feedback-client'
 import { Route as DemoTableRouteImport } from './routes/demo/table'
 import { Route as DemoNeonRouteImport } from './routes/demo/neon'
 import { Route as DemoMcpTodosRouteImport } from './routes/demo/mcp-todos'
 import { Route as DemoDrizzleRouteImport } from './routes/demo/drizzle'
-import { Route as DemoPartyIndexRouteImport } from './routes/demo/party.index'
+import { Route as ApiOgIndexRouteImport } from './routes/api/og/index'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
-import { Route as DemoPartyPollsRouteImport } from './routes/demo/party.polls'
-import { Route as DemoPartyKahootProjectorRouteImport } from './routes/demo/party.kahoot-projector'
-import { Route as DemoPartyKahootPlayerRouteImport } from './routes/demo/party.kahoot-player'
-import { Route as DemoPartyKahootHostRouteImport } from './routes/demo/party.kahoot-host'
-import { Route as DemoPartyFeelingsRouteImport } from './routes/demo/party.feelings'
-import { Route as DemoPartyFeedbackHostRouteImport } from './routes/demo/party.feedback-host'
-import { Route as DemoPartyFeedbackClientRouteImport } from './routes/demo/party.feedback-client'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as DemoApiMcpTodosRouteImport } from './routes/demo/api.mcp-todos'
 import { Route as ApiOgPollsRouteImport } from './routes/api/og/polls'
@@ -41,9 +43,54 @@ const McpRoute = McpRouteImport.update({
   path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const R404Route = R404RouteImport.update({
+  id: '/$404',
+  path: '/$404',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartyPollsRoute = PartyPollsRouteImport.update({
+  id: '/party/polls',
+  path: '/party/polls',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartyPollVoterRoute = PartyPollVoterRouteImport.update({
+  id: '/party/poll-voter',
+  path: '/party/poll-voter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartyKahootProjectorRoute = PartyKahootProjectorRouteImport.update({
+  id: '/party/kahoot-projector',
+  path: '/party/kahoot-projector',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartyKahootPlayerRoute = PartyKahootPlayerRouteImport.update({
+  id: '/party/kahoot-player',
+  path: '/party/kahoot-player',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartyKahootHostRoute = PartyKahootHostRouteImport.update({
+  id: '/party/kahoot-host',
+  path: '/party/kahoot-host',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartyFeelingsRoute = PartyFeelingsRouteImport.update({
+  id: '/party/feelings',
+  path: '/party/feelings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartyFeedbackHostRoute = PartyFeedbackHostRouteImport.update({
+  id: '/party/feedback-host',
+  path: '/party/feedback-host',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartyFeedbackClientRoute = PartyFeedbackClientRouteImport.update({
+  id: '/party/feedback-client',
+  path: '/party/feedback-client',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoTableRoute = DemoTableRouteImport.update({
@@ -66,9 +113,9 @@ const DemoDrizzleRoute = DemoDrizzleRouteImport.update({
   path: '/demo/drizzle',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoPartyIndexRoute = DemoPartyIndexRouteImport.update({
-  id: '/demo/party/',
-  path: '/demo/party/',
+const ApiOgIndexRoute = ApiOgIndexRouteImport.update({
+  id: '/api/og/',
+  path: '/api/og/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
@@ -79,42 +126,6 @@ const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
 const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
   id: '/demo/start/api-request',
   path: '/demo/start/api-request',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoPartyPollsRoute = DemoPartyPollsRouteImport.update({
-  id: '/demo/party/polls',
-  path: '/demo/party/polls',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoPartyKahootProjectorRoute =
-  DemoPartyKahootProjectorRouteImport.update({
-    id: '/demo/party/kahoot-projector',
-    path: '/demo/party/kahoot-projector',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const DemoPartyKahootPlayerRoute = DemoPartyKahootPlayerRouteImport.update({
-  id: '/demo/party/kahoot-player',
-  path: '/demo/party/kahoot-player',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoPartyKahootHostRoute = DemoPartyKahootHostRouteImport.update({
-  id: '/demo/party/kahoot-host',
-  path: '/demo/party/kahoot-host',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoPartyFeelingsRoute = DemoPartyFeelingsRouteImport.update({
-  id: '/demo/party/feelings',
-  path: '/demo/party/feelings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoPartyFeedbackHostRoute = DemoPartyFeedbackHostRouteImport.update({
-  id: '/demo/party/feedback-host',
-  path: '/demo/party/feedback-host',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoPartyFeedbackClientRoute = DemoPartyFeedbackClientRouteImport.update({
-  id: '/demo/party/feedback-client',
-  path: '/demo/party/feedback-client',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
@@ -170,27 +181,29 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$404': typeof R404Route
   '/mcp': typeof McpRoute
   '/demo/drizzle': typeof DemoDrizzleRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/neon': typeof DemoNeonRoute
   '/demo/table': typeof DemoTableRoute
+  '/party/feedback-client': typeof PartyFeedbackClientRoute
+  '/party/feedback-host': typeof PartyFeedbackHostRoute
+  '/party/feelings': typeof PartyFeelingsRoute
+  '/party/kahoot-host': typeof PartyKahootHostRoute
+  '/party/kahoot-player': typeof PartyKahootPlayerRoute
+  '/party/kahoot-projector': typeof PartyKahootProjectorRoute
+  '/party/poll-voter': typeof PartyPollVoterRoute
+  '/party/polls': typeof PartyPollsRoute
   '/api/og/feedback': typeof ApiOgFeedbackRoute
   '/api/og/feelings': typeof ApiOgFeelingsRoute
   '/api/og/kahoot': typeof ApiOgKahootRoute
   '/api/og/polls': typeof ApiOgPollsRoute
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/party/feedback-client': typeof DemoPartyFeedbackClientRoute
-  '/demo/party/feedback-host': typeof DemoPartyFeedbackHostRoute
-  '/demo/party/feelings': typeof DemoPartyFeelingsRoute
-  '/demo/party/kahoot-host': typeof DemoPartyKahootHostRoute
-  '/demo/party/kahoot-player': typeof DemoPartyKahootPlayerRoute
-  '/demo/party/kahoot-projector': typeof DemoPartyKahootProjectorRoute
-  '/demo/party/polls': typeof DemoPartyPollsRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/demo/party': typeof DemoPartyIndexRoute
+  '/api/og': typeof ApiOgIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -198,27 +211,29 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$404': typeof R404Route
   '/mcp': typeof McpRoute
   '/demo/drizzle': typeof DemoDrizzleRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/neon': typeof DemoNeonRoute
   '/demo/table': typeof DemoTableRoute
+  '/party/feedback-client': typeof PartyFeedbackClientRoute
+  '/party/feedback-host': typeof PartyFeedbackHostRoute
+  '/party/feelings': typeof PartyFeelingsRoute
+  '/party/kahoot-host': typeof PartyKahootHostRoute
+  '/party/kahoot-player': typeof PartyKahootPlayerRoute
+  '/party/kahoot-projector': typeof PartyKahootProjectorRoute
+  '/party/poll-voter': typeof PartyPollVoterRoute
+  '/party/polls': typeof PartyPollsRoute
   '/api/og/feedback': typeof ApiOgFeedbackRoute
   '/api/og/feelings': typeof ApiOgFeelingsRoute
   '/api/og/kahoot': typeof ApiOgKahootRoute
   '/api/og/polls': typeof ApiOgPollsRoute
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/party/feedback-client': typeof DemoPartyFeedbackClientRoute
-  '/demo/party/feedback-host': typeof DemoPartyFeedbackHostRoute
-  '/demo/party/feelings': typeof DemoPartyFeelingsRoute
-  '/demo/party/kahoot-host': typeof DemoPartyKahootHostRoute
-  '/demo/party/kahoot-player': typeof DemoPartyKahootPlayerRoute
-  '/demo/party/kahoot-projector': typeof DemoPartyKahootProjectorRoute
-  '/demo/party/polls': typeof DemoPartyPollsRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/demo/party': typeof DemoPartyIndexRoute
+  '/api/og': typeof ApiOgIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -227,27 +242,29 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$404': typeof R404Route
   '/mcp': typeof McpRoute
   '/demo/drizzle': typeof DemoDrizzleRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/neon': typeof DemoNeonRoute
   '/demo/table': typeof DemoTableRoute
+  '/party/feedback-client': typeof PartyFeedbackClientRoute
+  '/party/feedback-host': typeof PartyFeedbackHostRoute
+  '/party/feelings': typeof PartyFeelingsRoute
+  '/party/kahoot-host': typeof PartyKahootHostRoute
+  '/party/kahoot-player': typeof PartyKahootPlayerRoute
+  '/party/kahoot-projector': typeof PartyKahootProjectorRoute
+  '/party/poll-voter': typeof PartyPollVoterRoute
+  '/party/polls': typeof PartyPollsRoute
   '/api/og/feedback': typeof ApiOgFeedbackRoute
   '/api/og/feelings': typeof ApiOgFeelingsRoute
   '/api/og/kahoot': typeof ApiOgKahootRoute
   '/api/og/polls': typeof ApiOgPollsRoute
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/party/feedback-client': typeof DemoPartyFeedbackClientRoute
-  '/demo/party/feedback-host': typeof DemoPartyFeedbackHostRoute
-  '/demo/party/feelings': typeof DemoPartyFeelingsRoute
-  '/demo/party/kahoot-host': typeof DemoPartyKahootHostRoute
-  '/demo/party/kahoot-player': typeof DemoPartyKahootPlayerRoute
-  '/demo/party/kahoot-projector': typeof DemoPartyKahootProjectorRoute
-  '/demo/party/polls': typeof DemoPartyPollsRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/demo/party/': typeof DemoPartyIndexRoute
+  '/api/og/': typeof ApiOgIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -257,27 +274,29 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$404'
     | '/mcp'
     | '/demo/drizzle'
     | '/demo/mcp-todos'
     | '/demo/neon'
     | '/demo/table'
+    | '/party/feedback-client'
+    | '/party/feedback-host'
+    | '/party/feelings'
+    | '/party/kahoot-host'
+    | '/party/kahoot-player'
+    | '/party/kahoot-projector'
+    | '/party/poll-voter'
+    | '/party/polls'
     | '/api/og/feedback'
     | '/api/og/feelings'
     | '/api/og/kahoot'
     | '/api/og/polls'
     | '/demo/api/mcp-todos'
     | '/demo/api/names'
-    | '/demo/party/feedback-client'
-    | '/demo/party/feedback-host'
-    | '/demo/party/feelings'
-    | '/demo/party/kahoot-host'
-    | '/demo/party/kahoot-player'
-    | '/demo/party/kahoot-projector'
-    | '/demo/party/polls'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
-    | '/demo/party'
+    | '/api/og'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -285,27 +304,29 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$404'
     | '/mcp'
     | '/demo/drizzle'
     | '/demo/mcp-todos'
     | '/demo/neon'
     | '/demo/table'
+    | '/party/feedback-client'
+    | '/party/feedback-host'
+    | '/party/feelings'
+    | '/party/kahoot-host'
+    | '/party/kahoot-player'
+    | '/party/kahoot-projector'
+    | '/party/poll-voter'
+    | '/party/polls'
     | '/api/og/feedback'
     | '/api/og/feelings'
     | '/api/og/kahoot'
     | '/api/og/polls'
     | '/demo/api/mcp-todos'
     | '/demo/api/names'
-    | '/demo/party/feedback-client'
-    | '/demo/party/feedback-host'
-    | '/demo/party/feelings'
-    | '/demo/party/kahoot-host'
-    | '/demo/party/kahoot-player'
-    | '/demo/party/kahoot-projector'
-    | '/demo/party/polls'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
-    | '/demo/party'
+    | '/api/og'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -313,27 +334,29 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$404'
     | '/mcp'
     | '/demo/drizzle'
     | '/demo/mcp-todos'
     | '/demo/neon'
     | '/demo/table'
+    | '/party/feedback-client'
+    | '/party/feedback-host'
+    | '/party/feelings'
+    | '/party/kahoot-host'
+    | '/party/kahoot-player'
+    | '/party/kahoot-projector'
+    | '/party/poll-voter'
+    | '/party/polls'
     | '/api/og/feedback'
     | '/api/og/feelings'
     | '/api/og/kahoot'
     | '/api/og/polls'
     | '/demo/api/mcp-todos'
     | '/demo/api/names'
-    | '/demo/party/feedback-client'
-    | '/demo/party/feedback-host'
-    | '/demo/party/feelings'
-    | '/demo/party/kahoot-host'
-    | '/demo/party/kahoot-player'
-    | '/demo/party/kahoot-projector'
-    | '/demo/party/polls'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
-    | '/demo/party/'
+    | '/api/og/'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -342,27 +365,29 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  R404Route: typeof R404Route
   McpRoute: typeof McpRoute
   DemoDrizzleRoute: typeof DemoDrizzleRoute
   DemoMcpTodosRoute: typeof DemoMcpTodosRoute
   DemoNeonRoute: typeof DemoNeonRoute
   DemoTableRoute: typeof DemoTableRoute
+  PartyFeedbackClientRoute: typeof PartyFeedbackClientRoute
+  PartyFeedbackHostRoute: typeof PartyFeedbackHostRoute
+  PartyFeelingsRoute: typeof PartyFeelingsRoute
+  PartyKahootHostRoute: typeof PartyKahootHostRoute
+  PartyKahootPlayerRoute: typeof PartyKahootPlayerRoute
+  PartyKahootProjectorRoute: typeof PartyKahootProjectorRoute
+  PartyPollVoterRoute: typeof PartyPollVoterRoute
+  PartyPollsRoute: typeof PartyPollsRoute
   ApiOgFeedbackRoute: typeof ApiOgFeedbackRoute
   ApiOgFeelingsRoute: typeof ApiOgFeelingsRoute
   ApiOgKahootRoute: typeof ApiOgKahootRoute
   ApiOgPollsRoute: typeof ApiOgPollsRoute
   DemoApiMcpTodosRoute: typeof DemoApiMcpTodosRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
-  DemoPartyFeedbackClientRoute: typeof DemoPartyFeedbackClientRoute
-  DemoPartyFeedbackHostRoute: typeof DemoPartyFeedbackHostRoute
-  DemoPartyFeelingsRoute: typeof DemoPartyFeelingsRoute
-  DemoPartyKahootHostRoute: typeof DemoPartyKahootHostRoute
-  DemoPartyKahootPlayerRoute: typeof DemoPartyKahootPlayerRoute
-  DemoPartyKahootProjectorRoute: typeof DemoPartyKahootProjectorRoute
-  DemoPartyPollsRoute: typeof DemoPartyPollsRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
-  DemoPartyIndexRoute: typeof DemoPartyIndexRoute
+  ApiOgIndexRoute: typeof ApiOgIndexRoute
   DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
   DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
   DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
@@ -378,11 +403,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$404': {
+      id: '/$404'
+      path: '/$404'
+      fullPath: '/$404'
+      preLoaderRoute: typeof R404RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/party/polls': {
+      id: '/party/polls'
+      path: '/party/polls'
+      fullPath: '/party/polls'
+      preLoaderRoute: typeof PartyPollsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/party/poll-voter': {
+      id: '/party/poll-voter'
+      path: '/party/poll-voter'
+      fullPath: '/party/poll-voter'
+      preLoaderRoute: typeof PartyPollVoterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/party/kahoot-projector': {
+      id: '/party/kahoot-projector'
+      path: '/party/kahoot-projector'
+      fullPath: '/party/kahoot-projector'
+      preLoaderRoute: typeof PartyKahootProjectorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/party/kahoot-player': {
+      id: '/party/kahoot-player'
+      path: '/party/kahoot-player'
+      fullPath: '/party/kahoot-player'
+      preLoaderRoute: typeof PartyKahootPlayerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/party/kahoot-host': {
+      id: '/party/kahoot-host'
+      path: '/party/kahoot-host'
+      fullPath: '/party/kahoot-host'
+      preLoaderRoute: typeof PartyKahootHostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/party/feelings': {
+      id: '/party/feelings'
+      path: '/party/feelings'
+      fullPath: '/party/feelings'
+      preLoaderRoute: typeof PartyFeelingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/party/feedback-host': {
+      id: '/party/feedback-host'
+      path: '/party/feedback-host'
+      fullPath: '/party/feedback-host'
+      preLoaderRoute: typeof PartyFeedbackHostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/party/feedback-client': {
+      id: '/party/feedback-client'
+      path: '/party/feedback-client'
+      fullPath: '/party/feedback-client'
+      preLoaderRoute: typeof PartyFeedbackClientRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/table': {
@@ -413,11 +501,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoDrizzleRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/party/': {
-      id: '/demo/party/'
-      path: '/demo/party'
-      fullPath: '/demo/party'
-      preLoaderRoute: typeof DemoPartyIndexRouteImport
+    '/api/og/': {
+      id: '/api/og/'
+      path: '/api/og'
+      fullPath: '/api/og'
+      preLoaderRoute: typeof ApiOgIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/start/server-funcs': {
@@ -432,55 +520,6 @@ declare module '@tanstack/react-router' {
       path: '/demo/start/api-request'
       fullPath: '/demo/start/api-request'
       preLoaderRoute: typeof DemoStartApiRequestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/party/polls': {
-      id: '/demo/party/polls'
-      path: '/demo/party/polls'
-      fullPath: '/demo/party/polls'
-      preLoaderRoute: typeof DemoPartyPollsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/party/kahoot-projector': {
-      id: '/demo/party/kahoot-projector'
-      path: '/demo/party/kahoot-projector'
-      fullPath: '/demo/party/kahoot-projector'
-      preLoaderRoute: typeof DemoPartyKahootProjectorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/party/kahoot-player': {
-      id: '/demo/party/kahoot-player'
-      path: '/demo/party/kahoot-player'
-      fullPath: '/demo/party/kahoot-player'
-      preLoaderRoute: typeof DemoPartyKahootPlayerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/party/kahoot-host': {
-      id: '/demo/party/kahoot-host'
-      path: '/demo/party/kahoot-host'
-      fullPath: '/demo/party/kahoot-host'
-      preLoaderRoute: typeof DemoPartyKahootHostRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/party/feelings': {
-      id: '/demo/party/feelings'
-      path: '/demo/party/feelings'
-      fullPath: '/demo/party/feelings'
-      preLoaderRoute: typeof DemoPartyFeelingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/party/feedback-host': {
-      id: '/demo/party/feedback-host'
-      path: '/demo/party/feedback-host'
-      fullPath: '/demo/party/feedback-host'
-      preLoaderRoute: typeof DemoPartyFeedbackHostRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/party/feedback-client': {
-      id: '/demo/party/feedback-client'
-      path: '/demo/party/feedback-client'
-      fullPath: '/demo/party/feedback-client'
-      preLoaderRoute: typeof DemoPartyFeedbackClientRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/api/names': {
@@ -558,27 +597,29 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  R404Route: R404Route,
   McpRoute: McpRoute,
   DemoDrizzleRoute: DemoDrizzleRoute,
   DemoMcpTodosRoute: DemoMcpTodosRoute,
   DemoNeonRoute: DemoNeonRoute,
   DemoTableRoute: DemoTableRoute,
+  PartyFeedbackClientRoute: PartyFeedbackClientRoute,
+  PartyFeedbackHostRoute: PartyFeedbackHostRoute,
+  PartyFeelingsRoute: PartyFeelingsRoute,
+  PartyKahootHostRoute: PartyKahootHostRoute,
+  PartyKahootPlayerRoute: PartyKahootPlayerRoute,
+  PartyKahootProjectorRoute: PartyKahootProjectorRoute,
+  PartyPollVoterRoute: PartyPollVoterRoute,
+  PartyPollsRoute: PartyPollsRoute,
   ApiOgFeedbackRoute: ApiOgFeedbackRoute,
   ApiOgFeelingsRoute: ApiOgFeelingsRoute,
   ApiOgKahootRoute: ApiOgKahootRoute,
   ApiOgPollsRoute: ApiOgPollsRoute,
   DemoApiMcpTodosRoute: DemoApiMcpTodosRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,
-  DemoPartyFeedbackClientRoute: DemoPartyFeedbackClientRoute,
-  DemoPartyFeedbackHostRoute: DemoPartyFeedbackHostRoute,
-  DemoPartyFeelingsRoute: DemoPartyFeelingsRoute,
-  DemoPartyKahootHostRoute: DemoPartyKahootHostRoute,
-  DemoPartyKahootPlayerRoute: DemoPartyKahootPlayerRoute,
-  DemoPartyKahootProjectorRoute: DemoPartyKahootProjectorRoute,
-  DemoPartyPollsRoute: DemoPartyPollsRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
-  DemoPartyIndexRoute: DemoPartyIndexRoute,
+  ApiOgIndexRoute: ApiOgIndexRoute,
   DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
   DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
   DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,

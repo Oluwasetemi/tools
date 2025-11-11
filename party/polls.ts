@@ -1,4 +1,5 @@
 import type * as Party from 'partykit/server'
+import { timestamp } from '@setemiojo/utils'
 
 // Types for poll messages
 interface PollOption {
@@ -135,7 +136,7 @@ export default class PollsServer implements Party.Server {
       })),
       isActive: true,
       createdBy: sender.id,
-      createdAt: Date.now(),
+      createdAt: timestamp(),
     }
 
     // Reset voters

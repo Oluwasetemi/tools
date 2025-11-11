@@ -1,6 +1,6 @@
-Welcome to your new TanStack app!
+# Tools
 
-# Getting Started
+## Getting Started
 
 To run this application:
 
@@ -9,7 +9,7 @@ bun install
 bun --bun run start
 ```
 
-# Building For Production
+## Building For Production
 
 To build this application for production:
 

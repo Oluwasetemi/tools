@@ -1,4 +1,5 @@
 import type * as Party from 'partykit/server'
+import { timestamp } from '@setemiojo/utils'
 
 // Types for Kahoot game
 interface Player {
@@ -191,7 +192,7 @@ export default class KahootServer implements Party.Server {
       state: 'waiting',
       players: new Map(),
       createdBy: sender.id,
-      createdAt: Date.now(),
+      createdAt: timestamp(),
     }
 
     await this.saveGameState()
@@ -318,7 +319,7 @@ export default class KahootServer implements Party.Server {
     if (!question)
       return
 
-    this.game.questionStartTime = Date.now()
+    this.game.questionStartTime = timestamp()
     this.answeredPlayers.clear()
 
     // Send question without correct answer
@@ -388,7 +389,7 @@ export default class KahootServer implements Party.Server {
     let points = 0
 
     if (correct && this.game.questionStartTime) {
-      const timeElapsed = (Date.now() - this.game.questionStartTime) / 1000
+      const timeElapsed = (timestamp() - this.game.questionStartTime) / 1000
       const timeRemaining = Math.max(0, question.timeLimit - timeElapsed)
       // Award more points for faster answers
       const speedBonus = timeRemaining / question.timeLimit

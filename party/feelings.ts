@@ -1,4 +1,5 @@
 import type * as Party from 'partykit/server'
+import { timestamp } from '@setemiojo/utils'
 
 interface EmojiMessage {
   type: 'emoji_pop'
@@ -35,7 +36,7 @@ export default class FeelingsServer implements Party.Server {
             type: 'emoji_pop',
             emoji: data.emoji,
             userId: sender.id,
-            timestamp: Date.now(),
+            timestamp: timestamp(),
             x: data.x || Math.random() * 100,
             y: data.y || Math.random() * 100,
           }

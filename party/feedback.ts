@@ -1,4 +1,5 @@
 import type * as Party from 'partykit/server'
+import { timestamp } from '@setemiojo/utils'
 
 // Types for Feedback
 type FeedbackType = 'emoji' | 'text' | 'score'
@@ -178,7 +179,7 @@ export default class FeedbackServer implements Party.Server {
       title: data.title,
       type: data.feedbackType,
       createdBy: sender.id,
-      createdAt: Date.now(),
+      createdAt: timestamp(),
       isActive: true,
     }
 
@@ -339,7 +340,7 @@ export default class FeedbackServer implements Party.Server {
     const textResponse: TextResponse = {
       id: crypto.randomUUID(),
       text: data.text.trim(),
-      timestamp: Date.now(),
+      timestamp: timestamp(),
     }
 
     this.session.textResponses?.push(textResponse)
