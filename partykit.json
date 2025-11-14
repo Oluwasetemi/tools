@@ -2,7 +2,7 @@
   "$schema": "https://www.partykit.io/schema.json",
   "name": "tools",
   "main": "party/index.ts",
-  "compatibilityDate": "2025-09-26",
+  "compatibilityDate": "2025-09-02",
   "parties": {
     "polls": "party/polls.ts",
     "kahoot": "party/kahoot.ts",

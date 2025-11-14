@@ -32,7 +32,7 @@ type ServerMessage
 
 export default class PollsServer implements Party.Server {
   private poll: Poll | null = null
-  private voters: Set<string> = new Set()
+  private voters = new Set<string>()
 
   constructor(readonly room: Party.Room) {}
 
@@ -71,7 +71,7 @@ export default class PollsServer implements Party.Server {
     this.broadcastConnectionCount()
   }
 
-  onClose(conn: Party.Connection) {
+  onClose(_conn: Party.Connection) {
     this.broadcastConnectionCount()
   }
 

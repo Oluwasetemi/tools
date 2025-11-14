@@ -263,134 +263,169 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
 
   if (!gameCreated) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">Create Kahoot Game</h1>
+      <form onSubmit={(e) => { e.preventDefault(); createGame(); }}>
+        <div className="space-y-12">
+          {/* Game Settings Section */}
+          <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
+            <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">Game Settings</h2>
+            <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+              Set up your Kahoot game with a memorable name and engaging questions.
+            </p>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+            {error && (
+              <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+                {error}
+              </div>
+            )}
+
+            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <div className="sm:col-span-4">
+                <Field>
+                  <Label>Game Name</Label>
+                  <Input
+                    type="text"
+                    value={gameName}
+                    onChange={e => setGameName(e.target.value)}
+                    placeholder="Enter game name..."
+                    required
+                  />
+                </Field>
+              </div>
+            </div>
           </div>
-        )}
 
-        <div className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6 mb-6">
-          <Field>
-            <Label>Game Name</Label>
-            <Input
-              type="text"
-              value={gameName}
-              onChange={e => setGameName(e.target.value)}
-              placeholder="Enter game name..."
-            />
-          </Field>
-        </div>
-
-        <div className="space-y-6 mb-6">
+          {/* Questions Section */}
           {questions.map((question, qIndex) => (
-            <div key={qIndex} className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">
-                  Question
-                  {qIndex + 1}
-                </h3>
+            <div key={qIndex} className="border-b border-gray-900/10 pb-12 dark:border-white/10">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">
+                    Question
+                    {' '}
+                    {qIndex + 1}
+                  </h2>
+                  <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+                    Add a question with multiple choice options and set the correct answer.
+                  </p>
+                </div>
                 {questions.length > 1 && (
                   <Button
+                    type="button"
                     onClick={() => removeQuestion(qIndex)}
                     color="red"
+                    outline
                   >
                     Remove
                   </Button>
                 )}
               </div>
 
-              <Field className="mb-4">
-                <Label>Question</Label>
-                <Input
-                  type="text"
-                  value={question.question}
-                  onChange={e => updateQuestion(qIndex, 'question', e.target.value)}
-                  placeholder="Enter your question..."
-                />
-              </Field>
-
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                {question.options.map((option, optIndex) => (
-                  <Field key={optIndex}>
-                    <Label>
-                      Option
-                      {' '}
-                      {optIndex + 1}
-                    </Label>
-                    <div className={question.correctAnswer === optIndex ? 'rounded-lg before:!bg-green-50 dark:before:!bg-green-950 [&_input]:!border-green-500 dark:[&_input]:!border-green-400 [&_input]:dark:!bg-green-950/30' : ''}>
-                      <Input
-                        type="text"
-                        value={option}
-                        onChange={e => updateOption(qIndex, optIndex, e.target.value)}
-                        placeholder={`Option ${optIndex + 1}`}
-                      />
-                    </div>
+              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                <div className="col-span-full">
+                  <Field>
+                    <Label>Question</Label>
+                    <Input
+                      type="text"
+                      value={question.question}
+                      onChange={e => updateQuestion(qIndex, 'question', e.target.value)}
+                      placeholder="Enter your question..."
+                      required
+                    />
                   </Field>
-                ))}
-              </div>
+                </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <Field>
-                  <Label>Correct Answer</Label>
-                  <Select
-                    value={question.correctAnswer}
-                    onChange={e =>
-                      updateQuestion(qIndex, 'correctAnswer', Number(e.target.value))}
-                  >
-                    {question.options.map((_, i) => (
-                      <option key={i} value={i}>
+                {/* Options Grid */}
+                {question.options.map((option, optIndex) => (
+                  <div key={optIndex} className="sm:col-span-3">
+                    <Field>
+                      <Label>
                         Option
                         {' '}
-                        {i + 1}
-                      </option>
-                    ))}
-                  </Select>
-                </Field>
-                <Field>
-                  <Label>Time Limit (s)</Label>
-                  <Input
-                    type="number"
-                    value={question.timeLimit}
-                    onChange={e =>
-                      updateQuestion(qIndex, 'timeLimit', Number(e.target.value))}
-                    min="5"
-                    max="120"
-                  />
-                </Field>
-                <Field>
-                  <Label>Points</Label>
-                  <Input
-                    type="number"
-                    value={question.points}
-                    onChange={e =>
-                      updateQuestion(qIndex, 'points', Number(e.target.value))}
-                    min="100"
-                    step="100"
-                  />
-                </Field>
+                        {optIndex + 1}
+                      </Label>
+                      <div className={question.correctAnswer === optIndex ? 'rounded-lg before:!bg-green-50 dark:before:!bg-green-950 [&_input]:!border-green-500 dark:[&_input]:!border-green-400 [&_input]:dark:!bg-green-950/30' : ''}>
+                        <Input
+                          type="text"
+                          value={option}
+                          onChange={e => updateOption(qIndex, optIndex, e.target.value)}
+                          placeholder={`Option ${optIndex + 1}`}
+                          required
+                        />
+                      </div>
+                    </Field>
+                  </div>
+                ))}
+
+                {/* Settings */}
+                <div className="sm:col-span-2">
+                  <Field>
+                    <Label>Correct Answer</Label>
+                    <Select
+                      name={`correct-answer-${qIndex}`}
+                      value={question.correctAnswer.toString()}
+                      onChange={e =>
+                        updateQuestion(qIndex, 'correctAnswer', Number(e.target.value))}
+                    >
+                      {question.options.map((_, i) => (
+                        <option key={i} value={i.toString()}>
+                          Option
+                          {' '}
+                          {i + 1}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <Field>
+                    <Label>Time Limit (seconds)</Label>
+                    <Input
+                      type="number"
+                      value={question.timeLimit}
+                      onChange={e =>
+                        updateQuestion(qIndex, 'timeLimit', Number(e.target.value))}
+                      min="5"
+                      max="120"
+                    />
+                  </Field>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <Field>
+                    <Label>Points</Label>
+                    <Input
+                      type="number"
+                      value={question.points}
+                      onChange={e =>
+                        updateQuestion(qIndex, 'points', Number(e.target.value))}
+                      min="100"
+                      step="100"
+                    />
+                  </Field>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="flex gap-4">
+        {/* Action Buttons */}
+        <div className="mt-6 flex items-center justify-end gap-x-6">
           <Button
+            type="button"
             onClick={addQuestion}
             outline
           >
             Add Question
           </Button>
           <Button
-            onClick={createGame}
+            type="submit"
             color="purple"
           >
             Create Game
           </Button>
         </div>
-      </div>
+      </form>
     )
   }
 

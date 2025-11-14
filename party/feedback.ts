@@ -1,7 +1,6 @@
 import type * as Party from 'partykit/server'
 import { timestamp } from '@setemiojo/utils'
 
-// Types for Feedback
 type FeedbackType = 'emoji' | 'text' | 'score'
 
 interface EmojiOption {
@@ -67,7 +66,7 @@ export default class FeedbackServer implements Party.Server {
   constructor(readonly room: Party.Room) {}
 
   async onStart() {
-    // Load session state from storage
+    // TODO: performance
     const storedSession = await this.room.storage.get<FeedbackSession>('session')
     if (storedSession) {
       this.session = storedSession
@@ -85,14 +84,13 @@ export default class FeedbackServer implements Party.Server {
   }
 
   onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
-    console.log(
+    console.warn(
       `Connected to feedback room:
   id: ${conn.id}
   room: ${this.room.id}
   url: ${new URL(ctx.request.url).pathname}`,
     )
 
-    // Send current session state to new connection
     if (this.session) {
       conn.send(
         JSON.stringify({
@@ -102,7 +100,6 @@ export default class FeedbackServer implements Party.Server {
       )
     }
 
-    // Track responder
     if (!this.responders.has(conn.id)) {
       this.responders.set(conn.id, { id: conn.id, hasResponded: false })
     }
@@ -110,7 +107,7 @@ export default class FeedbackServer implements Party.Server {
     this.broadcastConnectionCount()
   }
 
-  onClose(conn: Party.Connection) {
+  onClose(_conn: Party.Connection) {
     this.broadcastConnectionCount()
   }
 
@@ -147,11 +144,13 @@ export default class FeedbackServer implements Party.Server {
           break
       }
     }
-    catch (error) {
+    catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Invalid message format'
+
       sender.send(
         JSON.stringify({
           type: 'error',
-          message: 'Invalid message format',
+          message: errorMessage,
         } as ServerMessage),
       )
     }
