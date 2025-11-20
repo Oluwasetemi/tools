@@ -1,6 +1,7 @@
+import type PartySocket from 'partysocket'
 import { isTruthy } from '@setemiojo/utils'
-import PartySocket from 'partysocket'
-import { useEffect, useState } from 'react'
+import usePartySocket from 'partysocket/react'
+import { useState } from 'react'
 import { Button } from '@/components/button'
 import { Field, Label } from '@/components/fieldset'
 import { Input } from '@/components/input'
@@ -33,7 +34,6 @@ interface PollHostProps {
 }
 
 export function PollHost({ roomId, host = 'localhost:1999' }: PollHostProps) {
-  const [socket, setSocket] = useState<PartySocket | null>(null)
   const [poll, setPoll] = useState<Poll | null>(null)
   const [connectionCount, setConnectionCount] = useState(0)
   const [error, setError] = useState<string | null>(null)
@@ -43,14 +43,15 @@ export function PollHost({ roomId, host = 'localhost:1999' }: PollHostProps) {
   const [question, setQuestion] = useState('')
   const [options, setOptions] = useState(['', ''])
 
-  useEffect(() => {
-    const ws = new PartySocket({
-      host,
-      room: roomId,
-      party: 'polls',
-    })
+  const socket = usePartySocket({
+    host,
+    room: roomId,
+    party: 'polls',
 
-    ws.addEventListener('message', (event) => {
+    onMessage(event: any) {
+      if (typeof event.data !== 'string')
+        return
+
       const data: ServerMessage = JSON.parse(event.data)
 
       switch (data.type) {
@@ -75,23 +76,17 @@ export function PollHost({ roomId, host = 'localhost:1999' }: PollHostProps) {
           setConnectionCount(data.count)
           break
       }
-    })
+    },
 
-    ws.addEventListener('open', () => {
+    onOpen() {
       console.warn('Connected to poll server')
       setError(null)
-    })
+    },
 
-    ws.addEventListener('error', () => {
+    onError() {
       setError('Connection error')
-    })
-
-    setSocket(ws)
-
-    return () => {
-      ws.close()
-    }
-  }, [roomId, host])
+    },
+  })
 
   const createPoll = () => {
     if (!socket || !question || options.some(opt => !opt.trim())) {
@@ -142,9 +137,9 @@ export function PollHost({ roomId, host = 'localhost:1999' }: PollHostProps) {
   const totalVotes = poll?.options.reduce((sum, opt) => sum + opt.votes, 0) || 0
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Poll Dashboard</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Poll Dashboard</h2>
         <span className="text-sm text-gray-600 dark:text-gray-400">
           {connectionCount}
           {' '}
@@ -162,65 +157,102 @@ export function PollHost({ roomId, host = 'localhost:1999' }: PollHostProps) {
 
       {!poll
         ? (
-            <div className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6">
-              <h3 className="text-xl font-semibold mb-4">Create a New Poll</h3>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                createPoll()
+              }}
+              className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6"
+            >
+              <div className="space-y-12">
+                {/* Poll Settings Section */}
+                <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
+                  <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">Poll Settings</h2>
+                  <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+                    Create an engaging poll with a clear question and multiple choice options.
+                  </p>
 
-              <Field className="mb-4">
-                <Label>Question</Label>
-                <Input
-                  type="text"
-                  value={question}
-                  onChange={e => setQuestion(e.target.value)}
-                  placeholder="Enter your question..."
-                />
-              </Field>
-
-              <Field className="mb-4">
-                <Label>Options</Label>
-                <div className="space-y-2">
-                  {options.map((option, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
-                        type="text"
-                        value={option}
-                        onChange={e => updateOption(index, e.target.value)}
-                        placeholder={`Option ${index + 1}`}
-                      />
-                      {options.length > 2 && (
-                        <Button
-                          onClick={() => removeOption(index)}
-                          outline
-                          className="text-red-600! dark:text-red-400! border-red-600! dark:border-red-400!"
-                        >
-                          Remove
-                        </Button>
-                      )}
+                  <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                    <div className="sm:col-span-6">
+                      <Field>
+                        <Label>Question</Label>
+                        <Input
+                          type="text"
+                          value={question}
+                          onChange={e => setQuestion(e.target.value)}
+                          placeholder="Enter your poll question..."
+                          required
+                        />
+                      </Field>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </Field>
 
-              <div className="flex gap-2">
+                {/* Options Section */}
+                <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
+                  <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">Poll Options</h2>
+                  <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+                    Add at least two options for participants to choose from.
+                  </p>
+
+                  <div className="mt-10 space-y-4">
+                    {options.map((option, index) => (
+                      <div key={index} className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                        <div className="sm:col-span-5">
+                          <Field>
+                            <Label>Option {index + 1}</Label>
+                            <Input
+                              type="text"
+                              value={option}
+                              onChange={e => updateOption(index, e.target.value)}
+                              placeholder={`Enter option ${index + 1}`}
+                              required
+                            />
+                          </Field>
+                        </div>
+                        <div className="sm:col-span-1 flex items-end">
+                          {options.length > 2 && (
+                            <Button
+                              type="button"
+                              onClick={() => removeOption(index)}
+                              outline
+                              className="text-red-600! dark:text-red-400! border-red-600! dark:border-red-400! w-full"
+                            >
+                              Remove
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-6">
+                    <Button
+                      type="button"
+                      onClick={addOption}
+                      outline
+                    >
+                      Add Option
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex items-center justify-end gap-x-6">
                 <Button
-                  onClick={addOption}
-                  outline
-                >
-                  Add Option
-                </Button>
-                <Button
-                  onClick={createPoll}
+                  type="submit"
                   disabled={isCreating}
                   color="blue"
                 >
                   {isCreating ? 'Creating...' : 'Create Poll'}
                 </Button>
               </div>
-            </div>
+            </form>
           )
         : (
             <div className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">{poll.question}</h3>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{poll.question}</h3>
                 {poll.isActive
                   ? (
                       <span className="text-green-600 dark:text-green-400 text-sm font-medium">
@@ -249,7 +281,7 @@ export function PollHost({ roomId, host = 'localhost:1999' }: PollHostProps) {
                         style={{ width: `${percentage}%` }}
                       />
                       <div className="relative px-4 py-3 flex justify-between items-center">
-                        <span className="font-medium">{option.text}</span>
+                        <span className="font-medium text-gray-900 dark:text-white">{option.text}</span>
                         <span className="text-sm text-gray-600 dark:text-gray-400">
                           {option.votes}
                           {' '}

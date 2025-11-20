@@ -67,15 +67,15 @@ export default class FeedbackServer implements Party.Server {
 
   async onStart() {
     // TODO: performance
-    const storedSession = await this.room.storage.get<FeedbackSession>('session')
-    if (storedSession) {
-      this.session = storedSession
-    }
+    // const storedSession = await this.room.storage.get<FeedbackSession>('session')
+    // if (storedSession) {
+    //   this.session = storedSession
+    // }
 
-    const storedResponders = await this.room.storage.get<Array<[string, Responder]>>('responders')
-    if (storedResponders) {
-      this.responders = new Map(storedResponders)
-    }
+    // const storedResponders = await this.room.storage.get<Array<[string, Responder]>>('responders')
+    // if (storedResponders) {
+    //   this.responders = new Map(storedResponders)
+    // }
 
     const storedHostId = await this.room.storage.get<string>('hostId')
     if (storedHostId) {

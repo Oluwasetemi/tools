@@ -8,7 +8,7 @@ export interface UseIntersectionObserverOptions {
 }
 
 export function useIntersectionObserver(
-  options: UseIntersectionObserverOptions = {}
+  options: UseIntersectionObserverOptions = {},
 ) {
   const {
     root = null,
@@ -23,10 +23,12 @@ export function useIntersectionObserver(
 
   useEffect(() => {
     const target = targetRef.current
-    if (!target) return
+    if (!target)
+      return
 
     // If already triggered and triggerOnce is true, don't create observer
-    if (triggerOnce && hasTriggered) return
+    if (triggerOnce && hasTriggered)
+      return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -41,7 +43,7 @@ export function useIntersectionObserver(
         root,
         rootMargin,
         threshold,
-      }
+      },
     )
 
     observer.observe(target)

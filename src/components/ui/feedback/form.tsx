@@ -31,61 +31,90 @@ export function FeedbackForm({ onSubmit, onError }: FeedbackFormProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6">
-      <h2 className="text-2xl font-semibold mb-6 text-zinc-950 dark:text-gray-100">Create Feedback Session</h2>
-      
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        handleSubmit()
+      }}
+      className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6"
+    >
+      <div className="space-y-12">
+        {/* Session Settings Section */}
+        <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
+          <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">Feedback Session Settings</h2>
+          <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+            Create a feedback session to collect responses from participants in real-time.
+          </p>
 
-      <Field className="mb-6">
-        <Label htmlFor="title">
-          Title
-        </Label>
-        <Input
-          name="title"
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-          placeholder="e.g., How was today's session?"
-        />
-      </Field>
-
-      <FeedbackTypeSelector
-        selectedType={feedbackType}
-        onTypeChange={setFeedbackType}
-      />
-
-      {feedbackType === 'score' && (
-        <div className="mb-6 grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Min Score
-            </label>
-            <Input
-              type="number"
-              value={scoreMin}
-              onChange={e => setScoreMin(Number(e.target.value))}
-              min="0"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Max Score
-            </label>
-            <Input
-              type="number"
-              value={scoreMax}
-              onChange={e => setScoreMax(Number(e.target.value))}
-              min={scoreMin + 1}
-            />
+          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <div className="sm:col-span-6">
+              <Field>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  name="title"
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  placeholder="e.g., How was today's session?"
+                  required
+                />
+              </Field>
+            </div>
           </div>
         </div>
-      )}
 
-      <Button
-        onClick={handleSubmit}
-        color="blue"
-        className="w-full"
-      >
-        Create Feedback Session
-      </Button>
-    </div>
+        {/* Feedback Type Section */}
+        <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
+          <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">Feedback Type</h2>
+          <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+            Choose the type of feedback you want to collect from participants.
+          </p>
+
+          <div className="mt-10">
+            <FeedbackTypeSelector
+              selectedType={feedbackType}
+              onTypeChange={setFeedbackType}
+            />
+          </div>
+
+          {feedbackType === 'score' && (
+            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <div className="sm:col-span-3">
+                <Field>
+                  <Label>Min Score</Label>
+                  <Input
+                    type="number"
+                    value={scoreMin}
+                    onChange={e => setScoreMin(Number(e.target.value))}
+                    min="0"
+                    required
+                  />
+                </Field>
+              </div>
+              <div className="sm:col-span-3">
+                <Field>
+                  <Label>Max Score</Label>
+                  <Input
+                    type="number"
+                    value={scoreMax}
+                    onChange={e => setScoreMax(Number(e.target.value))}
+                    min={scoreMin + 1}
+                    required
+                  />
+                </Field>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-6 flex items-center justify-end gap-x-6">
+        <Button
+          type="submit"
+          color="green"
+        >
+          Create Feedback Session
+        </Button>
+      </div>
+    </form>
   )
 }

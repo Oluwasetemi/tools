@@ -1,6 +1,7 @@
+import type PartySocket from 'partysocket'
 import { sleep } from '@setemiojo/utils'
-import PartySocket from 'partysocket'
-import { useEffect, useState } from 'react'
+import usePartySocket from 'partysocket/react'
+import { useState } from 'react'
 
 export interface FloatingEmoji {
   readonly id: string
@@ -14,20 +15,28 @@ type ServerMessage
   = | { type: 'emoji_pop', emoji: string, userId: string, timestamp: number, x: number, y: number }
     | { type: 'connection_count', count: number }
 
+interface UseFeelingsSocketReturn {
+  readonly socket: PartySocket | null
+  readonly floatingEmojis: FloatingEmoji[]
+  readonly connectionCount: number
+}
 
-export function useFeelingsSocket(roomId: string, host: string = 'localhost:1999') {
-  const [socket, setSocket] = useState<PartySocket | null>(null)
+export function useFeelingsSocket(
+  roomId: string,
+  host: string = 'localhost:1999',
+): UseFeelingsSocketReturn {
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([])
   const [connectionCount, setConnectionCount] = useState(0)
 
-  useEffect(() => {
-    const ws = new PartySocket({
-      host,
-      room: roomId,
-      party: 'feelings',
-    })
+  const socket = usePartySocket({
+    host,
+    room: roomId,
+    party: 'feelings',
 
-    ws.addEventListener('message', (event) => {
+    onMessage(event: any) {
+      if (typeof event.data !== 'string')
+        return
+
       const data: ServerMessage = JSON.parse(event.data)
 
       switch (data.type) {
@@ -55,18 +64,16 @@ export function useFeelingsSocket(roomId: string, host: string = 'localhost:1999
           setConnectionCount(data.count)
           break
       }
-    })
+    },
 
-    ws.addEventListener('open', () => {
+    onOpen() {
       console.warn('Connected to feelings server')
-    })
+    },
 
-    setSocket(ws)
-
-    return () => {
-      ws.close()
-    }
-  }, [roomId, host])
+    onError(error) {
+      console.error('Feelings socket error:', error)
+    },
+  })
 
   return { socket, floatingEmojis, connectionCount }
 }

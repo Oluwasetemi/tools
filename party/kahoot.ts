@@ -65,28 +65,28 @@ export default class KahootServer implements Party.Server {
 
   async onStart() {
     // Load game state from storage
-    const storedGame = await this.room.storage.get<{
-      id: string
-      name: string
-      questions: Question[]
-      currentQuestionIndex: number
-      state: GameState
-      players: Array<[string, Player]>
-      createdBy: string
-      createdAt: number
-    }>('game')
+    // const storedGame = await this.room.storage.get<{
+    //   id: string
+    //   name: string
+    //   questions: Question[]
+    //   currentQuestionIndex: number
+    //   state: GameState
+    //   players: Array<[string, Player]>
+    //   createdBy: string
+    //   createdAt: number
+    // }>('game')
 
-    if (storedGame) {
-      this.game = {
-        ...storedGame,
-        players: new Map(storedGame.players),
-      }
-    }
+    // if (storedGame) {
+    //   this.game = {
+    //     ...storedGame,
+    //     players: new Map(storedGame.players),
+    //   }
+    // }
 
-    const storedHostId = await this.room.storage.get<string>('hostId')
-    if (storedHostId) {
-      this.hostId = storedHostId
-    }
+    // const storedHostId = await this.room.storage.get<string>('hostId')
+    // if (storedHostId) {
+    //   this.hostId = storedHostId
+    // }
   }
 
   onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {

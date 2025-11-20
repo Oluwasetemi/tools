@@ -1,10 +1,12 @@
 import { Check } from 'lucide-react'
-import PartySocket from 'partysocket'
-import { useEffect, useState } from 'react'
+import usePartySocket from 'partysocket/react'
+import { useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/button'
 import { Field, Label } from '@/components/fieldset'
 import { Input } from '@/components/input'
 import { Select } from '@/components/select'
+import { createKahootGame } from '@/server/kahoot'
 
 interface Question {
   id: string
@@ -41,7 +43,6 @@ interface KahootHostProps {
 }
 
 export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps) {
-  const [socket, setSocket] = useState<PartySocket | null>(null)
   const [gameState, setGameState] = useState<GameState>('waiting')
   const [players, setPlayers] = useState<Player[]>([])
   const [currentQuestion, setCurrentQuestion] = useState<Omit<Question, 'correctAnswer'> | null>(null)
@@ -54,8 +55,9 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
 
   // Form state
   const [gameName, setGameName] = useState('')
-  const [questions, setQuestions] = useState<Omit<Question, 'id'>[]>([
+  const [questions, setQuestions] = useState<Question[]>([
     {
+      id: crypto.randomUUID(),
       question: '',
       options: ['', '', '', ''],
       correctAnswer: 0,
@@ -64,44 +66,18 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
     },
   ])
 
-  useEffect(() => {
-    // Request wake lock to keep screen on during game
-    let wakeLock: WakeLockSentinel | null = null
+  // Track last question count for scroll detection
+  const lastQuestionCount = useRef(questions.length)
 
-    const requestWakeLock = async () => {
-      try {
-        if ('wakeLock' in navigator) {
-          wakeLock = await navigator.wakeLock.request('screen')
-          console.warn('Screen Wake Lock activated')
+  const socket = usePartySocket({
+    host,
+    room: roomId,
+    party: 'kahoot',
 
-          wakeLock.addEventListener('release', () => {
-            console.warn('Screen Wake Lock released')
-          })
-        }
-      }
-      catch (err) {
-        console.warn('Wake Lock request failed:', err)
-      }
-    }
+    onMessage(event: any) {
+      if (typeof event.data !== 'string')
+        return
 
-    requestWakeLock()
-
-    // Re-request wake lock when page becomes visible again
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && wakeLock === null) {
-        requestWakeLock()
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
-    const ws = new PartySocket({
-      host,
-      room: roomId,
-      party: 'kahoot',
-    })
-
-    ws.addEventListener('message', (event) => {
       const data: ServerMessage = JSON.parse(event.data)
 
       switch (data.type) {
@@ -157,17 +133,51 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
           setError(data.message)
           break
       }
-    })
+    },
 
-    ws.addEventListener('open', () => {
+    onOpen() {
       console.warn('Connected to Kahoot server')
       setError(null)
-    })
+    },
 
-    setSocket(ws)
+    onError(error) {
+      console.error('Kahoot socket error:', error)
+      setError('Connection error')
+    },
+  })
+
+  // Wake lock effect
+  useEffect(() => {
+    let wakeLock: WakeLockSentinel | null = null
+
+    const requestWakeLock = async () => {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen')
+          console.warn('Screen Wake Lock activated')
+
+          wakeLock.addEventListener('release', () => {
+            console.warn('Screen Wake Lock released')
+          })
+        }
+      }
+      catch (err) {
+        console.warn('Wake Lock request failed:', err)
+      }
+    }
+
+    requestWakeLock()
+
+    // Re-request wake lock when page becomes visible again
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && wakeLock === null) {
+        requestWakeLock()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
-      ws.close()
       document.removeEventListener('visibilitychange', handleVisibilityChange)
 
       // Release wake lock on cleanup
@@ -177,9 +187,9 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
         })
       }
     }
-  }, [roomId, host])
+  }, [])
 
-  const createGame = () => {
+  const createGame = async () => {
     if (!socket || !gameName) {
       setError('Please enter a game name')
       return
@@ -194,6 +204,7 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
       return
     }
 
+    // Send to PartyKit for real-time game
     socket.send(
       JSON.stringify({
         type: 'host_create',
@@ -201,6 +212,26 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
         questions: validQuestions,
       }),
     )
+
+    // Persist to database for history
+    try {
+      await createKahootGame({
+        roomId,
+        gameName,
+        questions: validQuestions.map(q => ({
+          question: q.question,
+          options: q.options,
+          correctAnswer: q.correctAnswer,
+          timeLimit: q.timeLimit,
+          points: q.points,
+        })),
+      })
+      toast.success('Game saved to database')
+    }
+    catch (error) {
+      console.error('Failed to save game to database:', error)
+      toast.error('Game created but not saved to database')
+    }
   }
 
   const startGame = () => {
@@ -215,7 +246,7 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
     socket.send(JSON.stringify({ type: 'host_next_question' }))
   }
 
-  const endGame = () => {
+  const _endGame = () => {
     if (!socket)
       return
     socket.send(JSON.stringify({ type: 'host_end_game' }))
@@ -236,6 +267,7 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
     setQuestions([
       ...questions,
       {
+        id: crypto.randomUUID(),
         question: '',
         options: ['', '', '', ''],
         correctAnswer: 0,
@@ -261,9 +293,30 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
     setQuestions(questions.filter((_, i) => i !== index))
   }
 
+  // Ref callback to scroll and focus newly added questions
+  const questionRefCallback = (node: HTMLDivElement | null, index: number) => {
+    if (node && index === questions.length - 1 && questions.length > lastQuestionCount.current) {
+      // Scroll to the new question
+      node.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+      // Focus on the question input
+      const questionInput = node.querySelector('input[type="text"]') as HTMLInputElement
+      if (questionInput) {
+        setTimeout(() => questionInput.focus(), 300)
+      }
+
+      // Update the count
+      lastQuestionCount.current = questions.length
+    }
+  }
+
   if (!gameCreated) {
     return (
-      <form onSubmit={(e) => { e.preventDefault(); createGame(); }}>
+      <form onSubmit={(e) => {
+        e.preventDefault()
+        createGame()
+      }}
+      >
         <div className="space-y-12">
           {/* Game Settings Section */}
           <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
@@ -296,7 +349,11 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
 
           {/* Questions Section */}
           {questions.map((question, qIndex) => (
-            <div key={qIndex} className="border-b border-gray-900/10 pb-12 dark:border-white/10">
+            <div
+              key={question.id}
+              ref={node => questionRefCallback(node, qIndex)}
+              className="border-b border-gray-900/10 pb-12 dark:border-white/10"
+            >
               <div className="flex justify-between items-start">
                 <div>
                   <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">
@@ -312,8 +369,8 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
                   <Button
                     type="button"
                     onClick={() => removeQuestion(qIndex)}
-                    color="red"
                     outline
+                    className="bg-white text-red-600"
                   >
                     Remove
                   </Button>
@@ -336,6 +393,7 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
 
                 {/* Options Grid */}
                 {question.options.map((option, optIndex) => (
+                  // eslint-disable-next-line react/no-array-index-key
                   <div key={optIndex} className="sm:col-span-3">
                     <Field>
                       <Label>
@@ -343,7 +401,7 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
                         {' '}
                         {optIndex + 1}
                       </Label>
-                      <div className={question.correctAnswer === optIndex ? 'rounded-lg before:!bg-green-50 dark:before:!bg-green-950 [&_input]:!border-green-500 dark:[&_input]:!border-green-400 [&_input]:dark:!bg-green-950/30' : ''}>
+                      <div className={question.correctAnswer === optIndex ? 'rounded-lg before:bg-green-50! dark:before:bg-green-950! [&_input]:border-green-500! dark:[&_input]:border-green-400! [&_input]:dark:bg-green-950/30!' : ''}>
                         <Input
                           type="text"
                           value={option}

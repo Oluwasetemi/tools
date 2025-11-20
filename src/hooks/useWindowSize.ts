@@ -14,6 +14,7 @@ export function useWindowSize() {
     // Handler to call on window resize
     function handleResize() {
       // Set window width/height to state
+      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
       setWindowSize({
         width: window.innerWidth,
         height: window.innerHeight,

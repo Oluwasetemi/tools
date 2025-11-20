@@ -21,7 +21,7 @@ export function useResizeObserver({
     return () => {
       clearInterval(interval)
     }
-  }, [])
+  }, [rerender])
 
   useEffect(() => {
     if (!element) {
@@ -37,5 +37,5 @@ export function useResizeObserver({
     return () => {
       observer.disconnect()
     }
-  }, [element])
+  }, [element, onResize])
 }

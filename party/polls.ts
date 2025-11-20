@@ -38,15 +38,15 @@ export default class PollsServer implements Party.Server {
 
   async onStart() {
     // Load poll state from storage
-    const storedPoll = await this.room.storage.get<Poll>('poll')
-    if (storedPoll) {
-      this.poll = storedPoll
-    }
+    // const storedPoll = await this.room.storage.get<Poll>('poll')
+    // if (storedPoll) {
+    //   this.poll = storedPoll
+    // }
 
-    const storedVoters = await this.room.storage.get<string[]>('voters')
-    if (storedVoters) {
-      this.voters = new Set(storedVoters)
-    }
+    // const storedVoters = await this.room.storage.get<string[]>('voters')
+    // if (storedVoters) {
+    //   this.voters = new Set(storedVoters)
+    // }
   }
 
   onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {

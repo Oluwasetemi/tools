@@ -7,7 +7,10 @@ const EnvSchema = z.object({
 
 export type Env = z.infer<typeof EnvSchema>
 
-const { data: env, error } = EnvSchema.safeParse(import.meta.env)
+// Use process.env for server-side, import.meta.env for client-side
+const envSource = typeof process !== 'undefined' ? process.env : import.meta.env
+
+const { data: env, error } = EnvSchema.safeParse(envSource)
 
 if (error) {
   console.error('❌ Invalid environment variables:')

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { ScriptOnce } from '@tanstack/react-router'
 import { createClientOnlyFn, createIsomorphicFn } from '@tanstack/react-start'
 import * as React from 'react'
-import { createContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { THEME_COLORS } from '@/utils/utils'
 
@@ -128,19 +128,21 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   const resolvedTheme = themeMode === 'auto' ? getSystemTheme() : themeMode
 
-  const setTheme = (newTheme: ThemeMode) => {
+  const setTheme = useCallback((newTheme: ThemeMode) => {
     setThemeMode(newTheme)
     setStoredThemeMode(newTheme)
     updateThemeClass(newTheme)
-  }
+  }, [])
 
-  const toggleMode = () => {
+  const toggleMode = useCallback(() => {
     setTheme(getNextTheme(themeMode))
-  }
+  }, [themeMode, setTheme])
+
+  const themeObject = useMemo(() => ({ themeMode, resolvedTheme, setTheme, toggleMode }), [themeMode, resolvedTheme, setTheme, toggleMode])
 
   return (
     <ThemeContext
-      value={{ themeMode, resolvedTheme, setTheme, toggleMode }}
+      value={themeObject}
     >
       <ScriptOnce children={themeDetectorScript} />
       {children}
@@ -148,6 +150,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme() {
   const context = React.use(ThemeContext)
   if (!context) {

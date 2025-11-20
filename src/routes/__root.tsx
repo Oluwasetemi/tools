@@ -5,14 +5,17 @@ import { Toaster } from 'sonner'
 
 import { ThemeProvider } from '@/components/theme-provider'
 import { StackedLayout } from '@/components/stacked-layout'
+import { ViewTransitions } from '@/components/view-transitions'
 import { THEME_COLORS } from '@/utils/utils'
 
 import Header from '../components/ui/Header'
 import { AppSidebar } from '../components/ui/app-sidebar'
 import { useTheme } from '../hooks/use-theme'
 import appCss from '../styles.css?url'
+import { Route as NotFoundRoute } from './$404'
 
 export const Route = createRootRoute({
+  notFoundComponent: NotFoundRoute.options.component,
   head: () => ({
     meta: [
       {
@@ -111,7 +114,9 @@ export const Route = createRootRoute({
 function RootDocument() {
   return (
     <DocumentWrapper>
-      <Outlet />
+      <ViewTransitions>
+        <Outlet />
+      </ViewTransitions>
     </DocumentWrapper>
   )
 }
@@ -132,7 +137,7 @@ function HTMLWrapper({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <StackedLayout navbar={<Header />} sidebar={<AppSidebar />}>
           {children}
         </StackedLayout>
