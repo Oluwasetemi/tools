@@ -11,3 +11,7 @@ export async function getClient() {
   }
   return client
 }
+
+// Re-export the drizzle db instance so `@/db` resolves to both the neon raw
+// client helper (getClient) and the drizzle ORM instance (db / getDb).
+export { db, getDb } from './db/index'
