@@ -8,5 +8,9 @@
     "kahoot": "party/kahoot.ts",
     "feedback": "party/feedback.ts",
     "feelings": "party/feelings.ts"
+  },
+  "vars": {
+    "APP_URL": "",
+    "INTERNAL_API_SECRET": ""
   }
 }
