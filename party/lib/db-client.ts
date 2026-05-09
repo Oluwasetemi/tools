@@ -19,6 +19,7 @@ export async function callInternalApi(
         'x-internal-secret': secret,
       },
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(5000),
     })
   }
   catch (err) {
