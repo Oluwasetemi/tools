@@ -25,22 +25,20 @@ export default class FeelingsServer implements Party.Server {
     }
 
     // Create new session (upsert: safe if room already exists in DB)
-    ;(async () => {
-      try {
-        const result = await callInternalApi('feelings', {
-          type: 'create_session',
-          roomId: this.room.id,
-        })
-        if (result?.ok) {
-          const dbSession = result.data as { id: number }
-          this.dbSessionId = dbSession.id
-          await this.room.storage.put('dbSessionId', this.dbSessionId)
-        }
+    try {
+      const result = await callInternalApi('feelings', {
+        type: 'create_session',
+        roomId: this.room.id,
+      })
+      if (result?.ok) {
+        const dbSession = result.data as { id: number }
+        this.dbSessionId = dbSession.id
+        await this.room.storage.put('dbSessionId', this.dbSessionId)
       }
-      catch (err) {
-        console.error('[feelings] DB create_session failed:', err)
-      }
-    })()
+    }
+    catch (err) {
+      console.error('[feelings] DB create_session failed:', err)
+    }
   }
 
   async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
