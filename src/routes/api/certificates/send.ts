@@ -116,7 +116,8 @@ export const POST = async ({ request }: { request: Request }) => {
       if (resend) {
         try {
           await resend.emails.send({
-            from: issuer.replyToEmail,
+            from: `${issuer.orgName} <onboarding@resend.dev>`,
+            replyTo: issuer.replyToEmail,
             to: student.email,
             subject: `Your ${body.courseName} Certificate — ${issuer.orgName}`,
             html: buildEmailHtml({
