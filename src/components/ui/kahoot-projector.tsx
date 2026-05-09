@@ -1,6 +1,6 @@
+import { Trophy, Users } from 'lucide-react'
 import PartySocket from 'partysocket'
 import { useEffect, useState } from 'react'
-import { Users, Trophy } from 'lucide-react'
 
 interface Question {
   id: string
@@ -33,8 +33,14 @@ interface KahootProjectorProps {
   host?: string
 }
 
+const OPTION_COLORS = [
+  { bg: 'bg-[#D4380D]', label: 'A' },
+  { bg: 'bg-[#1B6B3A]', label: 'B' },
+  { bg: 'bg-[#0C3D6B]', label: 'C' },
+  { bg: 'bg-[#6D28D9]', label: 'D' },
+]
+
 export function KahootProjector({ roomId, host = 'localhost:1999' }: KahootProjectorProps) {
-  const [socket, setSocket] = useState<PartySocket | null>(null)
   const [gameState, setGameState] = useState<GameState>('waiting')
   const [players, setPlayers] = useState<Player[]>([])
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null)
@@ -44,236 +50,172 @@ export function KahootProjector({ roomId, host = 'localhost:1999' }: KahootProje
   const [connectionCount, setConnectionCount] = useState(0)
 
   useEffect(() => {
-    // Request wake lock
     let wakeLock: WakeLockSentinel | null = null
-
     const requestWakeLock = async () => {
-      try {
-        if ('wakeLock' in navigator) {
-          wakeLock = await navigator.wakeLock.request('screen')
-        }
-      }
-      catch (err) {
-        console.warn('Wake Lock request failed:', err)
-      }
+      try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen') }
+      catch {}
     }
-
     requestWakeLock()
 
-    const ws = new PartySocket({
-      host,
-      room: roomId,
-      party: 'kahoot',
-    })
-
+    const ws = new PartySocket({ host, room: roomId, party: 'kahoot' })
     ws.addEventListener('message', (event) => {
       const data: ServerMessage = JSON.parse(event.data)
-
       switch (data.type) {
-        case 'player_joined':
-          setPlayers(prev => [...prev, data.player])
-          break
-
-        case 'game_started':
-          setGameState('question')
-          break
-
+        case 'player_joined': setPlayers(prev => [...prev, data.player]); break
+        case 'game_started': setGameState('question'); break
         case 'question_started':
           setCurrentQuestion(data.question)
           setCorrectAnswer(null)
           setAnsweredPlayers(new Set())
           setGameState('question')
           break
-
-        case 'player_answered':
-          setAnsweredPlayers(prev => new Set([...prev, data.playerId]))
-          break
-
+        case 'player_answered': setAnsweredPlayers(prev => new Set([...prev, data.playerId])); break
         case 'question_ended':
           setCorrectAnswer(data.correctAnswer)
           setRankings(data.rankings)
           setGameState('results')
           break
-
         case 'game_ended':
           setRankings(data.finalRankings)
           setGameState('ended')
           break
-
-        case 'game_state':
-          setGameState(data.state)
-          setPlayers(data.players)
-          break
-
-        case 'connection_count':
-          setConnectionCount(data.count)
-          break
+        case 'game_state': setGameState(data.state); setPlayers(data.players); break
+        case 'connection_count': setConnectionCount(data.count); break
       }
     })
-
-    setSocket(ws)
-
-    return () => {
-      ws.close()
-      if (wakeLock !== null) {
-        wakeLock.release()
-      }
-    }
+    return () => { ws.close(); wakeLock?.release() }
   }, [roomId, host])
 
-  const optionColors = [
-    'bg-red-500',
-    'bg-blue-500',
-    'bg-yellow-500',
-    'bg-green-500',
-  ]
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center p-8">
-      {/* Waiting for game to start */}
-      {gameState === 'waiting' && (
-        <div className="text-center">
-          <h1 className="text-6xl font-bold text-white mb-8">Waiting for Game to Start...</h1>
-          <div className="bg-white/20 backdrop-blur rounded-2xl p-8 max-w-2xl">
-            <p className="text-3xl text-white mb-6">
-              Players Joined:
-              {players.length}
-            </p>
-            <div className="space-y-3">
-              {players.map(player => (
-                <div
-                  key={player.id}
-                  className="bg-white/30 backdrop-blur px-6 py-4 rounded-xl text-white text-2xl font-medium"
-                >
-                  {player.name}
-                </div>
-              ))}
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#1A1008] flex flex-col">
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-8 py-4 border-b-2 border-white/10 shrink-0">
+        <div className="flex items-center gap-3">
+          <span className="f-display font-black text-[18px] tracking-tight text-white">
+            TOOLS<span className="text-[#D4380D]">.</span>
+          </span>
+          <span className="f-mono text-[9px] tracking-[0.2em] uppercase text-white/30">Kahoot · Projector</span>
         </div>
-      )}
-
-      {/* Current Question */}
-      {gameState === 'question' && currentQuestion && (
-        <div className="w-full max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-5xl md:text-6xl font-bold text-white mb-8">
-              {currentQuestion.question}
-            </h2>
-            <div className="flex justify-center gap-8 text-white text-2xl">
-              <span className="flex items-center gap-2">
-                <Users className="size-6" />
-                {answeredPlayers.size}
-                {' '}
-                /
-                {players.length}
-                {' '}
-                answered
-              </span>
-            </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5">
+            <Users size={12} className="text-white/30" />
+            <span className="f-mono text-[11px] text-white/40">{players.length} players · {connectionCount} online</span>
           </div>
+          <code className="f-mono text-[10px] text-white/25 border border-white/10 px-2 py-0.5">{roomId}</code>
+        </div>
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {currentQuestion.options.map((option, index) => (
-              <div
-                key={index}
-                className={`${optionColors[index]} text-white rounded-2xl p-12 text-center shadow-2xl transform hover:scale-105 transition-transform`}
-              >
-                <p className="text-4xl font-bold">{option}</p>
+      {/* Content */}
+      <div className="flex-1 flex items-center justify-center p-8">
+
+        {/* Waiting */}
+        {gameState === 'waiting' && (
+          <div className="text-center max-w-3xl w-full">
+            <div className="f-mono text-[11px] tracking-[0.3em] uppercase text-[#D4380D] mb-6 animate-pulse">Waiting for host to start</div>
+            <h1 className="f-display font-black text-[64px] text-white leading-none mb-12">
+              Kahoot<span className="text-[#D4380D]">.</span>
+            </h1>
+            {players.length > 0
+              ? (
+                  <div className="border-2 border-white/10 bg-white/5 p-6">
+                    <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-white/30 mb-4">{players.length} players joined</div>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {players.map(p => (
+                        <span key={p.id} className="border border-white/15 bg-white/5 f-mono text-[14px] text-white px-4 py-2">{p.name}</span>
+                      ))}
+                    </div>
+                  </div>
+                )
+              : (
+                  <p className="f-mono text-[14px] text-white/25 tracking-[0.1em]">Share the player link — players will appear here</p>
+                )}
+          </div>
+        )}
+
+        {/* Question */}
+        {gameState === 'question' && currentQuestion && (
+          <div className="w-full max-w-5xl">
+            <div className="text-center mb-10">
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <Users size={16} className="text-white/40" />
+                <span className="f-mono text-[14px] text-white/40">{answeredPlayers.size} / {players.length} answered</span>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+              <h2 className="f-display font-black text-[48px] md:text-[56px] text-white leading-tight">
+                {currentQuestion.question}
+              </h2>
+            </div>
 
-      {/* Results */}
-      {gameState === 'results' && currentQuestion && correctAnswer !== null && (
-        <div className="w-full max-w-6xl">
-          <h2 className="text-5xl font-bold text-white text-center mb-12">Results</h2>
-
-          <div className="mb-12">
-            <p className="text-3xl text-white text-center mb-6">Correct Answer:</p>
-            <div className={`${optionColors[correctAnswer]} text-white rounded-2xl p-12 text-center shadow-2xl border-8 border-white`}>
-              <p className="text-5xl font-bold">{currentQuestion.options[correctAnswer]}</p>
+            <div className="grid grid-cols-2 gap-4">
+              {currentQuestion.options.map((option, i) => {
+                const col = OPTION_COLORS[i]!
+                return (
+                  <div key={i} className={`${col.bg} border-2 border-white/20 p-8 flex items-center gap-6`}>
+                    <span className="f-mono text-[24px] font-black text-white/60">{col.label}</span>
+                    <p className="f-display font-bold text-[28px] text-white leading-tight">{option}</p>
+                  </div>
+                )
+              })}
             </div>
           </div>
+        )}
 
-          <div className="bg-white/20 backdrop-blur rounded-2xl p-8">
-            <h3 className="text-4xl font-bold text-white text-center mb-8">Top 5 Leaderboard</h3>
-            <div className="space-y-4">
-              {rankings.slice(0, 5).map((player, index) => (
-                <div
-                  key={player.playerId}
-                  className={`bg-white/30 backdrop-blur px-8 py-6 rounded-xl flex justify-between items-center ${
-                    index === 0 ? 'border-4 border-yellow-400' : ''
-                  }`}
-                >
-                  <span className="flex items-center gap-6 text-white">
-                    <span className="text-4xl font-bold w-16">
-                      #
-                      {index + 1}
-                    </span>
-                    <span className="text-3xl font-medium">{player.name}</span>
-                  </span>
-                  <span className="text-4xl font-bold text-yellow-300">{player.score}</span>
-                </div>
-              ))}
+        {/* Results */}
+        {gameState === 'results' && currentQuestion && correctAnswer !== null && (
+          <div className="w-full max-w-4xl">
+            <h2 className="f-display font-black text-[48px] text-white text-center mb-10">Results</h2>
+
+            <div className={`${OPTION_COLORS[correctAnswer]?.bg} border-2 border-white/20 p-8 text-center mb-8`}>
+              <p className="f-mono text-[11px] tracking-[0.25em] uppercase text-white/60 mb-3">Correct Answer</p>
+              <p className="f-display font-black text-[40px] text-white">{currentQuestion.options[correctAnswer]}</p>
+            </div>
+
+            <div className="border-2 border-white/10 bg-white/5 p-6">
+              <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-white/30 mb-4">Top 5</div>
+              <div className="space-y-3">
+                {rankings.slice(0, 5).map((p, i) => (
+                  <div key={p.playerId} className="flex items-center gap-4 border border-white/10 bg-white/5 px-6 py-4">
+                    <span className="f-mono text-[20px] font-black text-white/30 w-10">#{i + 1}</span>
+                    <span className="f-mono text-[22px] text-white flex-1">{p.name}</span>
+                    <span className="f-display font-black text-[24px] text-[#D4380D]">{p.score}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Game Ended */}
-      {gameState === 'ended' && (
-        <div className="w-full max-w-6xl">
-          <h2 className="text-6xl font-bold text-white text-center mb-12 flex items-center justify-center gap-4">
-            <Trophy className="size-16" />
-            Game Over!
-            <Trophy className="size-16" />
-          </h2>
+        {/* Game ended */}
+        {gameState === 'ended' && (
+          <div className="w-full max-w-4xl">
+            <div className="text-center mb-10">
+              <div className="flex items-center justify-center gap-4 text-[#D4380D] mb-4">
+                <Trophy size={40} />
+                <h2 className="f-display font-black text-[56px] text-white">
+                  Game Over<span className="text-[#D4380D]">.</span>
+                </h2>
+                <Trophy size={40} />
+              </div>
+              <p className="f-mono text-[11px] tracking-[0.25em] uppercase text-white/30">Final Rankings</p>
+            </div>
 
-          <div className="bg-white/20 backdrop-blur rounded-2xl p-8">
-            <h3 className="text-4xl font-bold text-white text-center mb-8">Final Rankings</h3>
-            <div className="space-y-4">
-              {rankings.map((player, index) => (
-                <div
-                  key={player.playerId}
-                  className={`px-8 py-6 rounded-xl flex justify-between items-center ${
-                    index === 0
-                      ? 'bg-yellow-400'
-                      : index === 1
-                        ? 'bg-gray-300'
-                        : index === 2
-                          ? 'bg-orange-300'
-                          : 'bg-white/30 backdrop-blur'
-                  }`}
-                >
-                  <span className="flex items-center gap-6">
-                    <span className="text-4xl font-bold w-16">
-                      #
-                      {index + 1}
-                    </span>
-                    <span className="text-3xl font-medium">
-                      {player.name}
-                    </span>
-                  </span>
-                  <span className="text-4xl font-bold text-purple-600">{player.score}</span>
-                </div>
-              ))}
+            <div className="space-y-3">
+              {rankings.map((p, i) => {
+                const MEDALS = ['🥇', '🥈', '🥉']
+                const isTop = i < 3
+                return (
+                  <div
+                    key={p.playerId}
+                    className={`flex items-center gap-4 border-2 px-6 py-5 ${isTop ? 'border-[#D4380D]/50 bg-[#D4380D]/[0.08]' : 'border-white/10 bg-white/5'}`}
+                  >
+                    <span className="text-[32px] w-12">{MEDALS[i] ?? `#${i + 1}`}</span>
+                    <span className="f-mono text-[24px] text-white flex-1">{p.name}</span>
+                    <span className="f-display font-black text-[28px] text-[#D4380D]">{p.score}</span>
+                  </div>
+                )
+              })}
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Room info footer */}
-      <div className="fixed bottom-4 right-4 text-white/60 text-sm">
-        Room:
-        {' '}
-        {roomId}
-        {' '}
-        | Connected:
-        {' '}
-        {connectionCount}
+        )}
       </div>
     </div>
   )

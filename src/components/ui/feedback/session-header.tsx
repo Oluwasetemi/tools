@@ -1,5 +1,4 @@
 import type { FeedbackSession } from './types'
-import { Button } from '@/components/button'
 
 interface SessionHeaderProps {
   readonly session: FeedbackSession
@@ -9,28 +8,25 @@ interface SessionHeaderProps {
 
 export function SessionHeader({ session, totalResponses, onClose }: SessionHeaderProps) {
   return (
-    <div className="bg-white shadow rounded-lg p-6">
-      <div className="flex justify-between items-start mb-4">
+    <div className="border-2 border-[#1A1008] bg-white shadow-[4px_4px_0_#1A1008] p-5 mb-4">
+      <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-2xl font-semibold mb-2 text-zinc-950">{session.title}</h2>
-          <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-            {session.type.charAt(0).toUpperCase() + session.type.slice(1)}
-            {' '}
-            Feedback
-          </span>
+          <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#1B6B3A] mb-1">
+            {session.type.charAt(0).toUpperCase() + session.type.slice(1)} Feedback · Active
+          </div>
+          <h2 className="f-display font-black text-[20px] text-[#1A1008] leading-tight mb-3">{session.title}</h2>
+          <div className="flex items-baseline gap-1.5">
+            <span className="f-display font-black text-[32px] text-[#1A1008] leading-none">{totalResponses}</span>
+            <span className="f-mono text-[10px] tracking-[0.15em] uppercase text-[#1A1008]/40">responses</span>
+          </div>
         </div>
-        <Button
+        <button
           onClick={onClose}
-          color="red"
+          className="border-2 border-[#D4380D] text-[#D4380D] f-mono text-[10px] tracking-[0.12em] uppercase px-4 py-2 shadow-[3px_3px_0_#D4380D] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 shrink-0"
         >
           Close Session
-        </Button>
+        </button>
       </div>
-      <p className="text-gray-600">
-        Total Responses:
-        {' '}
-        <span className="font-bold text-2xl text-zinc-950">{totalResponses}</span>
-      </p>
     </div>
   )
 }

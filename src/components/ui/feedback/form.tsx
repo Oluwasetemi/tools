@@ -1,14 +1,14 @@
 import type { FeedbackType } from './types'
 import { useState } from 'react'
-import { Button } from '@/components/button'
-import { Field, Label } from '@/components/fieldset'
-import { Input } from '@/components/input'
 import { FeedbackTypeSelector } from './type-selector'
 
 interface FeedbackFormProps {
   readonly onSubmit: (title: string, type: FeedbackType, config?: { range: { min: number, max: number } }) => void
   readonly onError: (error: string) => void
 }
+
+const inputCls = 'w-full border-2 border-[#1A1008] bg-white px-3 py-2.5 f-mono text-[13px] text-[#1A1008] placeholder:text-[#1A1008]/30 outline-none focus:shadow-[3px_3px_0_#1B6B3A] transition-shadow'
+const labelCls = 'block f-mono text-[9px] tracking-[0.22em] uppercase text-[#1A1008]/50 mb-1.5'
 
 export function FeedbackForm({ onSubmit, onError }: FeedbackFormProps) {
   const [title, setTitle] = useState('')
@@ -17,103 +17,52 @@ export function FeedbackForm({ onSubmit, onError }: FeedbackFormProps) {
   const [scoreMax, setScoreMax] = useState(10)
 
   const handleSubmit = () => {
-    if (!title.trim()) {
-      onError('Please enter a title')
-      return
-    }
-
-    const config = feedbackType === 'score'
-      ? { range: { min: scoreMin, max: scoreMax } }
-      : undefined
-
+    if (!title.trim()) { onError('Please enter a title'); return }
+    const config = feedbackType === 'score' ? { range: { min: scoreMin, max: scoreMax } } : undefined
     onSubmit(title.trim(), feedbackType, config)
     setTitle('')
   }
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        handleSubmit()
-      }}
-      className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6"
-    >
-      <div className="space-y-12">
-        {/* Session Settings Section */}
-        <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
-          <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">Feedback Session Settings</h2>
-          <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
-            Create a feedback session to collect responses from participants in real-time.
-          </p>
+    <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
+      <div className="border-2 border-[#1A1008] bg-white shadow-[4px_4px_0_#1A1008] p-6 mb-4">
+        <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#1B6B3A] mb-5">Session Settings</div>
 
-          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-            <div className="sm:col-span-6">
-              <Field>
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  name="title"
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  placeholder="e.g., How was today's session?"
-                  required
-                />
-              </Field>
-            </div>
-          </div>
+        <div className="mb-6">
+          <label className={labelCls}>Title</label>
+          <input
+            name="title"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            placeholder="e.g., How was today's session?"
+            required
+            className={inputCls}
+          />
         </div>
 
-        {/* Feedback Type Section */}
-        <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
-          <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">Feedback Type</h2>
-          <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
-            Choose the type of feedback you want to collect from participants.
-          </p>
+        <FeedbackTypeSelector selectedType={feedbackType} onTypeChange={setFeedbackType} />
 
-          <div className="mt-10">
-            <FeedbackTypeSelector
-              selectedType={feedbackType}
-              onTypeChange={setFeedbackType}
-            />
-          </div>
-
-          {feedbackType === 'score' && (
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              <div className="sm:col-span-3">
-                <Field>
-                  <Label>Min Score</Label>
-                  <Input
-                    type="number"
-                    value={scoreMin}
-                    onChange={e => setScoreMin(Number(e.target.value))}
-                    min="0"
-                    required
-                  />
-                </Field>
-              </div>
-              <div className="sm:col-span-3">
-                <Field>
-                  <Label>Max Score</Label>
-                  <Input
-                    type="number"
-                    value={scoreMax}
-                    onChange={e => setScoreMax(Number(e.target.value))}
-                    min={scoreMin + 1}
-                    required
-                  />
-                </Field>
-              </div>
+        {feedbackType === 'score' && (
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div>
+              <label className={labelCls}>Min Score</label>
+              <input type="number" value={scoreMin} onChange={e => setScoreMin(Number(e.target.value))} min="0" required className={inputCls} />
             </div>
-          )}
-        </div>
+            <div>
+              <label className={labelCls}>Max Score</label>
+              <input type="number" value={scoreMax} onChange={e => setScoreMax(Number(e.target.value))} min={scoreMin + 1} required className={inputCls} />
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="mt-6 flex items-center justify-end gap-x-6">
-        <Button
+      <div className="flex justify-end">
+        <button
           type="submit"
-          color="green"
+          className="border-2 border-[#1A1008] bg-[#1B6B3A] text-white f-mono text-[10px] tracking-[0.12em] uppercase px-5 py-2.5 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
         >
-          Create Feedback Session
-        </Button>
+          Create Session →
+        </button>
       </div>
     </form>
   )

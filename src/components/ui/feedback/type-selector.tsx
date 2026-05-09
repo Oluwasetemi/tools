@@ -5,54 +5,36 @@ interface FeedbackTypeSelectorProps {
   readonly onTypeChange: (type: FeedbackType) => void
 }
 
-export function FeedbackTypeSelector({
-  selectedType,
-  onTypeChange,
-}: FeedbackTypeSelectorProps) {
+const TYPES: { type: FeedbackType, emoji: string, label: string, sub: string }[] = [
+  { type: 'emoji', emoji: '😊', label: 'Emoji', sub: 'Quick reactions' },
+  { type: 'text', emoji: '💬', label: 'Text', sub: 'Open feedback' },
+  { type: 'score', emoji: '⭐', label: 'Score', sub: 'Rate on scale' },
+]
+
+export function FeedbackTypeSelector({ selectedType, onTypeChange }: FeedbackTypeSelectorProps) {
   return (
-    <div className="mb-6">
-      <label className="block text-sm font-medium text-gray-700 mb-3">
-        Feedback Type
-      </label>
-      <div className="grid grid-cols-3 gap-4">
-        <button
-          onClick={() => onTypeChange('emoji')}
-          className={`p-4 border-2 rounded-lg transition-all ${
-            selectedType === 'emoji'
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-300 hover:border-blue-300'
-          }`}
-        >
-          <div className="text-3xl mb-2">😊</div>
-          <div className="font-medium">Emoji</div>
-          <div className="text-xs text-gray-600">Quick reactions</div>
-        </button>
-
-        <button
-          onClick={() => onTypeChange('text')}
-          className={`p-4 border-2 rounded-lg transition-all ${
-            selectedType === 'text'
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-300 hover:border-blue-300'
-          }`}
-        >
-          <div className="text-3xl mb-2">💬</div>
-          <div className="font-medium">Text</div>
-          <div className="text-xs text-gray-600">Open feedback</div>
-        </button>
-
-        <button
-          onClick={() => onTypeChange('score')}
-          className={`p-4 border-2 rounded-lg transition-all ${
-            selectedType === 'score'
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-300 hover:border-blue-300'
-          }`}
-        >
-          <div className="text-3xl mb-2">⭐</div>
-          <div className="font-medium">Score</div>
-          <div className="text-xs text-gray-600">Rate on scale</div>
-        </button>
+    <div>
+      <label className="block f-mono text-[9px] tracking-[0.22em] uppercase text-[#1A1008]/50 mb-2">Feedback Type</label>
+      <div className="grid grid-cols-3 gap-3">
+        {TYPES.map(({ type, emoji, label, sub }) => {
+          const isSelected = selectedType === type
+          return (
+            <button
+              key={type}
+              type="button"
+              onClick={() => onTypeChange(type)}
+              className={`p-4 border-2 text-center transition-all duration-100 ${
+                isSelected
+                  ? 'border-[#1B6B3A] bg-[#1B6B3A]/[0.06] shadow-[3px_3px_0_#1B6B3A]'
+                  : 'border-[#1A1008]/20 bg-white hover:border-[#1A1008]/50'
+              }`}
+            >
+              <div className="text-2xl mb-1.5">{emoji}</div>
+              <div className="f-mono text-[11px] font-bold text-[#1A1008]">{label}</div>
+              <div className="f-mono text-[9px] text-[#1A1008]/40 mt-0.5">{sub}</div>
+            </button>
+          )
+        })}
       </div>
     </div>
   )
