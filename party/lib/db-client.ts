@@ -1,5 +1,5 @@
 export async function callInternalApi(
-  domain: 'kahoot' | 'polls' | 'feedback' | 'feelings',
+  domain: 'kahoot' | 'polls' | 'feedback' | 'feelings' | 'testimonials',
   body: unknown,
 ): Promise<{ ok: true; data: unknown } | null> {
   const appUrl = process.env.APP_URL
