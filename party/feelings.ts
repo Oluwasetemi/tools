@@ -1,5 +1,6 @@
 import type * as Party from 'partykit/server'
 import { timestamp } from '@setemiojo/utils'
+import { callInternalApi } from './lib/db-client'
 
 interface EmojiMessage {
   type: 'emoji_pop'
@@ -11,7 +12,36 @@ interface EmojiMessage {
 }
 
 export default class FeelingsServer implements Party.Server {
+  private dbSessionId: number | null = null
+
   constructor(readonly room: Party.Room) {}
+
+  async onStart() {
+    // Restore from storage on worker restart
+    const stored = await this.room.storage.get<number>('dbSessionId')
+    if (stored) {
+      this.dbSessionId = stored
+      return
+    }
+
+    // Create new session (upsert: safe if room already exists in DB)
+    ;(async () => {
+      try {
+        const result = await callInternalApi('feelings', {
+          type: 'create_session',
+          roomId: this.room.id,
+        })
+        if (result?.ok) {
+          const dbSession = result.data as { id: number }
+          this.dbSessionId = dbSession.id
+          await this.room.storage.put('dbSessionId', this.dbSessionId)
+        }
+      }
+      catch (err) {
+        console.error('[feelings] DB create_session failed:', err)
+      }
+    })()
+  }
 
   async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
     console.log(
@@ -42,6 +72,23 @@ export default class FeelingsServer implements Party.Server {
           }
 
           this.room.broadcast(JSON.stringify(emojiMessage))
+
+          // Persist to DB (fire-and-forget)
+          ;(async () => {
+            try {
+              if (this.dbSessionId) {
+                await callInternalApi('feelings', {
+                  type: 'add_emoji',
+                  sessionId: this.dbSessionId,
+                  emoji: data.emoji,
+                  participantId: sender.id,
+                })
+              }
+            }
+            catch (err) {
+              console.error('[feelings] DB add_emoji failed:', err)
+            }
+          })()
           break
         }
 
