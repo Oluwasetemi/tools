@@ -19,12 +19,14 @@ export const Route = createFileRoute('/party/polls')({
 
 function PollsPage() {
   const [roomId, setRoomId] = useState(() => {
+    if (typeof window === 'undefined') return `poll-${randomStr(7)}`
     const params = new URLSearchParams(window.location.search)
     return params.get('room') || `poll-${randomStr(7)}`
   })
   const [copied, setCopied] = useState(false)
 
-  const voterUrl = `${window.location.origin}/party/poll-voter?room=${roomId}`
+  const origin = typeof window !== 'undefined' ? window.location.origin : ''
+  const voterUrl = `${origin}/party/poll-voter?room=${roomId}`
 
   const copyUrl = () => {
     navigator.clipboard.writeText(voterUrl)

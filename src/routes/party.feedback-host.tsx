@@ -19,12 +19,14 @@ export const Route = createFileRoute('/party/feedback-host')({
 
 function FeedbackHostPage() {
   const [roomId, setRoomId] = useState(() => {
+    if (typeof window === 'undefined') return `feedback-${randomStr(7)}`
     const params = new URLSearchParams(window.location.search)
     return params.get('room') || `feedback-${randomStr(7)}`
   })
   const [copied, setCopied] = useState(false)
 
-  const clientUrl = `${window.location.origin}/party/feedback-client?room=${roomId}`
+  const origin = typeof window !== 'undefined' ? window.location.origin : ''
+  const clientUrl = `${origin}/party/feedback-client?room=${roomId}`
 
   const copyUrl = () => {
     navigator.clipboard.writeText(clientUrl)

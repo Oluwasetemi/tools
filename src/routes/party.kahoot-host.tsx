@@ -19,12 +19,14 @@ export const Route = createFileRoute('/party/kahoot-host')({
 
 function KahootHostPage() {
   const [roomId, setRoomId] = useState(() => {
+    if (typeof window === 'undefined') return `game-${randomStr(7)}`
     const params = new URLSearchParams(window.location.search)
     return params.get('room') || `game-${randomStr(7)}`
   })
   const [copied, setCopied] = useState(false)
 
-  const playerUrl = `${window.location.origin}/party/kahoot-player?room=${roomId}`
+  const origin = typeof window !== 'undefined' ? window.location.origin : ''
+  const playerUrl = `${origin}/party/kahoot-player?room=${roomId}`
 
   const copyUrl = () => {
     navigator.clipboard.writeText(playerUrl)
