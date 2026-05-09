@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Copy } from 'lucide-react'
 
@@ -48,9 +48,9 @@ function TestimonialsDashboard() {
       <div className="h-1 bg-[#6D28D9]" />
 
       <nav className="border-b-2 border-[#1A1008] px-6 py-3 flex items-center gap-4">
-        <a href="/" className="f-display font-black text-[13px] text-[#1A1008]">
+        <Link to="/" className="f-display font-black text-[13px] text-[#1A1008]">
           ← TOOLS<span className="text-[#D4380D]">.</span>
-        </a>
+        </Link>
       </nav>
 
       <div className="max-w-4xl mx-auto px-6 py-10">
@@ -163,5 +163,8 @@ function TestimonialsDashboard() {
 }
 
 export const Route = createFileRoute('/testimonials')({
+  head: () => ({
+    meta: [{ title: 'Testimonials — Tools' }],
+  }),
   component: TestimonialsDashboard,
 })

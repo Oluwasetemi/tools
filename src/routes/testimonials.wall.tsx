@@ -1,10 +1,10 @@
-import { createFileRoute, useSearch } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { TestimonialWall } from '@/components/ui/testimonial-wall'
 
 const PARTYKIT_HOST = import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'
 
 function TestimonialsWallPage() {
-  const { room } = useSearch({ from: '/testimonials/wall' })
+  const { room } = Route.useSearch()
 
   if (!room) {
     return (
@@ -19,7 +19,10 @@ function TestimonialsWallPage() {
 
 export const Route = createFileRoute('/testimonials/wall')({
   validateSearch: (search: Record<string, unknown>) => ({
-    room: (search.room as string) || '',
+    room: (search.room as string) || 'default-room',
+  }),
+  head: () => ({
+    meta: [{ title: 'Testimonials Wall' }],
   }),
   component: TestimonialsWallPage,
 })
