@@ -1,5 +1,6 @@
 import type * as Party from 'partykit/server'
 import { timestamp } from '@setemiojo/utils'
+import { callInternalApi } from './lib/db-client'
 
 // Types for poll messages
 interface PollOption {
@@ -33,20 +34,31 @@ type ServerMessage
 export default class PollsServer implements Party.Server {
   private poll: Poll | null = null
   private voters = new Set<string>()
+  private dbPollId: number | null = null
+  private dbOptionIdMap: Map<string, number> = new Map() // 'option-0' → db integer id
 
   constructor(readonly room: Party.Room) {}
 
   async onStart() {
-    // Load poll state from storage
-    // const storedPoll = await this.room.storage.get<Poll>('poll')
-    // if (storedPoll) {
-    //   this.poll = storedPoll
-    // }
+    const storedPoll = await this.room.storage.get<Poll>('poll')
+    if (storedPoll) {
+      this.poll = storedPoll
+    }
 
-    // const storedVoters = await this.room.storage.get<string[]>('voters')
-    // if (storedVoters) {
-    //   this.voters = new Set(storedVoters)
-    // }
+    const storedVoters = await this.room.storage.get<string[]>('voters')
+    if (storedVoters) {
+      this.voters = new Set(storedVoters)
+    }
+
+    const storedDbState = await this.room.storage.get<{
+      pollId: number
+      optionIds: [string, number][]
+    }>('dbState')
+
+    if (storedDbState) {
+      this.dbPollId = storedDbState.pollId
+      this.dbOptionIdMap = new Map(storedDbState.optionIds)
+    }
   }
 
   onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
@@ -153,6 +165,33 @@ export default class PollsServer implements Party.Server {
         poll: this.poll,
       } as ServerMessage),
     )
+
+    // Persist to DB (fire-and-forget)
+    ;(async () => {
+      try {
+        const result = await callInternalApi('polls', {
+          type: 'create_poll',
+          roomId: this.room.id,
+          question: data.question,
+          options: data.options,
+          createdBy: sender.id,
+        })
+        if (result?.ok && this.poll) {
+          const { poll: dbPoll, options: dbOptions } = result.data as { poll: { id: number }, options: Array<{ id: number }> }
+          this.dbPollId = dbPoll.id
+          this.poll.options.forEach((opt, i) => {
+            this.dbOptionIdMap.set(opt.id, dbOptions[i].id)
+          })
+          await this.room.storage.put('dbState', {
+            pollId: this.dbPollId,
+            optionIds: Array.from(this.dbOptionIdMap.entries()),
+          })
+        }
+      }
+      catch (err) {
+        console.error('[polls] DB create_poll failed:', err)
+      }
+    })()
   }
 
   private async handleVote(
@@ -216,6 +255,24 @@ export default class PollsServer implements Party.Server {
         poll: this.poll,
       } as ServerMessage),
     )
+
+    // Persist to DB (fire-and-forget)
+    ;(async () => {
+      try {
+        const dbOptionId = this.dbOptionIdMap.get(data.optionId)
+        if (this.dbPollId && dbOptionId) {
+          await callInternalApi('polls', {
+            type: 'vote',
+            pollId: this.dbPollId,
+            optionId: dbOptionId,
+            voterId: sender.id,
+          })
+        }
+      }
+      catch (err) {
+        console.error('[polls] DB vote failed:', err)
+      }
+    })()
   }
 
   private async handleEndPoll(sender: Party.Connection) {
@@ -250,6 +307,19 @@ export default class PollsServer implements Party.Server {
         poll: this.poll,
       } as ServerMessage),
     )
+
+    // Persist to DB (fire-and-forget)
+    ;(async () => {
+      try {
+        await callInternalApi('polls', {
+          type: 'end_poll',
+          roomId: this.room.id,
+        })
+      }
+      catch (err) {
+        console.error('[polls] DB end_poll failed:', err)
+      }
+    })()
   }
 
   private sendPollState(conn: Party.Connection) {
