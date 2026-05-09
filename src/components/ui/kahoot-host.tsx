@@ -1,11 +1,7 @@
-import { Check } from 'lucide-react'
+import { Check, Monitor, Plus, Trash2 } from 'lucide-react'
 import usePartySocket from 'partysocket/react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { Button } from '@/components/button'
-import { Field, Label } from '@/components/fieldset'
-import { Input } from '@/components/input'
-import { Select } from '@/components/select'
 import { createKahootGame } from '@/server/kahoot'
 
 interface Question {
@@ -42,6 +38,17 @@ interface KahootHostProps {
   host?: string
 }
 
+const OPTION_COLORS = [
+  { bg: 'bg-[#D4380D]/10', border: 'border-[#D4380D]', label: 'A' },
+  { bg: 'bg-[#1B6B3A]/10', border: 'border-[#1B6B3A]', label: 'B' },
+  { bg: 'bg-[#0C3D6B]/10', border: 'border-[#0C3D6B]', label: 'C' },
+  { bg: 'bg-[#6D28D9]/10', border: 'border-[#6D28D9]', label: 'D' },
+]
+
+const inputCls = 'w-full border-2 border-[#1A1008] bg-white px-3 py-2 f-mono text-[13px] text-[#1A1008] placeholder:text-[#1A1008]/30 outline-none focus:shadow-[3px_3px_0_#D4380D] transition-shadow'
+const labelCls = 'block f-mono text-[9px] tracking-[0.22em] uppercase text-[#1A1008]/50 mb-1.5'
+const pressBtnCls = 'border-2 border-[#1A1008] f-mono text-[10px] tracking-[0.12em] uppercase px-4 py-2 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 disabled:opacity-40 disabled:pointer-events-none'
+
 export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps) {
   const [gameState, setGameState] = useState<GameState>('waiting')
   const [players, setPlayers] = useState<Player[]>([])
@@ -53,724 +60,492 @@ export function KahootHost({ roomId, host = 'localhost:1999' }: KahootHostProps)
   const [answeredPlayers, setAnsweredPlayers] = useState<Set<string>>(new Set())
   const [showLeaderboard, setShowLeaderboard] = useState(false)
 
-  // Form state
   const [gameName, setGameName] = useState('')
   const [questions, setQuestions] = useState<Question[]>([
-    {
-      id: crypto.randomUUID(),
-      question: '',
-      options: ['', '', '', ''],
-      correctAnswer: 0,
-      timeLimit: 30,
-      points: 1000,
-    },
+    { id: crypto.randomUUID(), question: '', options: ['', '', '', ''], correctAnswer: 0, timeLimit: 30, points: 1000 },
   ])
 
-  // Track last question count for scroll detection
   const lastQuestionCount = useRef(questions.length)
 
   const socket = usePartySocket({
     host,
     room: roomId,
     party: 'kahoot',
-
-    onMessage(event: any) {
-      if (typeof event.data !== 'string')
-        return
-
+    onMessage(event: MessageEvent) {
+      if (typeof event.data !== 'string') return
       const data: ServerMessage = JSON.parse(event.data)
-
       switch (data.type) {
         case 'game_created':
           setGameCreated(true)
           setGameState('waiting')
           setError(null)
           break
-
         case 'player_joined':
           setPlayers(prev => [...prev, data.player])
           break
-
         case 'game_started':
           setGameState('question')
           break
-
         case 'question_started':
           setCurrentQuestion(data.question)
           setCorrectAnswer(null)
           setAnsweredPlayers(new Set())
           setGameState('question')
           break
-
         case 'player_answered':
           setAnsweredPlayers(prev => new Set([...prev, data.playerId]))
           break
-
         case 'question_ended':
           setCorrectAnswer(data.correctAnswer)
           setRankings(data.rankings)
-          // Update players with new scores from rankings
-          setPlayers(prevPlayers =>
-            prevPlayers.map((player) => {
-              const ranking = data.rankings.find(r => r.playerId === player.id)
-              return ranking ? { ...player, score: ranking.score } : player
-            }),
-          )
+          setPlayers(prev => prev.map((p) => {
+            const r = data.rankings.find(r => r.playerId === p.id)
+            return r ? { ...p, score: r.score } : p
+          }))
           setGameState('results')
           break
-
         case 'game_ended':
           setRankings(data.finalRankings)
           setGameState('ended')
           break
-
         case 'game_state':
           setGameState(data.state)
           setPlayers(data.players)
           break
-
         case 'error':
           setError(data.message)
           break
       }
     },
-
-    onOpen() {
-      console.warn('Connected to Kahoot server')
-      setError(null)
-    },
-
-    onError(error) {
-      console.error('Kahoot socket error:', error)
-      setError('Connection error')
-    },
+    onOpen() { setError(null) },
+    onError() { setError('Connection error') },
   })
 
-  // Wake lock effect
   useEffect(() => {
     let wakeLock: WakeLockSentinel | null = null
-
     const requestWakeLock = async () => {
       try {
         if ('wakeLock' in navigator) {
           wakeLock = await navigator.wakeLock.request('screen')
-          console.warn('Screen Wake Lock activated')
-
-          wakeLock.addEventListener('release', () => {
-            console.warn('Screen Wake Lock released')
-          })
+          wakeLock.addEventListener('release', () => { wakeLock = null })
         }
       }
-      catch (err) {
-        console.warn('Wake Lock request failed:', err)
-      }
+      catch {}
     }
-
     requestWakeLock()
-
-    // Re-request wake lock when page becomes visible again
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && wakeLock === null) {
-        requestWakeLock()
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
+    const onVisible = () => { if (document.visibilityState === 'visible' && !wakeLock) requestWakeLock() }
+    document.addEventListener('visibilitychange', onVisible)
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-
-      // Release wake lock on cleanup
-      if (wakeLock !== null) {
-        wakeLock.release().then(() => {
-          console.warn('Screen Wake Lock released on cleanup')
-        })
-      }
+      document.removeEventListener('visibilitychange', onVisible)
+      wakeLock?.release()
     }
   }, [])
 
   const createGame = async () => {
-    if (!socket || !gameName) {
-      setError('Please enter a game name')
-      return
-    }
-
-    const validQuestions = questions.filter(
-      q => q.question && q.options.every(opt => opt.trim()),
-    )
-
-    if (validQuestions.length === 0) {
-      setError('Please add at least one complete question')
-      return
-    }
-
-    // Send to PartyKit for real-time game
-    socket.send(
-      JSON.stringify({
-        type: 'host_create',
-        name: gameName,
-        questions: validQuestions,
-      }),
-    )
-
-    // Persist to database for history
+    if (!socket || !gameName) { setError('Please enter a game name'); return }
+    const valid = questions.filter(q => q.question && q.options.every(o => o.trim()))
+    if (valid.length === 0) { setError('Please add at least one complete question'); return }
+    socket.send(JSON.stringify({ type: 'host_create', name: gameName, questions: valid }))
     try {
-      await createKahootGame({
-        roomId,
-        gameName,
-        questions: validQuestions.map(q => ({
-          question: q.question,
-          options: q.options,
-          correctAnswer: q.correctAnswer,
-          timeLimit: q.timeLimit,
-          points: q.points,
-        })),
-      })
-      toast.success('Game saved to database')
+      await createKahootGame({ roomId, gameName, questions: valid.map(q => ({ question: q.question, options: q.options, correctAnswer: q.correctAnswer, timeLimit: q.timeLimit, points: q.points })) })
+      toast.success('Game saved')
     }
-    catch (error) {
-      console.error('Failed to save game to database:', error)
-      toast.error('Game created but not saved to database')
-    }
+    catch { toast.error('Game created but not saved to DB') }
   }
 
-  const startGame = () => {
-    if (!socket)
-      return
-    socket.send(JSON.stringify({ type: 'host_start' }))
-  }
-
-  const nextQuestion = () => {
-    if (!socket)
-      return
-    socket.send(JSON.stringify({ type: 'host_next_question' }))
-  }
-
-  const _endGame = () => {
-    if (!socket)
-      return
-    socket.send(JSON.stringify({ type: 'host_end_game' }))
-  }
-
-  const restartGame = () => {
-    if (!socket)
-      return
-    socket.send(JSON.stringify({ type: 'host_restart_game' }))
-  }
-
+  const startGame = () => socket?.send(JSON.stringify({ type: 'host_start' }))
+  const nextQuestion = () => socket?.send(JSON.stringify({ type: 'host_next_question' }))
+  const restartGame = () => socket?.send(JSON.stringify({ type: 'host_restart_game' }))
   const openProjector = () => {
-    const projectorUrl = `${window.location.origin}/party/kahoot-projector?room=${roomId}`
-    window.open(projectorUrl, '_blank', 'width=1920,height=1080')
+    const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/party/kahoot-projector?room=${roomId}`
+    window.open(url, '_blank', 'width=1920,height=1080')
   }
 
   const addQuestion = () => {
-    setQuestions([
-      ...questions,
-      {
-        id: crypto.randomUUID(),
-        question: '',
-        options: ['', '', '', ''],
-        correctAnswer: 0,
-        timeLimit: 30,
-        points: 1000,
-      },
-    ])
+    setQuestions(prev => [...prev, { id: crypto.randomUUID(), question: '', options: ['', '', '', ''], correctAnswer: 0, timeLimit: 30, points: 1000 }])
   }
 
-  const updateQuestion = (index: number, field: keyof Question, value: any) => {
-    const newQuestions = [...questions]
-    newQuestions[index] = { ...newQuestions[index], [field]: value }
-    setQuestions(newQuestions)
+  const updateQuestion = (index: number, field: keyof Question, value: unknown) => {
+    setQuestions(prev => prev.map((q, i) => i === index ? { ...q, [field]: value } : q))
   }
 
   const updateOption = (qIndex: number, optIndex: number, value: string) => {
-    const newQuestions = [...questions]
-    newQuestions[qIndex].options[optIndex] = value
-    setQuestions(newQuestions)
+    setQuestions(prev => prev.map((q, i) => {
+      if (i !== qIndex) return q
+      const options = [...q.options]
+      options[optIndex] = value
+      return { ...q, options }
+    }))
   }
 
-  const removeQuestion = (index: number) => {
-    setQuestions(questions.filter((_, i) => i !== index))
-  }
+  const removeQuestion = (index: number) => setQuestions(prev => prev.filter((_, i) => i !== index))
 
-  // Ref callback to scroll and focus newly added questions
   const questionRefCallback = (node: HTMLDivElement | null, index: number) => {
     if (node && index === questions.length - 1 && questions.length > lastQuestionCount.current) {
-      // Scroll to the new question
       node.scrollIntoView({ behavior: 'smooth', block: 'start' })
-
-      // Focus on the question input
-      const questionInput = node.querySelector('input[type="text"]') as HTMLInputElement
-      if (questionInput) {
-        setTimeout(() => questionInput.focus(), 300)
-      }
-
-      // Update the count
+      const input = node.querySelector('input[type="text"]') as HTMLInputElement
+      if (input) setTimeout(() => input.focus(), 300)
       lastQuestionCount.current = questions.length
     }
   }
 
+  // ── Error banner ──────────────────────────────────────────────────────────
+  const ErrorBanner = error
+    ? (
+        <div className="border-2 border-[#D4380D] bg-[#D4380D]/[0.06] px-4 py-3 mb-6 f-mono text-[12px] text-[#D4380D]">
+          {error}
+        </div>
+      )
+    : null
+
+  // ── GAME CREATION FORM ───────────────────────────────────────────────────
   if (!gameCreated) {
     return (
-      <form onSubmit={(e) => {
-        e.preventDefault()
-        createGame()
-      }}
-      >
-        <div className="space-y-12">
-          {/* Game Settings Section */}
-          <div className="border-b border-gray-900/10 pb-12 dark:border-white/10">
-            <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">Game Settings</h2>
-            <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
-              Set up your Kahoot game with a memorable name and engaging questions.
-            </p>
+      <form onSubmit={(e) => { e.preventDefault(); createGame() }} className="space-y-0">
+        {ErrorBanner}
 
-            {error && (
-              <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
-                {error}
+        {/* Game name */}
+        <div className="border-2 border-[#1A1008] bg-white shadow-[4px_4px_0_#1A1008] p-6 mb-6">
+          <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#D4380D] mb-4">Game Settings</div>
+          <label className={labelCls}>Game Name</label>
+          <input
+            type="text"
+            value={gameName}
+            onChange={e => setGameName(e.target.value)}
+            placeholder="e.g. JavaScript Fundamentals Quiz"
+            required
+            className={inputCls}
+          />
+        </div>
+
+        {/* Questions */}
+        {questions.map((q, qIndex) => (
+          <div
+            key={q.id}
+            ref={node => questionRefCallback(node, qIndex)}
+            className="border-2 border-[#1A1008] bg-white shadow-[4px_4px_0_#1A1008] p-6 mb-4"
+          >
+            {/* Question header */}
+            <div className="flex items-center justify-between mb-5">
+              <span className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#D4380D]">
+                Question {qIndex + 1}
+              </span>
+              {questions.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeQuestion(qIndex)}
+                  className="flex items-center gap-1 f-mono text-[9px] tracking-[0.1em] uppercase text-[#D4380D] hover:underline"
+                >
+                  <Trash2 size={10} />
+                  Remove
+                </button>
+              )}
+            </div>
+
+            {/* Question text */}
+            <div className="mb-5">
+              <label className={labelCls}>Question</label>
+              <input
+                type="text"
+                value={q.question}
+                onChange={e => updateQuestion(qIndex, 'question', e.target.value)}
+                placeholder="Enter your question..."
+                required
+                className={inputCls}
+              />
+            </div>
+
+            {/* Options */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+              {q.options.map((opt, optIndex) => {
+                const col = OPTION_COLORS[optIndex]!
+                const isCorrect = q.correctAnswer === optIndex
+                return (
+                  <div key={optIndex} className={`border-2 p-3 transition-colors ${isCorrect ? `${col.border} ${col.bg}` : 'border-[#1A1008]/20 bg-white'}`}>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className={`f-mono text-[9px] tracking-[0.2em] uppercase font-bold ${isCorrect ? 'text-[#1A1008]' : 'text-[#1A1008]/40'}`}>
+                        {col.label}
+                      </span>
+                      {isCorrect && (
+                        <span className="f-mono text-[8px] tracking-[0.15em] uppercase text-[#1B6B3A]">correct</span>
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      value={opt}
+                      onChange={e => updateOption(qIndex, optIndex, e.target.value)}
+                      placeholder={`Option ${optIndex + 1}`}
+                      required
+                      className="w-full bg-transparent f-mono text-[12px] text-[#1A1008] placeholder:text-[#1A1008]/25 outline-none"
+                    />
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Settings row */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-[#1A1008]/10">
+              <div>
+                <label className={labelCls}>Correct Answer</label>
+                <select
+                  value={q.correctAnswer.toString()}
+                  onChange={e => updateQuestion(qIndex, 'correctAnswer', Number(e.target.value))}
+                  className={inputCls}
+                >
+                  {q.options.map((_, i) => (
+                    <option key={i} value={i.toString()}>Option {i + 1} ({OPTION_COLORS[i]?.label})</option>
+                  ))}
+                </select>
               </div>
-            )}
-
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              <div className="sm:col-span-4">
-                <Field>
-                  <Label>Game Name</Label>
-                  <Input
-                    type="text"
-                    value={gameName}
-                    onChange={e => setGameName(e.target.value)}
-                    placeholder="Enter game name..."
-                    required
-                  />
-                </Field>
+              <div>
+                <label className={labelCls}>Time Limit (sec)</label>
+                <input
+                  type="number"
+                  value={q.timeLimit}
+                  onChange={e => updateQuestion(qIndex, 'timeLimit', Number(e.target.value))}
+                  min="5"
+                  max="120"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Points</label>
+                <input
+                  type="number"
+                  value={q.points}
+                  onChange={e => updateQuestion(qIndex, 'points', Number(e.target.value))}
+                  min="100"
+                  step="100"
+                  className={inputCls}
+                />
               </div>
             </div>
           </div>
+        ))}
 
-          {/* Questions Section */}
-          {questions.map((question, qIndex) => (
-            <div
-              key={question.id}
-              ref={node => questionRefCallback(node, qIndex)}
-              className="border-b border-gray-900/10 pb-12 dark:border-white/10"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">
-                    Question
-                    {' '}
-                    {qIndex + 1}
-                  </h2>
-                  <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
-                    Add a question with multiple choice options and set the correct answer.
-                  </p>
-                </div>
-                {questions.length > 1 && (
-                  <Button
-                    type="button"
-                    onClick={() => removeQuestion(qIndex)}
-                    outline
-                    className="bg-white text-red-600"
-                  >
-                    Remove
-                  </Button>
-                )}
-              </div>
-
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                <div className="col-span-full">
-                  <Field>
-                    <Label>Question</Label>
-                    <Input
-                      type="text"
-                      value={question.question}
-                      onChange={e => updateQuestion(qIndex, 'question', e.target.value)}
-                      placeholder="Enter your question..."
-                      required
-                    />
-                  </Field>
-                </div>
-
-                {/* Options Grid */}
-                {question.options.map((option, optIndex) => (
-                  // eslint-disable-next-line react/no-array-index-key
-                  <div key={optIndex} className="sm:col-span-3">
-                    <Field>
-                      <Label>
-                        Option
-                        {' '}
-                        {optIndex + 1}
-                      </Label>
-                      <div className={question.correctAnswer === optIndex ? 'rounded-lg before:bg-green-50! dark:before:bg-green-950! [&_input]:border-green-500! dark:[&_input]:border-green-400! [&_input]:dark:bg-green-950/30!' : ''}>
-                        <Input
-                          type="text"
-                          value={option}
-                          onChange={e => updateOption(qIndex, optIndex, e.target.value)}
-                          placeholder={`Option ${optIndex + 1}`}
-                          required
-                        />
-                      </div>
-                    </Field>
-                  </div>
-                ))}
-
-                {/* Settings */}
-                <div className="sm:col-span-2">
-                  <Field>
-                    <Label>Correct Answer</Label>
-                    <Select
-                      name={`correct-answer-${qIndex}`}
-                      value={question.correctAnswer.toString()}
-                      onChange={e =>
-                        updateQuestion(qIndex, 'correctAnswer', Number(e.target.value))}
-                    >
-                      {question.options.map((_, i) => (
-                        <option key={i} value={i.toString()}>
-                          Option
-                          {' '}
-                          {i + 1}
-                        </option>
-                      ))}
-                    </Select>
-                  </Field>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <Field>
-                    <Label>Time Limit (seconds)</Label>
-                    <Input
-                      type="number"
-                      value={question.timeLimit}
-                      onChange={e =>
-                        updateQuestion(qIndex, 'timeLimit', Number(e.target.value))}
-                      min="5"
-                      max="120"
-                    />
-                  </Field>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <Field>
-                    <Label>Points</Label>
-                    <Input
-                      type="number"
-                      value={question.points}
-                      onChange={e =>
-                        updateQuestion(qIndex, 'points', Number(e.target.value))}
-                      min="100"
-                      step="100"
-                    />
-                  </Field>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="mt-6 flex items-center justify-end gap-x-6">
-          <Button
+        {/* Footer actions */}
+        <div className="flex items-center justify-between pt-2">
+          <button
             type="button"
             onClick={addQuestion}
-            outline
+            className={`${pressBtnCls} bg-white text-[#1A1008] flex items-center gap-1.5`}
           >
+            <Plus size={11} />
             Add Question
-          </Button>
-          <Button
+          </button>
+          <button
             type="submit"
-            color="purple"
+            className={`${pressBtnCls} bg-[#D4380D] text-white`}
           >
-            Create Game
-          </Button>
+            Create Game →
+          </button>
         </div>
       </form>
     )
   }
 
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="mb-6 flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Host Dashboard</h1>
-          <p className="text-gray-600">
-            Room Code:
-            <span className="font-mono font-bold text-lg">{roomId}</span>
-          </p>
+  // ── WAITING ROOM ──────────────────────────────────────────────────────────
+  if (gameState === 'waiting') {
+    return (
+      <div className="space-y-4">
+        {ErrorBanner}
+
+        <div className="border-2 border-[#1A1008] bg-white shadow-[4px_4px_0_#1A1008] p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#D4380D] mb-1">Lobby</div>
+              <h2 className="f-display font-black text-[22px] text-[#1A1008] leading-tight">
+                Waiting for Players
+              </h2>
+            </div>
+            <div className="text-right">
+              <div className="f-mono text-[32px] font-black text-[#1A1008] leading-none">{players.length}</div>
+              <div className="f-mono text-[9px] tracking-[0.2em] uppercase text-[#1A1008]/40">joined</div>
+            </div>
+          </div>
+
+          {players.length > 0
+            ? (
+                <div className="space-y-1.5 mb-6">
+                  {players.map((player, i) => (
+                    <div key={player.id} className="flex items-center gap-3 border border-[#1A1008]/10 bg-[#F7F3EC] px-4 py-2.5">
+                      <span className="f-mono text-[9px] text-[#1A1008]/30 w-5">{i + 1}</span>
+                      <span className="f-mono text-[13px] text-[#1A1008]">{player.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            : (
+                <div className="border-2 border-dashed border-[#1A1008]/15 p-8 text-center mb-6">
+                  <p className="f-mono text-[11px] text-[#1A1008]/35">Share the player link above — players will appear here</p>
+                </div>
+              )}
+
+          <div className="flex gap-3">
+            <button
+              onClick={startGame}
+              disabled={players.length === 0}
+              className={`${pressBtnCls} bg-[#D4380D] text-white flex-1`}
+            >
+              Start Game →
+            </button>
+            <button
+              onClick={openProjector}
+              className={`${pressBtnCls} bg-white text-[#1A1008] flex items-center gap-1.5`}
+            >
+              <Monitor size={11} />
+              Projector
+            </button>
+          </div>
         </div>
-        <Button
-          onClick={openProjector}
-          color="indigo"
-          className="flex items-center gap-2 shadow-lg transition-all hover:scale-105"
-          title="Open projector view in new window"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-          </svg>
-          Open Projector View
-        </Button>
       </div>
+    )
+  }
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
+  // ── QUESTION IN PROGRESS ──────────────────────────────────────────────────
+  if (gameState === 'question' && currentQuestion) {
+    const allAnswered = answeredPlayers.size === players.length && players.length > 0
+    return (
+      <div className="space-y-4">
+        {/* Tab switcher */}
+        <div className="flex border-2 border-[#1A1008]">
+          <button
+            onClick={() => setShowLeaderboard(false)}
+            className={`flex-1 f-mono text-[10px] tracking-[0.12em] uppercase py-2.5 transition-colors ${!showLeaderboard ? 'bg-[#D4380D] text-white' : 'bg-white text-[#1A1008] hover:bg-[#F7F3EC]'}`}
+          >
+            Question
+          </button>
+          <button
+            onClick={() => setShowLeaderboard(true)}
+            className={`flex-1 f-mono text-[10px] tracking-[0.12em] uppercase py-2.5 border-l-2 border-[#1A1008] transition-colors ${showLeaderboard ? 'bg-[#D4380D] text-white' : 'bg-white text-[#1A1008] hover:bg-[#F7F3EC]'}`}
+          >
+            Live Leaderboard
+          </button>
         </div>
-      )}
 
-      {gameState === 'waiting' && (
-        <div className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4">Waiting for Players...</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Players:
-            {' '}
-            {players.length}
-          </p>
+        {!showLeaderboard
+          ? (
+              <div className="border-2 border-[#1A1008] bg-white shadow-[4px_4px_0_#1A1008] p-6">
+                <p className="f-display font-bold text-[18px] text-[#1A1008] mb-5">{currentQuestion.question}</p>
 
-          <div className="mb-6 space-y-2">
-            {players.map(player => (
-              <div
-                key={player.id}
-                className="bg-gray-100 dark:bg-zinc-800 px-4 py-2 rounded flex justify-between items-center"
-              >
-                <span className="font-medium">{player.name}</span>
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  {currentQuestion.options.map((option, i) => {
+                    const col = OPTION_COLORS[i]!
+                    return (
+                      <div key={i} className={`border-2 ${col.border} ${col.bg} px-4 py-3 flex items-center gap-3`}>
+                        <span className="f-mono text-[10px] font-black text-[#1A1008]/50">{col.label}</span>
+                        <span className="f-mono text-[13px] text-[#1A1008]">{option}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <div className="border-t border-[#1A1008]/10 pt-4 flex items-center justify-between">
+                  <div>
+                    <span className="f-mono text-[20px] font-black text-[#1A1008]">{answeredPlayers.size}</span>
+                    <span className="f-mono text-[12px] text-[#1A1008]/40"> / {players.length} answered</span>
+                    {allAnswered && <span className="ml-3 f-mono text-[10px] text-[#1B6B3A] tracking-[0.1em] uppercase">all done!</span>}
+                  </div>
+                  <button onClick={nextQuestion} className={`${pressBtnCls} bg-[#D4380D] text-white`}>
+                    {allAnswered ? 'Show Results →' : 'Skip to Results'}
+                  </button>
+                </div>
+              </div>
+            )
+          : (
+              <div className="border-2 border-[#1A1008] bg-white shadow-[4px_4px_0_#1A1008] p-6">
+                <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#1A1008]/10">
+                  <span className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#1A1008]/40">Live Rankings</span>
+                  <span className="f-mono text-[11px] text-[#1A1008]">{answeredPlayers.size} / {players.length} answered</span>
+                </div>
+                <div className="space-y-1.5 mb-5">
+                  {[...players].sort((a, b) => b.score - a.score).map((player, i) => {
+                    const done = answeredPlayers.has(player.id)
+                    return (
+                      <div key={player.id} className={`flex items-center gap-3 px-4 py-3 border-2 transition-colors ${done ? 'border-[#1B6B3A] bg-[#1B6B3A]/[0.06]' : 'border-[#1A1008]/15 bg-[#F7F3EC]'}`}>
+                        <span className="f-mono text-[11px] text-[#1A1008]/40 w-6">#{i + 1}</span>
+                        <span className="f-mono text-[13px] text-[#1A1008] flex-1">{player.name}</span>
+                        {done && <Check size={12} className="text-[#1B6B3A]" />}
+                        <span className="f-mono text-[13px] font-black text-[#D4380D]">{player.score}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+                <button onClick={nextQuestion} className={`${pressBtnCls} bg-[#D4380D] text-white w-full`}>
+                  {allAnswered ? 'Show Results →' : 'Skip to Results'}
+                </button>
+              </div>
+            )}
+      </div>
+    )
+  }
+
+  // ── RESULTS ───────────────────────────────────────────────────────────────
+  if (gameState === 'results' && currentQuestion && correctAnswer !== null) {
+    return (
+      <div className="border-2 border-[#1A1008] bg-white shadow-[4px_4px_0_#1A1008] p-6 space-y-5">
+        <div>
+          <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#D4380D] mb-3">Correct Answer</div>
+          <div className="border-2 border-[#1B6B3A] bg-[#1B6B3A]/[0.08] px-4 py-3 flex items-center gap-3">
+            <Check size={14} className="text-[#1B6B3A] shrink-0" />
+            <span className="f-display font-bold text-[16px] text-[#1A1008]">
+              {OPTION_COLORS[correctAnswer]?.label} — {currentQuestion.options[correctAnswer]}
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#1A1008]/40 mb-3">Top 5</div>
+          <div className="space-y-1.5">
+            {rankings.slice(0, 5).map((player, i) => (
+              <div key={player.playerId} className="flex items-center gap-3 border border-[#1A1008]/10 bg-[#F7F3EC] px-4 py-2.5">
+                <span className="f-mono text-[11px] text-[#1A1008]/35 w-6">#{i + 1}</span>
+                <span className="f-mono text-[13px] text-[#1A1008] flex-1">{player.name}</span>
+                <span className="f-mono text-[13px] font-black text-[#D4380D]">{player.score}</span>
               </div>
             ))}
           </div>
-
-          <Button
-            onClick={startGame}
-            disabled={players.length === 0}
-            color="purple"
-          >
-            Start Game
-          </Button>
         </div>
-      )}
 
-      {gameState === 'question' && currentQuestion && (
-        <div className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6">
-          {/* Toggle buttons */}
-          <div className="flex gap-2 mb-6">
-            <Button
-              onClick={() => setShowLeaderboard(false)}
-              color={!showLeaderboard ? 'purple' : undefined}
-              className="flex-1"
+        <button onClick={nextQuestion} className={`${pressBtnCls} bg-[#D4380D] text-white w-full`}>
+          Next Question →
+        </button>
+      </div>
+    )
+  }
+
+  // ── GAME ENDED ────────────────────────────────────────────────────────────
+  if (gameState === 'ended') {
+    const MEDALS = ['🥇', '🥈', '🥉']
+    return (
+      <div className="border-2 border-[#1A1008] bg-white shadow-[4px_4px_0_#1A1008] p-6">
+        <div className="text-center mb-8">
+          <div className="text-5xl mb-3">🏆</div>
+          <h2 className="f-display font-black text-[32px] text-[#1A1008] leading-tight">
+            Game Over<span className="text-[#D4380D]">.</span>
+          </h2>
+          <p className="f-mono text-[11px] text-[#1A1008]/40 mt-1 tracking-[0.15em] uppercase">Final Rankings</p>
+        </div>
+
+        <div className="space-y-2 mb-8">
+          {rankings.map((player, i) => (
+            <div
+              key={player.playerId}
+              className={`flex items-center gap-3 border-2 px-4 py-3 ${i === 0 ? 'border-[#D4380D] bg-[#D4380D]/[0.06]' : 'border-[#1A1008]/15 bg-[#F7F3EC]'}`}
             >
-              Question
-            </Button>
-            <Button
-              onClick={() => setShowLeaderboard(true)}
-              color={showLeaderboard ? 'purple' : undefined}
-              className="flex-1"
-            >
-              Live Leaderboard
-            </Button>
-          </div>
-
-          {!showLeaderboard
-            ? (
-                <>
-                  <h2 className="text-2xl font-semibold mb-6">{currentQuestion.question}</h2>
-
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    {currentQuestion.options.map((option, index) => (
-                      <div
-                        key={index}
-                        className="bg-gray-100 dark:bg-zinc-800 px-6 py-4 rounded-lg text-center text-lg"
-                      >
-                        {option}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="text-center">
-                    <div className="mb-4">
-                      <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-                        {answeredPlayers.size}
-                        {' '}
-                        /
-                        {players.length}
-                        {' '}
-                        players answered
-                      </span>
-                    </div>
-
-                    {answeredPlayers.size > 0 && answeredPlayers.size < players.length && (
-                      <p className="text-sm text-gray-600 mb-4">
-                        Waiting for remaining players...
-                      </p>
-                    )}
-
-                    {answeredPlayers.size === players.length && players.length > 0 && (
-                      <p className="text-sm text-green-600 font-semibold mb-4">
-                        All players have answered!
-                      </p>
-                    )}
-
-                    <Button
-                      onClick={nextQuestion}
-                      color="orange"
-                    >
-                      {answeredPlayers.size === players.length && players.length > 0
-                        ? 'Show Results'
-                        : 'Skip to Results'}
-                    </Button>
-                  </div>
-                </>
-              )
-            : (
-                <>
-                  <h2 className="text-2xl font-semibold mb-6 text-center">Live Leaderboard</h2>
-
-                  <div className="mb-6">
-                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-purple-900 font-medium">Question in progress</span>
-                        <span className="text-purple-700">
-                          {answeredPlayers.size}
-                          {' '}
-                          /
-                          {players.length}
-                          {' '}
-                          answered
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      {players
-                        .sort((a, b) => b.score - a.score)
-                        .map((player, index) => (
-                          <div
-                            key={player.id}
-                            className={`px-6 py-4 rounded-lg flex justify-between items-center transition-all ${
-                              answeredPlayers.has(player.id)
-                                ? 'bg-green-50 dark:bg-green-900/20 border-2 border-green-500 dark:border-green-700'
-                                : 'bg-gray-100 dark:bg-zinc-800 border-2 border-gray-300 dark:border-zinc-700'
-                            }`}
-                          >
-                            <span className="flex items-center gap-4">
-                              <span className="font-bold text-xl w-10">
-                                #
-                                {index + 1}
-                              </span>
-                              <span className="font-medium text-lg">{player.name}</span>
-                              {answeredPlayers.has(player.id) && (
-                                <span className="text-xs bg-green-500 text-white px-2 py-1 rounded-full flex items-center gap-1">
-                                  <Check className="size-3" />
-                                  Answered
-                                </span>
-                              )}
-                            </span>
-                            <span className="font-bold text-2xl text-purple-600">
-                              {player.score}
-                            </span>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-
-                  <div className="text-center">
-                    <Button
-                      onClick={nextQuestion}
-                      color="orange"
-                    >
-                      {answeredPlayers.size === players.length && players.length > 0
-                        ? 'Show Results'
-                        : 'Skip to Results'}
-                    </Button>
-                  </div>
-                </>
-              )}
-        </div>
-      )}
-
-      {gameState === 'results' && currentQuestion && correctAnswer !== null && (
-        <div className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4">Results</h2>
-
-          <div className="mb-6">
-            <p className="text-lg mb-4">Correct Answer:</p>
-            <div className="bg-green-100 dark:bg-green-900/20 border-2 border-green-500 dark:border-green-700 px-6 py-4 rounded-lg text-center text-lg font-medium">
-              {currentQuestion.options[correctAnswer]}
+              <span className="text-lg w-8">{MEDALS[i] ?? `#${i + 1}`}</span>
+              <span className="f-mono text-[14px] text-[#1A1008] flex-1">{player.name}</span>
+              <span className="f-mono text-[16px] font-black text-[#D4380D]">{player.score}</span>
             </div>
-          </div>
-
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold mb-4">Leaderboard</h3>
-            <div className="space-y-2">
-              {rankings.slice(0, 5).map((player, index) => (
-                <div
-                  key={player.playerId}
-                  className="bg-gray-100 dark:bg-zinc-800 px-4 py-3 rounded flex justify-between items-center"
-                >
-                  <span className="flex items-center gap-3">
-                    <span className="font-bold text-lg w-8">
-                      #
-                      {index + 1}
-                    </span>
-                    <span className="font-medium">{player.name}</span>
-                  </span>
-                  <span className="font-bold text-purple-600">{player.score}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <Button
-            onClick={nextQuestion}
-            color="purple"
-          >
-            Next Question
-          </Button>
+          ))}
         </div>
-      )}
 
-      {gameState === 'ended' && (
-        <div className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6">
-          <h2 className="text-3xl font-bold mb-6 text-center">Game Over!</h2>
+        <button onClick={restartGame} className={`${pressBtnCls} bg-[#D4380D] text-white w-full`}>
+          Play Again
+        </button>
+      </div>
+    )
+  }
 
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold mb-4">Final Rankings</h3>
-            <div className="space-y-3">
-              {rankings.map((player, index) => (
-                <div
-                  key={player.playerId}
-                  className={`px-6 py-4 rounded-lg flex justify-between items-center ${
-                    index === 0
-                      ? 'bg-yellow-100 dark:bg-yellow-900/20 border-2 border-yellow-500 dark:border-yellow-700'
-                      : index === 1
-                        ? 'bg-gray-200 dark:bg-zinc-700'
-                        : index === 2
-                          ? 'bg-orange-100 dark:bg-orange-900/20'
-                          : 'bg-gray-100 dark:bg-zinc-800'
-                  }`}
-                >
-                  <span className="flex items-center gap-4">
-                    <span className="font-bold text-2xl w-10">
-                      #
-                      {index + 1}
-                    </span>
-                    <span className="font-medium text-lg">{player.name}</span>
-                  </span>
-                  <span className="font-bold text-2xl text-purple-600">
-                    {player.score}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex gap-4 justify-center mt-8">
-            <Button
-              onClick={restartGame}
-              color="purple"
-              className="px-8 py-3 text-lg"
-            >
-              Play Again
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
-  )
+  return null
 }
