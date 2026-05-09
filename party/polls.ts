@@ -158,6 +158,31 @@ export default class PollsServer implements Party.Server {
     await this.room.storage.put('poll', this.poll)
     await this.room.storage.put('voters', Array.from(this.voters))
 
+    // Persist to DB — awaited so dbOptionIdMap is set before poll_created reaches clients
+    try {
+      const result = await callInternalApi('polls', {
+        type: 'create_poll',
+        roomId: this.room.id,
+        question: data.question,
+        options: data.options,
+        createdBy: sender.id,
+      })
+      if (result?.ok && this.poll) {
+        const { poll: dbPoll, options: dbOptions } = result.data as { poll: { id: number }, options: Array<{ id: number }> }
+        this.dbPollId = dbPoll.id
+        this.poll.options.forEach((opt, i) => {
+          this.dbOptionIdMap.set(opt.id, dbOptions[i].id)
+        })
+        await this.room.storage.put('dbState', {
+          pollId: this.dbPollId,
+          optionIds: Array.from(this.dbOptionIdMap.entries()),
+        })
+      }
+    }
+    catch (err) {
+      console.error('[polls] DB create_poll failed:', err)
+    }
+
     // Broadcast to all connections
     this.room.broadcast(
       JSON.stringify({
@@ -165,33 +190,6 @@ export default class PollsServer implements Party.Server {
         poll: this.poll,
       } as ServerMessage),
     )
-
-    // Persist to DB (fire-and-forget)
-    ;(async () => {
-      try {
-        const result = await callInternalApi('polls', {
-          type: 'create_poll',
-          roomId: this.room.id,
-          question: data.question,
-          options: data.options,
-          createdBy: sender.id,
-        })
-        if (result?.ok && this.poll) {
-          const { poll: dbPoll, options: dbOptions } = result.data as { poll: { id: number }, options: Array<{ id: number }> }
-          this.dbPollId = dbPoll.id
-          this.poll.options.forEach((opt, i) => {
-            this.dbOptionIdMap.set(opt.id, dbOptions[i].id)
-          })
-          await this.room.storage.put('dbState', {
-            pollId: this.dbPollId,
-            optionIds: Array.from(this.dbOptionIdMap.entries()),
-          })
-        }
-      }
-      catch (err) {
-        console.error('[polls] DB create_poll failed:', err)
-      }
-    })()
   }
 
   private async handleVote(
