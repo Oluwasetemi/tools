@@ -2,7 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
 import { db } from '@/db'
-import { certificateBatches, certificateIssuers, certificates } from '@/db/schema'
+import { certificateBatches, certificates } from '@/db/schema'
 
 type CertFilter = 'all' | 'sent' | 'failed' | 'revoked'
 

@@ -1,60 +1,37 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { randomStr } from '@setemiojo/utils'
 import { toast } from 'sonner'
 import { PollHost } from '@/components/ui/poll-host'
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { BarChart, MoreVertical } from 'lucide-react'
+import { Copy, ExternalLink, RefreshCw } from 'lucide-react'
 
 export const Route = createFileRoute('/party/polls')({
-  component: PollsDemo,
+  component: PollsPage,
   head: () => ({
     meta: [
-      {
-        title: 'Live Poll - Host Dashboard',
-        description: 'Create real-time polls and see votes update live. Instant feedback with live results.',
-        property: 'og:title',
-        content: 'Live Poll - Host Dashboard',
-      },
-      {
-        property: 'og:description',
-        content: 'Create real-time polls and see votes update live. Instant feedback with live results.',
-      },
-      {
-        property: 'og:image',
-        content: `${typeof window !== 'undefined' ? window.location.origin : ''}/api/og/polls?title=Live Poll`,
-      },
-      {
-        property: 'og:type',
-        content: 'website',
-      },
-      {
-        name: 'twitter:card',
-        content: 'summary_large_image',
-      },
-      {
-        name: 'twitter:title',
-        content: 'Live Poll - Host Dashboard',
-      },
-      {
-        name: 'twitter:description',
-        content: 'Create real-time polls and see votes update live. Instant feedback with live results.',
-      },
-      {
-        name: 'twitter:image',
-        content: `${typeof window !== 'undefined' ? window.location.origin : ''}/api/og/polls?title=Live Poll`,
-      },
+      { title: 'Live Poll — Host Dashboard' },
+      { name: 'description', content: 'Create real-time polls and see votes update live. Instant feedback with live results.' },
+      { property: 'og:title', content: 'Live Poll — Host Dashboard' },
+      { property: 'og:description', content: 'Create real-time polls and see votes update live. Instant feedback with live results.' },
     ],
   }),
 })
 
-function PollsDemo() {
+function PollsPage() {
   const [roomId, setRoomId] = useState(() => {
     const params = new URLSearchParams(window.location.search)
     return params.get('room') || `poll-${randomStr(7)}`
   })
+  const [copied, setCopied] = useState(false)
 
   const voterUrl = `${window.location.origin}/party/poll-voter?room=${roomId}`
+
+  const copyUrl = () => {
+    navigator.clipboard.writeText(voterUrl)
+    setCopied(true)
+    toast.success('Voter link copied!')
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   const generateNewRoom = () => {
     const newRoomId = `poll-${randomStr(7)}`
@@ -63,104 +40,110 @@ function PollsDemo() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Page Header */}
-      <div className="px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto flex items-center justify-between gap-x-8 lg:mx-0">
-          <div className="flex items-center gap-x-6">
-            <div className="size-16 flex-none rounded-full bg-blue-500 flex items-center justify-center outline outline-gray-900/10 dark:outline-white/10">
-              <BarChart className="size-8 text-white" />
-            </div>
-            <h1>
-              <div className="text-sm/6 text-gray-500 dark:text-gray-400">
-                Room Code:
-                {' '}
-                <span className="text-gray-700 dark:text-gray-300 font-mono">{roomId}</span>
-              </div>
-              <div className="mt-1 text-base font-semibold text-gray-900 dark:text-white">Live Poll</div>
+    <div className="min-h-screen bg-[#F7F3EC]">
+      {/* Tool accent stripe — ink blue */}
+      <div className="h-1 bg-[#0C3D6B]" />
+
+      {/* Top nav */}
+      <nav className="px-5 sm:px-8 h-10 flex items-center justify-between border-b border-[#1A1008]/10">
+        <Link
+          to="/"
+          className="f-display font-black text-[15px] tracking-tight text-[#1A1008] no-underline"
+        >
+          TOOLS<span className="text-[#D4380D]">.</span>
+        </Link>
+        <span className="f-mono text-[9px] tracking-[0.2em] uppercase text-[#1A1008]/30">
+          02 · Poll Host
+        </span>
+      </nav>
+
+      {/* Page header */}
+      <div className="px-5 sm:px-8 pt-8 pb-0 border-b-2 border-[#1A1008]">
+        <div className="flex flex-wrap items-start justify-between gap-4 pb-6">
+          <div>
+            <h1 className="f-display font-black text-[30px] sm:text-[40px] tracking-[-0.03em] text-[#1A1008] leading-tight">
+              Live Poll<span className="text-[#0C3D6B]">.</span>
             </h1>
-          </div>
-          <div className="flex items-center gap-x-4 sm:gap-x-6">
             <button
-              type="button"
-              onClick={() => {
-                navigator.clipboard.writeText(voterUrl)
-                toast.success('Voter link copied!')
-              }}
-              className="hidden text-sm/6 font-semibold text-gray-900 sm:block dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
+              onClick={copyUrl}
+              className="flex items-center gap-2 mt-2 group"
+              title="Click to copy voter URL"
             >
-              Copy URL
+              <span className="f-mono text-[10px] tracking-wider uppercase text-[#1A1008]/35">Room</span>
+              <code className="f-mono text-[12px] font-medium text-[#0C3D6B] bg-[#0C3D6B]/[0.08] px-2 py-0.5 border border-[#0C3D6B]/25 group-hover:bg-[#0C3D6B]/[0.14] transition-colors">
+                {roomId}
+              </code>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={generateNewRoom}
+              className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-white f-mono text-[10px] tracking-[0.1em] uppercase text-[#1A1008] shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
+            >
+              <RefreshCw size={11} />
+              New Room
             </button>
             <button
-              type="button"
-              onClick={generateNewRoom}
-              className="hidden text-sm/6 font-semibold text-gray-900 sm:block dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
+              onClick={copyUrl}
+              className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-white f-mono text-[10px] tracking-[0.1em] uppercase text-[#1A1008] shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
             >
-              New Room
+              <Copy size={11} />
+              {copied ? 'Copied!' : 'Copy URL'}
             </button>
             <a
               href={voterUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:bg-blue-500 dark:shadow-none dark:hover:bg-blue-400 dark:focus-visible:outline-blue-500"
+              className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-[#0C3D6B] text-white f-mono text-[10px] tracking-[0.1em] uppercase shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 no-underline"
             >
-              Open Voter View
+              <ExternalLink size={11} />
+              Open Voter ↗
             </a>
+          </div>
+        </div>
 
-            <Menu as="div" className="relative sm:hidden">
-              <MenuButton className="relative block">
-                <span className="absolute -inset-3" />
-                <span className="sr-only">More</span>
-                <MoreVertical aria-hidden="true" className="size-5 text-gray-500 dark:text-gray-400" />
-              </MenuButton>
-
-              <MenuItems
-                transition
-                className="absolute right-0 z-10 mt-0.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg outline-1 outline-gray-900/5 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in dark:bg-gray-800 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10"
-              >
-                <MenuItem>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(voterUrl)
-                      toast.success('Voter link copied!')
-                    }}
-                    className="block w-full px-3 py-1 text-left text-sm/6 text-gray-900 data-focus:bg-gray-50 data-focus:outline-hidden dark:text-white dark:data-focus:bg-white/5"
-                  >
-                    Copy URL
-                  </button>
-                </MenuItem>
-                <MenuItem>
-                  <button
-                    type="button"
-                    onClick={generateNewRoom}
-                    className="block w-full px-3 py-1 text-left text-sm/6 text-gray-900 data-focus:bg-gray-50 data-focus:outline-hidden dark:text-white dark:data-focus:bg-white/5"
-                  >
-                    New Room
-                  </button>
-                </MenuItem>
-              </MenuItems>
-            </Menu>
+        {/* Share URL bar */}
+        <div className="pb-5">
+          <div className="flex items-stretch border-2 border-[#1A1008] bg-white shadow-[3px_3px_0_#1A1008]">
+            <div className="px-3 py-2.5 border-r border-[#1A1008]/15 bg-[#1A1008]/[0.02] shrink-0 flex items-center">
+              <span className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#1A1008]/35">Share</span>
+            </div>
+            <code className="px-3 py-2.5 f-mono text-[11px] text-[#1A1008]/60 flex-1 min-w-0 truncate flex items-center">
+              {voterUrl}
+            </code>
+            <button
+              onClick={copyUrl}
+              className="px-4 py-2.5 bg-[#0C3D6B] text-white f-mono text-[10px] tracking-[0.12em] uppercase shrink-0 border-l-2 border-[#1A1008] hover:bg-[#0a3259] transition-colors"
+            >
+              {copied ? '✓' : 'Copy'}
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Instructions Banner */}
-      <div className="px-4 sm:px-6 lg:px-8 pb-6">
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <h2 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">How it works:</h2>
-          <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-            <li>• Create a poll by entering a question and options below</li>
-            <li>• Share the voter link with participants</li>
-            <li>• Watch votes come in real-time on this dashboard</li>
-            <li>• End the poll at any time to stop accepting votes</li>
-          </ul>
+      {/* Quick steps */}
+      <div className="px-5 sm:px-8 py-4 border-b border-[#1A1008]/10 bg-[#1A1008]/[0.015]">
+        <div className="flex gap-8 flex-wrap">
+          {[
+            { n: '01', text: 'Enter a question and options below' },
+            { n: '02', text: 'Share the voter link with participants' },
+            { n: '03', text: 'End the poll at any time' },
+          ].map(s => (
+            <div key={s.n} className="flex items-center gap-2">
+              <span className="f-mono text-[10px] tracking-wider text-[#0C3D6B]">{s.n}</span>
+              <span className="f-mono text-[11px] text-[#1A1008]/50">{s.text}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="px-4 sm:px-6 lg:px-8">
-        <PollHost roomId={roomId} host={import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'} />
+      {/* Main component */}
+      <div className="px-5 sm:px-8 py-6">
+        <PollHost
+          roomId={roomId}
+          host={import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'}
+        />
       </div>
     </div>
   )

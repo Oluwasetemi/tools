@@ -1,7 +1,6 @@
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { ImageResponse } from '@vercel/og'
-import React from 'react'
 
 async function generateOGImage() {
   const imageResponse = new ImageResponse(

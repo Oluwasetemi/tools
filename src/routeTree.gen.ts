@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as R404RouteImport } from './routes/$404'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PartyPollsRouteImport } from './routes/party.polls'
@@ -24,15 +25,24 @@ import { Route as DemoTableRouteImport } from './routes/demo/table'
 import { Route as DemoNeonRouteImport } from './routes/demo/neon'
 import { Route as DemoMcpTodosRouteImport } from './routes/demo/mcp-todos'
 import { Route as DemoDrizzleRouteImport } from './routes/demo/drizzle'
+import { Route as CertificatesSettingsRouteImport } from './routes/certificates.settings'
+import { Route as CertificatesSendRouteImport } from './routes/certificates.send'
 import { Route as ApiOgIndexRouteImport } from './routes/api/og/index'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as DemoApiMcpTodosRouteImport } from './routes/demo/api.mcp-todos'
+import { Route as CertificatesVerifyIdRouteImport } from './routes/certificates.verify.$id'
 import { Route as ApiOgPollsRouteImport } from './routes/api/og/polls'
 import { Route as ApiOgKahootRouteImport } from './routes/api/og/kahoot'
 import { Route as ApiOgFeelingsRouteImport } from './routes/api/og/feelings'
 import { Route as ApiOgFeedbackRouteImport } from './routes/api/og/feedback'
+import { Route as ApiInternalPollsRouteImport } from './routes/api/internal/polls'
+import { Route as ApiInternalKahootRouteImport } from './routes/api/internal/kahoot'
+import { Route as ApiInternalFeelingsRouteImport } from './routes/api/internal/feelings'
+import { Route as ApiInternalFeedbackRouteImport } from './routes/api/internal/feedback'
+import { Route as ApiCertificatesSendRouteImport } from './routes/api/certificates/send'
+import { Route as ApiCertificatesIssuerRouteImport } from './routes/api/certificates/issuer'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
@@ -41,6 +51,11 @@ import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ss
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CertificatesRoute = CertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const R404Route = R404RouteImport.update({
@@ -113,6 +128,16 @@ const DemoDrizzleRoute = DemoDrizzleRouteImport.update({
   path: '/demo/drizzle',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CertificatesSettingsRoute = CertificatesSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => CertificatesRoute,
+} as any)
+const CertificatesSendRoute = CertificatesSendRouteImport.update({
+  id: '/send',
+  path: '/send',
+  getParentRoute: () => CertificatesRoute,
+} as any)
 const ApiOgIndexRoute = ApiOgIndexRouteImport.update({
   id: '/api/og/',
   path: '/api/og/',
@@ -138,6 +163,11 @@ const DemoApiMcpTodosRoute = DemoApiMcpTodosRouteImport.update({
   path: '/demo/api/mcp-todos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CertificatesVerifyIdRoute = CertificatesVerifyIdRouteImport.update({
+  id: '/verify/$id',
+  path: '/verify/$id',
+  getParentRoute: () => CertificatesRoute,
+} as any)
 const ApiOgPollsRoute = ApiOgPollsRouteImport.update({
   id: '/api/og/polls',
   path: '/api/og/polls',
@@ -156,6 +186,36 @@ const ApiOgFeelingsRoute = ApiOgFeelingsRouteImport.update({
 const ApiOgFeedbackRoute = ApiOgFeedbackRouteImport.update({
   id: '/api/og/feedback',
   path: '/api/og/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiInternalPollsRoute = ApiInternalPollsRouteImport.update({
+  id: '/api/internal/polls',
+  path: '/api/internal/polls',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiInternalKahootRoute = ApiInternalKahootRouteImport.update({
+  id: '/api/internal/kahoot',
+  path: '/api/internal/kahoot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiInternalFeelingsRoute = ApiInternalFeelingsRouteImport.update({
+  id: '/api/internal/feelings',
+  path: '/api/internal/feelings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiInternalFeedbackRoute = ApiInternalFeedbackRouteImport.update({
+  id: '/api/internal/feedback',
+  path: '/api/internal/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCertificatesSendRoute = ApiCertificatesSendRouteImport.update({
+  id: '/api/certificates/send',
+  path: '/api/certificates/send',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCertificatesIssuerRoute = ApiCertificatesIssuerRouteImport.update({
+  id: '/api/certificates/issuer',
+  path: '/api/certificates/issuer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
@@ -182,7 +242,10 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$404': typeof R404Route
+  '/certificates': typeof CertificatesRouteWithChildren
   '/mcp': typeof McpRoute
+  '/certificates/send': typeof CertificatesSendRoute
+  '/certificates/settings': typeof CertificatesSettingsRoute
   '/demo/drizzle': typeof DemoDrizzleRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/neon': typeof DemoNeonRoute
@@ -195,24 +258,34 @@ export interface FileRoutesByFullPath {
   '/party/kahoot-projector': typeof PartyKahootProjectorRoute
   '/party/poll-voter': typeof PartyPollVoterRoute
   '/party/polls': typeof PartyPollsRoute
+  '/api/certificates/issuer': typeof ApiCertificatesIssuerRoute
+  '/api/certificates/send': typeof ApiCertificatesSendRoute
+  '/api/internal/feedback': typeof ApiInternalFeedbackRoute
+  '/api/internal/feelings': typeof ApiInternalFeelingsRoute
+  '/api/internal/kahoot': typeof ApiInternalKahootRoute
+  '/api/internal/polls': typeof ApiInternalPollsRoute
   '/api/og/feedback': typeof ApiOgFeedbackRoute
   '/api/og/feelings': typeof ApiOgFeelingsRoute
   '/api/og/kahoot': typeof ApiOgKahootRoute
   '/api/og/polls': typeof ApiOgPollsRoute
+  '/certificates/verify/$id': typeof CertificatesVerifyIdRoute
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/api/og': typeof ApiOgIndexRoute
+  '/api/og/': typeof ApiOgIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr': typeof DemoStartSsrIndexRoute
+  '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$404': typeof R404Route
+  '/certificates': typeof CertificatesRouteWithChildren
   '/mcp': typeof McpRoute
+  '/certificates/send': typeof CertificatesSendRoute
+  '/certificates/settings': typeof CertificatesSettingsRoute
   '/demo/drizzle': typeof DemoDrizzleRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/neon': typeof DemoNeonRoute
@@ -225,10 +298,17 @@ export interface FileRoutesByTo {
   '/party/kahoot-projector': typeof PartyKahootProjectorRoute
   '/party/poll-voter': typeof PartyPollVoterRoute
   '/party/polls': typeof PartyPollsRoute
+  '/api/certificates/issuer': typeof ApiCertificatesIssuerRoute
+  '/api/certificates/send': typeof ApiCertificatesSendRoute
+  '/api/internal/feedback': typeof ApiInternalFeedbackRoute
+  '/api/internal/feelings': typeof ApiInternalFeelingsRoute
+  '/api/internal/kahoot': typeof ApiInternalKahootRoute
+  '/api/internal/polls': typeof ApiInternalPollsRoute
   '/api/og/feedback': typeof ApiOgFeedbackRoute
   '/api/og/feelings': typeof ApiOgFeelingsRoute
   '/api/og/kahoot': typeof ApiOgKahootRoute
   '/api/og/polls': typeof ApiOgPollsRoute
+  '/certificates/verify/$id': typeof CertificatesVerifyIdRoute
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -243,7 +323,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$404': typeof R404Route
+  '/certificates': typeof CertificatesRouteWithChildren
   '/mcp': typeof McpRoute
+  '/certificates/send': typeof CertificatesSendRoute
+  '/certificates/settings': typeof CertificatesSettingsRoute
   '/demo/drizzle': typeof DemoDrizzleRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/neon': typeof DemoNeonRoute
@@ -256,10 +339,17 @@ export interface FileRoutesById {
   '/party/kahoot-projector': typeof PartyKahootProjectorRoute
   '/party/poll-voter': typeof PartyPollVoterRoute
   '/party/polls': typeof PartyPollsRoute
+  '/api/certificates/issuer': typeof ApiCertificatesIssuerRoute
+  '/api/certificates/send': typeof ApiCertificatesSendRoute
+  '/api/internal/feedback': typeof ApiInternalFeedbackRoute
+  '/api/internal/feelings': typeof ApiInternalFeelingsRoute
+  '/api/internal/kahoot': typeof ApiInternalKahootRoute
+  '/api/internal/polls': typeof ApiInternalPollsRoute
   '/api/og/feedback': typeof ApiOgFeedbackRoute
   '/api/og/feelings': typeof ApiOgFeelingsRoute
   '/api/og/kahoot': typeof ApiOgKahootRoute
   '/api/og/polls': typeof ApiOgPollsRoute
+  '/certificates/verify/$id': typeof CertificatesVerifyIdRoute
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -275,7 +365,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$404'
+    | '/certificates'
     | '/mcp'
+    | '/certificates/send'
+    | '/certificates/settings'
     | '/demo/drizzle'
     | '/demo/mcp-todos'
     | '/demo/neon'
@@ -288,24 +381,34 @@ export interface FileRouteTypes {
     | '/party/kahoot-projector'
     | '/party/poll-voter'
     | '/party/polls'
+    | '/api/certificates/issuer'
+    | '/api/certificates/send'
+    | '/api/internal/feedback'
+    | '/api/internal/feelings'
+    | '/api/internal/kahoot'
+    | '/api/internal/polls'
     | '/api/og/feedback'
     | '/api/og/feelings'
     | '/api/og/kahoot'
     | '/api/og/polls'
+    | '/certificates/verify/$id'
     | '/demo/api/mcp-todos'
     | '/demo/api/names'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
-    | '/api/og'
+    | '/api/og/'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr'
+    | '/demo/start/ssr/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/$404'
+    | '/certificates'
     | '/mcp'
+    | '/certificates/send'
+    | '/certificates/settings'
     | '/demo/drizzle'
     | '/demo/mcp-todos'
     | '/demo/neon'
@@ -318,10 +421,17 @@ export interface FileRouteTypes {
     | '/party/kahoot-projector'
     | '/party/poll-voter'
     | '/party/polls'
+    | '/api/certificates/issuer'
+    | '/api/certificates/send'
+    | '/api/internal/feedback'
+    | '/api/internal/feelings'
+    | '/api/internal/kahoot'
+    | '/api/internal/polls'
     | '/api/og/feedback'
     | '/api/og/feelings'
     | '/api/og/kahoot'
     | '/api/og/polls'
+    | '/certificates/verify/$id'
     | '/demo/api/mcp-todos'
     | '/demo/api/names'
     | '/demo/start/api-request'
@@ -335,7 +445,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/$404'
+    | '/certificates'
     | '/mcp'
+    | '/certificates/send'
+    | '/certificates/settings'
     | '/demo/drizzle'
     | '/demo/mcp-todos'
     | '/demo/neon'
@@ -348,10 +461,17 @@ export interface FileRouteTypes {
     | '/party/kahoot-projector'
     | '/party/poll-voter'
     | '/party/polls'
+    | '/api/certificates/issuer'
+    | '/api/certificates/send'
+    | '/api/internal/feedback'
+    | '/api/internal/feelings'
+    | '/api/internal/kahoot'
+    | '/api/internal/polls'
     | '/api/og/feedback'
     | '/api/og/feelings'
     | '/api/og/kahoot'
     | '/api/og/polls'
+    | '/certificates/verify/$id'
     | '/demo/api/mcp-todos'
     | '/demo/api/names'
     | '/demo/start/api-request'
@@ -366,6 +486,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   R404Route: typeof R404Route
+  CertificatesRoute: typeof CertificatesRouteWithChildren
   McpRoute: typeof McpRoute
   DemoDrizzleRoute: typeof DemoDrizzleRoute
   DemoMcpTodosRoute: typeof DemoMcpTodosRoute
@@ -379,6 +500,12 @@ export interface RootRouteChildren {
   PartyKahootProjectorRoute: typeof PartyKahootProjectorRoute
   PartyPollVoterRoute: typeof PartyPollVoterRoute
   PartyPollsRoute: typeof PartyPollsRoute
+  ApiCertificatesIssuerRoute: typeof ApiCertificatesIssuerRoute
+  ApiCertificatesSendRoute: typeof ApiCertificatesSendRoute
+  ApiInternalFeedbackRoute: typeof ApiInternalFeedbackRoute
+  ApiInternalFeelingsRoute: typeof ApiInternalFeelingsRoute
+  ApiInternalKahootRoute: typeof ApiInternalKahootRoute
+  ApiInternalPollsRoute: typeof ApiInternalPollsRoute
   ApiOgFeedbackRoute: typeof ApiOgFeedbackRoute
   ApiOgFeelingsRoute: typeof ApiOgFeelingsRoute
   ApiOgKahootRoute: typeof ApiOgKahootRoute
@@ -401,6 +528,13 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/certificates': {
+      id: '/certificates'
+      path: '/certificates'
+      fullPath: '/certificates'
+      preLoaderRoute: typeof CertificatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$404': {
@@ -501,10 +635,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoDrizzleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/certificates/settings': {
+      id: '/certificates/settings'
+      path: '/settings'
+      fullPath: '/certificates/settings'
+      preLoaderRoute: typeof CertificatesSettingsRouteImport
+      parentRoute: typeof CertificatesRoute
+    }
+    '/certificates/send': {
+      id: '/certificates/send'
+      path: '/send'
+      fullPath: '/certificates/send'
+      preLoaderRoute: typeof CertificatesSendRouteImport
+      parentRoute: typeof CertificatesRoute
+    }
     '/api/og/': {
       id: '/api/og/'
       path: '/api/og'
-      fullPath: '/api/og'
+      fullPath: '/api/og/'
       preLoaderRoute: typeof ApiOgIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -536,6 +684,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoApiMcpTodosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/certificates/verify/$id': {
+      id: '/certificates/verify/$id'
+      path: '/verify/$id'
+      fullPath: '/certificates/verify/$id'
+      preLoaderRoute: typeof CertificatesVerifyIdRouteImport
+      parentRoute: typeof CertificatesRoute
+    }
     '/api/og/polls': {
       id: '/api/og/polls'
       path: '/api/og/polls'
@@ -564,10 +719,52 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiOgFeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/internal/polls': {
+      id: '/api/internal/polls'
+      path: '/api/internal/polls'
+      fullPath: '/api/internal/polls'
+      preLoaderRoute: typeof ApiInternalPollsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/internal/kahoot': {
+      id: '/api/internal/kahoot'
+      path: '/api/internal/kahoot'
+      fullPath: '/api/internal/kahoot'
+      preLoaderRoute: typeof ApiInternalKahootRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/internal/feelings': {
+      id: '/api/internal/feelings'
+      path: '/api/internal/feelings'
+      fullPath: '/api/internal/feelings'
+      preLoaderRoute: typeof ApiInternalFeelingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/internal/feedback': {
+      id: '/api/internal/feedback'
+      path: '/api/internal/feedback'
+      fullPath: '/api/internal/feedback'
+      preLoaderRoute: typeof ApiInternalFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/certificates/send': {
+      id: '/api/certificates/send'
+      path: '/api/certificates/send'
+      fullPath: '/api/certificates/send'
+      preLoaderRoute: typeof ApiCertificatesSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/certificates/issuer': {
+      id: '/api/certificates/issuer'
+      path: '/api/certificates/issuer'
+      fullPath: '/api/certificates/issuer'
+      preLoaderRoute: typeof ApiCertificatesIssuerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/start/ssr/': {
       id: '/demo/start/ssr/'
       path: '/demo/start/ssr'
-      fullPath: '/demo/start/ssr'
+      fullPath: '/demo/start/ssr/'
       preLoaderRoute: typeof DemoStartSsrIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -595,9 +792,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CertificatesRouteChildren {
+  CertificatesSendRoute: typeof CertificatesSendRoute
+  CertificatesSettingsRoute: typeof CertificatesSettingsRoute
+  CertificatesVerifyIdRoute: typeof CertificatesVerifyIdRoute
+}
+
+const CertificatesRouteChildren: CertificatesRouteChildren = {
+  CertificatesSendRoute: CertificatesSendRoute,
+  CertificatesSettingsRoute: CertificatesSettingsRoute,
+  CertificatesVerifyIdRoute: CertificatesVerifyIdRoute,
+}
+
+const CertificatesRouteWithChildren = CertificatesRoute._addFileChildren(
+  CertificatesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   R404Route: R404Route,
+  CertificatesRoute: CertificatesRouteWithChildren,
   McpRoute: McpRoute,
   DemoDrizzleRoute: DemoDrizzleRoute,
   DemoMcpTodosRoute: DemoMcpTodosRoute,
@@ -611,6 +825,12 @@ const rootRouteChildren: RootRouteChildren = {
   PartyKahootProjectorRoute: PartyKahootProjectorRoute,
   PartyPollVoterRoute: PartyPollVoterRoute,
   PartyPollsRoute: PartyPollsRoute,
+  ApiCertificatesIssuerRoute: ApiCertificatesIssuerRoute,
+  ApiCertificatesSendRoute: ApiCertificatesSendRoute,
+  ApiInternalFeedbackRoute: ApiInternalFeedbackRoute,
+  ApiInternalFeelingsRoute: ApiInternalFeelingsRoute,
+  ApiInternalKahootRoute: ApiInternalKahootRoute,
+  ApiInternalPollsRoute: ApiInternalPollsRoute,
   ApiOgFeedbackRoute: ApiOgFeedbackRoute,
   ApiOgFeelingsRoute: ApiOgFeelingsRoute,
   ApiOgKahootRoute: ApiOgKahootRoute,

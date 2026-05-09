@@ -1,59 +1,34 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { PollVoter } from '@/components/ui/poll-voter'
 
 export const Route = createFileRoute('/party/poll-voter')({
-  component: PollVoterDemo,
-  validateSearch: (search: Record<string, unknown>) => {
-    return {
-      room: (search.room as string) || 'default-room',
-    }
-  },
+  component: PollVoterPage,
+  validateSearch: (search: Record<string, unknown>) => ({
+    room: (search.room as string) || 'default-room',
+  }),
   head: () => ({
     meta: [
-      {
-        title: 'Vote on Live Poll',
-        description: 'Cast your vote and see results update in real-time.',
-        property: 'og:title',
-        content: 'Vote on Live Poll',
-      },
-      {
-        property: 'og:description',
-        content: 'Cast your vote and see results update in real-time.',
-      },
-      {
-        property: 'og:image',
-        content: `${typeof window !== 'undefined' ? window.location.origin : ''}/api/og/polls?title=Vote Now`,
-      },
-      {
-        property: 'og:type',
-        content: 'website',
-      },
-      {
-        name: 'twitter:card',
-        content: 'summary_large_image',
-      },
-      {
-        name: 'twitter:title',
-        content: 'Vote on Live Poll',
-      },
-      {
-        name: 'twitter:description',
-        content: 'Cast your vote and see results update in real-time.',
-      },
-      {
-        name: 'twitter:image',
-        content: `${typeof window !== 'undefined' ? window.location.origin : ''}/api/og/polls?title=Vote Now`,
-      },
+      { title: 'Vote on Live Poll' },
+      { name: 'description', content: 'Cast your vote and see results update in real-time.' },
     ],
   }),
 })
 
-function PollVoterDemo() {
+function PollVoterPage() {
   const { room: roomId } = Route.useSearch()
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen bg-[#F7F3EC] flex flex-col">
+      <div className="h-1 bg-[#0C3D6B] shrink-0" />
+      <nav className="px-4 h-9 flex items-center justify-between border-b border-[#1A1008]/10 bg-[#F7F3EC] shrink-0">
+        <Link to="/" className="f-display font-black text-[14px] tracking-tight text-[#1A1008] no-underline">
+          TOOLS<span className="text-[#D4380D]">.</span>
+        </Link>
+        <code className="f-mono text-[9px] tracking-[0.18em] uppercase text-[#1A1008]/35 bg-[#1A1008]/[0.04] px-2 py-0.5">
+          {roomId}
+        </code>
+      </nav>
+      <div className="flex-1 py-8 px-4">
         <PollVoter
           roomId={roomId}
           host={import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'}

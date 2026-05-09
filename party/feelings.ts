@@ -41,7 +41,7 @@ export default class FeelingsServer implements Party.Server {
     }
   }
 
-  async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
+  async onConnect(conn: Party.Connection) {
     console.log(
       `Connected:`,
       conn.id,

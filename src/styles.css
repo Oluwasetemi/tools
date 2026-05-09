@@ -441,6 +441,10 @@ data-lsp {
   animation-name: fade-in;
 }
 
+/* Broadsheet design system — Playfair Display + JetBrains Mono */
+.f-display { font-family: 'Playfair Display', serif; }
+.f-mono    { font-family: 'JetBrains Mono', monospace; }
+
 /* Respect user's motion preferences */
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),

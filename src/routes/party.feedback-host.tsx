@@ -1,167 +1,149 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { randomStr } from '@setemiojo/utils'
 import { toast } from 'sonner'
 import { FeedbackHost } from '@/components/ui/feedback'
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { MessageSquare, MoreVertical } from 'lucide-react'
+import { Copy, ExternalLink, RefreshCw } from 'lucide-react'
 
 export const Route = createFileRoute('/party/feedback-host')({
-  component: FeedbackHostDemo,
+  component: FeedbackHostPage,
   head: () => ({
     meta: [
-      {
-        title: 'Live Feedback - Host Dashboard',
-        description: 'Collect real-time feedback with emoji reactions, text responses, and score ratings.',
-        property: 'og:title',
-        content: 'Live Feedback - Host Dashboard',
-      },
-      {
-        property: 'og:description',
-        content: 'Collect real-time feedback with emoji reactions, text responses, and score ratings.',
-      },
-      {
-        property: 'og:image',
-        content: `${typeof window !== 'undefined' ? window.location.origin : ''}/api/og/feedback?title=Live Feedback`,
-      },
-      {
-        property: 'og:type',
-        content: 'website',
-      },
-      {
-        name: 'twitter:card',
-        content: 'summary_large_image',
-      },
-      {
-        name: 'twitter:title',
-        content: 'Live Feedback - Host Dashboard',
-      },
-      {
-        name: 'twitter:description',
-        content: 'Collect real-time feedback with emoji reactions, text responses, and score ratings.',
-      },
-      {
-        name: 'twitter:image',
-        content: `${typeof window !== 'undefined' ? window.location.origin : ''}/api/og/feedback?title=Live Feedback`,
-      },
+      { title: 'Live Feedback — Host Dashboard' },
+      { name: 'description', content: 'Collect real-time feedback with emoji reactions, text responses, and score ratings.' },
+      { property: 'og:title', content: 'Live Feedback — Host Dashboard' },
+      { property: 'og:description', content: 'Collect real-time feedback with emoji reactions, text responses, and score ratings.' },
     ],
   }),
 })
 
-function FeedbackHostDemo() {
+function FeedbackHostPage() {
   const [roomId, setRoomId] = useState(() => {
-    // Generate a random room ID or get from URL
     const params = new URLSearchParams(window.location.search)
     return params.get('room') || `feedback-${randomStr(7)}`
   })
+  const [copied, setCopied] = useState(false)
 
   const clientUrl = `${window.location.origin}/party/feedback-client?room=${roomId}`
+
+  const copyUrl = () => {
+    navigator.clipboard.writeText(clientUrl)
+    setCopied(true)
+    toast.success('Client link copied!')
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   const generateNewRoom = () => {
     const newRoomId = `feedback-${randomStr(7)}`
     setRoomId(newRoomId)
-    // Update URL without page reload
     window.history.pushState({}, '', `?room=${newRoomId}`)
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Page Header */}
-      <div className="px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto flex items-center justify-between gap-x-8 lg:mx-0">
-          <div className="flex items-center gap-x-6">
-            <div className="size-16 flex-none rounded-full bg-green-500 flex items-center justify-center outline outline-gray-900/10 dark:outline-white/10">
-              <MessageSquare className="size-8 text-white" />
-            </div>
-            <h1>
-              <div className="text-sm/6 text-gray-500 dark:text-gray-400">
-                Room Code:
-                {' '}
-                <span className="text-gray-700 dark:text-gray-300 font-mono">{roomId}</span>
-              </div>
-              <div className="mt-1 text-base font-semibold text-gray-900 dark:text-white">Live Feedback</div>
+    <div className="min-h-screen bg-[#F7F3EC]">
+      {/* Tool accent stripe — forest green */}
+      <div className="h-1 bg-[#1B6B3A]" />
+
+      {/* Top nav */}
+      <nav className="px-5 sm:px-8 h-10 flex items-center justify-between border-b border-[#1A1008]/10">
+        <Link
+          to="/"
+          className="f-display font-black text-[15px] tracking-tight text-[#1A1008] no-underline"
+        >
+          TOOLS<span className="text-[#D4380D]">.</span>
+        </Link>
+        <span className="f-mono text-[9px] tracking-[0.2em] uppercase text-[#1A1008]/30">
+          03 · Feedback Host
+        </span>
+      </nav>
+
+      {/* Page header */}
+      <div className="px-5 sm:px-8 pt-8 pb-0 border-b-2 border-[#1A1008]">
+        <div className="flex flex-wrap items-start justify-between gap-4 pb-6">
+          <div>
+            <h1 className="f-display font-black text-[30px] sm:text-[40px] tracking-[-0.03em] text-[#1A1008] leading-tight">
+              Live Feedback<span className="text-[#1B6B3A]">.</span>
             </h1>
-          </div>
-          <div className="flex items-center gap-x-4 sm:gap-x-6">
             <button
-              type="button"
-              onClick={() => {
-                navigator.clipboard.writeText(clientUrl)
-                toast.success('Client link copied!')
-              }}
-              className="hidden text-sm/6 font-semibold text-gray-900 sm:block dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
+              onClick={copyUrl}
+              className="flex items-center gap-2 mt-2 group"
+              title="Click to copy client URL"
             >
-              Copy URL
+              <span className="f-mono text-[10px] tracking-wider uppercase text-[#1A1008]/35">Room</span>
+              <code className="f-mono text-[12px] font-medium text-[#1B6B3A] bg-[#1B6B3A]/[0.08] px-2 py-0.5 border border-[#1B6B3A]/25 group-hover:bg-[#1B6B3A]/[0.14] transition-colors">
+                {roomId}
+              </code>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={generateNewRoom}
+              className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-white f-mono text-[10px] tracking-[0.1em] uppercase text-[#1A1008] shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
+            >
+              <RefreshCw size={11} />
+              New Room
             </button>
             <button
-              type="button"
-              onClick={generateNewRoom}
-              className="hidden text-sm/6 font-semibold text-gray-900 sm:block dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
+              onClick={copyUrl}
+              className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-white f-mono text-[10px] tracking-[0.1em] uppercase text-[#1A1008] shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
             >
-              New Room
+              <Copy size={11} />
+              {copied ? 'Copied!' : 'Copy URL'}
             </button>
             <a
               href={clientUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 dark:bg-green-500 dark:shadow-none dark:hover:bg-green-400 dark:focus-visible:outline-green-500"
+              className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-[#1B6B3A] text-white f-mono text-[10px] tracking-[0.1em] uppercase shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 no-underline"
             >
-              Open Client View
+              <ExternalLink size={11} />
+              Open Client ↗
             </a>
+          </div>
+        </div>
 
-            <Menu as="div" className="relative sm:hidden">
-              <MenuButton className="relative block">
-                <span className="absolute -inset-3" />
-                <span className="sr-only">More</span>
-                <MoreVertical aria-hidden="true" className="size-5 text-gray-500 dark:text-gray-400" />
-              </MenuButton>
-
-              <MenuItems
-                transition
-                className="absolute right-0 z-10 mt-0.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg outline-1 outline-gray-900/5 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in dark:bg-gray-800 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10"
-              >
-                <MenuItem>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(clientUrl)
-                      toast.success('Client link copied!')
-                    }}
-                    className="block w-full px-3 py-1 text-left text-sm/6 text-gray-900 data-focus:bg-gray-50 data-focus:outline-hidden dark:text-white dark:data-focus:bg-white/5"
-                  >
-                    Copy URL
-                  </button>
-                </MenuItem>
-                <MenuItem>
-                  <button
-                    type="button"
-                    onClick={generateNewRoom}
-                    className="block w-full px-3 py-1 text-left text-sm/6 text-gray-900 data-focus:bg-gray-50 data-focus:outline-hidden dark:text-white dark:data-focus:bg-white/5"
-                  >
-                    New Room
-                  </button>
-                </MenuItem>
-              </MenuItems>
-            </Menu>
+        {/* Share URL bar */}
+        <div className="pb-5">
+          <div className="flex items-stretch border-2 border-[#1A1008] bg-white shadow-[3px_3px_0_#1A1008]">
+            <div className="px-3 py-2.5 border-r border-[#1A1008]/15 bg-[#1A1008]/[0.02] shrink-0 flex items-center">
+              <span className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#1A1008]/35">Share</span>
+            </div>
+            <code className="px-3 py-2.5 f-mono text-[11px] text-[#1A1008]/60 flex-1 min-w-0 truncate flex items-center">
+              {clientUrl}
+            </code>
+            <button
+              onClick={copyUrl}
+              className="px-4 py-2.5 bg-[#1B6B3A] text-white f-mono text-[10px] tracking-[0.12em] uppercase shrink-0 border-l-2 border-[#1A1008] hover:bg-[#155b30] transition-colors"
+            >
+              {copied ? '✓' : 'Copy'}
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Instructions Banner */}
-      <div className="px-4 sm:px-6 lg:px-8 pb-6">
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <h2 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Feedback Types:</h2>
-          <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-            <li>• <strong>Emoji:</strong> Quick reactions with predefined emojis</li>
-            <li>• <strong>Text:</strong> Open-ended text responses</li>
-            <li>• <strong>Score:</strong> Numeric rating on a custom scale</li>
-          </ul>
+      {/* Quick steps */}
+      <div className="px-5 sm:px-8 py-4 border-b border-[#1A1008]/10 bg-[#1A1008]/[0.015]">
+        <div className="flex gap-8 flex-wrap">
+          {[
+            { n: 'Emoji', text: 'Quick reactions with predefined emojis' },
+            { n: 'Text', text: 'Open-ended written responses' },
+            { n: 'Score', text: 'Numeric rating on a custom scale' },
+          ].map(s => (
+            <div key={s.n} className="flex items-center gap-2">
+              <span className="f-mono text-[10px] tracking-wider text-[#1B6B3A] font-medium">{s.n}</span>
+              <span className="f-mono text-[11px] text-[#1A1008]/50">{s.text}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="px-4 sm:px-6 lg:px-8">
-        <FeedbackHost roomId={roomId} host={import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'} />
+      {/* Main component */}
+      <div className="px-5 sm:px-8 py-6">
+        <FeedbackHost
+          roomId={roomId}
+          host={import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'}
+        />
       </div>
     </div>
   )

@@ -1,6 +1,5 @@
 import PartySocket from 'partysocket'
 import { useEffect, useState } from 'react'
-import { Button } from '@/components/button'
 
 interface PollOption {
   id: string
@@ -35,161 +34,181 @@ export function PollVoter({ roomId, host = 'localhost:1999' }: PollVoterProps) {
   const [hasVoted, setHasVoted] = useState(false)
   const [connectionCount, setConnectionCount] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [votedOptionId, setVotedOptionId] = useState<string | null>(null)
 
   useEffect(() => {
-    const ws = new PartySocket({
-      host,
-      room: roomId,
-      party: 'polls',
-    })
+    const ws = new PartySocket({ host, room: roomId, party: 'polls' })
 
     ws.addEventListener('message', (event) => {
       const data: ServerMessage = JSON.parse(event.data)
-
       switch (data.type) {
         case 'poll_created':
         case 'poll_updated':
           setPoll(data.poll)
           setError(null)
           break
-
         case 'poll_ended':
           setPoll(data.poll)
           break
-
         case 'error':
           setError(data.message)
           break
-
         case 'connection_count':
           setConnectionCount(data.count)
           break
       }
     })
 
-    ws.addEventListener('open', () => {
-      console.log('Connected to poll server')
-      setError(null)
-    })
-
-    ws.addEventListener('error', () => {
-      setError('Connection error')
-    })
-
+    ws.addEventListener('error', () => setError('Connection error'))
     setSocket(ws)
-
-    return () => {
-      ws.close()
-    }
+    return () => ws.close()
   }, [roomId, host])
 
   const vote = (optionId: string) => {
     if (!socket || hasVoted)
       return
-
-    socket.send(
-      JSON.stringify({
-        type: 'vote',
-        optionId,
-      }),
-    )
-
+    socket.send(JSON.stringify({ type: 'vote', optionId }))
+    setVotedOptionId(optionId)
     setHasVoted(true)
   }
 
   const totalVotes = poll?.options.reduce((sum, opt) => sum + opt.votes, 0) || 0
 
+  // Waiting state
+  if (!poll) {
+    return (
+      <div className="max-w-lg mx-auto">
+        <div className="border-2 border-[#1A1008] bg-white shadow-[5px_5px_0_#1A1008] p-10 text-center">
+          <div className="w-14 h-14 border-2 border-[#0C3D6B] mx-auto mb-6 flex items-center justify-center">
+            <div className="w-6 h-6 border-2 border-[#0C3D6B] border-t-transparent rounded-full animate-spin" />
+          </div>
+          <h2 className="f-display font-black text-[24px] tracking-tight text-[#1A1008] mb-2">
+            Waiting for poll
+          </h2>
+          <p className="f-mono text-[12px] text-[#1A1008]/50 leading-loose">
+            The host will launch a poll shortly.
+          </p>
+          <div className="mt-6 flex items-center justify-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#0C3D6B] animate-pulse" />
+            <span className="f-mono text-[10px] tracking-wider uppercase text-[#1A1008]/40">
+              {connectionCount} connected
+            </span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Live Poll</h2>
-        <span className="text-sm text-gray-600 dark:text-gray-400">
-          {connectionCount}
-          {' '}
-          {connectionCount === 1 ? 'person' : 'people'}
-          {' '}
-          connected
+    <div className="max-w-lg mx-auto">
+      {/* Connection count + status */}
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-2">
+          <div className={`w-1.5 h-1.5 rounded-full ${poll.isActive ? 'bg-[#1B6B3A] animate-pulse' : 'bg-[#1A1008]/30'}`} />
+          <span className="f-mono text-[10px] tracking-[0.18em] uppercase text-[#1A1008]/40">
+            {poll.isActive ? 'Live' : 'Ended'}
+          </span>
+        </div>
+        <span className="f-mono text-[10px] tracking-wider text-[#1A1008]/35">
+          {connectionCount} connected
         </span>
       </div>
 
-      {error && (
-        <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-4">
-          {error}
+      {/* Poll card */}
+      <div className="border-2 border-[#1A1008] bg-white shadow-[5px_5px_0_#1A1008]">
+        {/* Question header */}
+        <div className="border-b-2 border-[#1A1008] px-6 py-5">
+          <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#0C3D6B] mb-2">
+            {hasVoted ? 'Your vote is in — live results' : 'Cast your vote'}
+          </div>
+          <h2 className="f-display font-bold text-[20px] sm:text-[24px] tracking-[-0.02em] text-[#1A1008] leading-tight">
+            {poll.question}
+          </h2>
         </div>
-      )}
 
-      {!poll
-        ? (
-            <div className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6 text-center">
-              <div className="py-12">
-                <div className="animate-pulse mb-4">
-                  <div className="w-16 h-16 bg-blue-200 dark:bg-blue-900 rounded-full mx-auto mb-4" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Waiting for poll...</h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  The host will create a poll shortly
-                </p>
-              </div>
-            </div>
-          )
-        : (
-            <div className="bg-white dark:bg-zinc-900 shadow rounded-lg p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">{poll.question}</h3>
-                {!poll.isActive && (
-                  <span className="text-red-600 dark:text-red-400 text-sm font-medium">
-                    Poll Ended
-                  </span>
+        {/* Error */}
+        {error && (
+          <div className="mx-6 mt-4 border-2 border-[#D4380D] bg-[#D4380D]/[0.06] px-4 py-2">
+            <span className="f-mono text-[11px] text-[#D4380D]">{error}</span>
+          </div>
+        )}
+
+        {/* Thank you banner */}
+        {hasVoted && (
+          <div className="mx-6 mt-4 border-2 border-[#1B6B3A] bg-[#1B6B3A]/[0.06] px-4 py-2.5 flex items-center gap-2">
+            <span className="text-[#1B6B3A] text-base">✓</span>
+            <span className="f-mono text-[11px] text-[#1B6B3A]">
+              Vote submitted. Watch results update live.
+            </span>
+          </div>
+        )}
+
+        {/* Options */}
+        <div className="p-6 space-y-3">
+          {poll.options.map((option) => {
+            const pct = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0
+            const isMyVote = votedOptionId === option.id
+            const isWinning = hasVoted && option.votes === Math.max(...poll.options.map(o => o.votes)) && option.votes > 0
+
+            return (
+              <button
+                key={option.id}
+                onClick={() => vote(option.id)}
+                disabled={hasVoted || !poll.isActive}
+                className={[
+                  'relative w-full text-left overflow-hidden border-2 transition-all duration-150',
+                  !hasVoted && poll.isActive
+                    ? 'border-[#1A1008] bg-white shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] cursor-pointer'
+                    : isMyVote
+                      ? 'border-[#0C3D6B] bg-[#0C3D6B]/[0.04] cursor-default'
+                      : 'border-[#1A1008]/20 bg-white cursor-default',
+                ].join(' ')}
+              >
+                {/* Vote bar fill */}
+                {hasVoted && (
+                  <div
+                    className={`absolute inset-y-0 left-0 transition-all duration-700 ${isMyVote ? 'bg-[#0C3D6B]/[0.12]' : 'bg-[#1A1008]/[0.04]'}`}
+                    style={{ width: `${pct}%` }}
+                  />
                 )}
-              </div>
 
-              {hasVoted && (
-                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-200 px-4 py-3 rounded mb-4">
-                  Thank you for voting! Watch the results update live.
+                <div className="relative px-4 py-3 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2.5">
+                    {isMyVote && (
+                      <span className="text-[#0C3D6B] text-sm shrink-0">✓</span>
+                    )}
+                    <span className={`f-mono text-[13px] font-medium ${isMyVote ? 'text-[#0C3D6B]' : 'text-[#1A1008]'}`}>
+                      {option.text}
+                    </span>
+                  </div>
+                  {hasVoted && (
+                    <div className="flex items-center gap-2 shrink-0">
+                      {isWinning && (
+                        <span className="f-mono text-[9px] tracking-wider uppercase text-[#D4380D]">Leading</span>
+                      )}
+                      <span className="f-mono text-[12px] text-[#1A1008]/50">
+                        {pct.toFixed(0)}%
+                      </span>
+                    </div>
+                  )}
                 </div>
-              )}
+              </button>
+            )
+          })}
+        </div>
 
-              <div className="space-y-3 mb-6">
-                {poll.options.map((option) => {
-                  const percentage
-                    = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0
-
-                  return (
-                    <Button
-                      key={option.id}
-                      onClick={() => vote(option.id)}
-                      disabled={hasVoted || !poll.isActive}
-                      plain
-                      className="w-full text-left relative overflow-hidden rounded-lg border-2 border-gray-200 dark:border-zinc-700 hover:border-blue-500 dark:hover:border-blue-400 transition-colors disabled:cursor-not-allowed disabled:opacity-100"
-                    >
-                      <div
-                        className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 transition-all duration-300"
-                        style={{ width: `${percentage}%` }}
-                      />
-                      <div className="relative px-4 py-3 flex justify-between items-center">
-                        <span className="font-medium">{option.text}</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                          {option.votes}
-                          {' '}
-                          votes (
-                          {percentage.toFixed(1)}
-                          %)
-                        </span>
-                      </div>
-                    </Button>
-                  )
-                })}
-              </div>
-
-              <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
-                <span>
-                  Total votes:
-                  {' '}
-                  {totalVotes}
-                </span>
-              </div>
-            </div>
+        {/* Footer */}
+        <div className="border-t border-[#1A1008]/10 px-6 py-3 flex items-center justify-between bg-[#1A1008]/[0.015]">
+          <span className="f-mono text-[10px] text-[#1A1008]/35 uppercase tracking-wider">
+            {totalVotes} vote{totalVotes !== 1 ? 's' : ''} total
+          </span>
+          {!poll.isActive && (
+            <span className="f-mono text-[10px] tracking-wider uppercase text-[#D4380D]">
+              Poll ended
+            </span>
           )}
+        </div>
+      </div>
     </div>
   )
 }
