@@ -116,3 +116,35 @@ export const feelingEmojis = pgTable('feeling_emojis', {
   participantId: varchar('participant_id', { length: 255 }).notNull(), // Session ID or user ID
   postedAt: timestamp('posted_at').defaultNow().notNull(),
 })
+
+// Certificate Tables
+export const certificateIssuers = pgTable('certificate_issuers', {
+  id: serial('id').primaryKey(),
+  orgName: text('org_name').notNull(),
+  logoUrl: text('logo_url').notNull(),
+  instructorName: text('instructor_name').notNull(),
+  replyToEmail: text('reply_to_email').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+export const certificateBatches = pgTable('certificate_batches', {
+  id: serial('id').primaryKey(),
+  issuerId: integer('issuer_id').notNull().references(() => certificateIssuers.id),
+  courseName: text('course_name').notNull(),
+  description: text('description').notNull(),
+  sentAt: timestamp('sent_at').defaultNow().notNull(),
+  totalCount: integer('total_count').notNull(),
+  successCount: integer('success_count').notNull().default(0),
+})
+
+export const certificates = pgTable('certificates', {
+  id: varchar('id', { length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  batchId: integer('batch_id').notNull().references(() => certificateBatches.id),
+  issuerId: integer('issuer_id').notNull().references(() => certificateIssuers.id),
+  studentName: text('student_name').notNull(),
+  studentEmail: text('student_email').notNull(),
+  issuedAt: timestamp('issued_at').defaultNow().notNull(),
+  expiresAt: timestamp('expires_at'),
+  isValid: boolean('is_valid').notNull().default(true),
+  emailSentAt: timestamp('email_sent_at'),
+})
