@@ -148,3 +148,24 @@ export const certificates = pgTable('certificates', {
   isValid: boolean('is_valid').notNull().default(true),
   emailSentAt: timestamp('email_sent_at'),
 })
+
+// Testimonials Tables
+export const testimonialSessions = pgTable('testimonial_sessions', {
+  id: serial('id').primaryKey(),
+  roomId: text('room_id').notNull().unique(),
+  title: text('title').notNull(),
+  createdBy: text('created_by').notNull(),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+export const testimonials = pgTable('testimonials', {
+  id: serial('id').primaryKey(),
+  sessionId: integer('session_id').notNull().references(() => testimonialSessions.id),
+  roomId: text('room_id').notNull(),
+  studentName: text('student_name').notNull(),
+  content: text('content').notNull(),
+  status: text('status').notNull().default('pending'),
+  submittedAt: timestamp('submitted_at').defaultNow().notNull(),
+  moderatedAt: timestamp('moderated_at'),
+})
