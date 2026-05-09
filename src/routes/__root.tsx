@@ -85,6 +85,7 @@ function HTMLWrapper({ children }: { children: React.ReactNode }) {
   const bypassLayout = location.pathname === '/'
     || location.pathname.startsWith('/party/')
     || location.pathname.startsWith('/certificates/verify/')
+    || location.pathname.startsWith('/testimonials')
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
