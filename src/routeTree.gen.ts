@@ -9,10 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TestimonialsRouteImport } from './routes/testimonials'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as R404RouteImport } from './routes/$404'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TestimonialsWallRouteImport } from './routes/testimonials.wall'
+import { Route as TestimonialsSubmitRouteImport } from './routes/testimonials.submit'
+import { Route as TestimonialsHostRouteImport } from './routes/testimonials.host'
 import { Route as PartyPollsRouteImport } from './routes/party.polls'
 import { Route as PartyPollVoterRouteImport } from './routes/party.poll-voter'
 import { Route as PartyKahootProjectorRouteImport } from './routes/party.kahoot-projector'
@@ -37,6 +41,7 @@ import { Route as ApiOgPollsRouteImport } from './routes/api/og/polls'
 import { Route as ApiOgKahootRouteImport } from './routes/api/og/kahoot'
 import { Route as ApiOgFeelingsRouteImport } from './routes/api/og/feelings'
 import { Route as ApiOgFeedbackRouteImport } from './routes/api/og/feedback'
+import { Route as ApiInternalTestimonialsRouteImport } from './routes/api/internal/testimonials'
 import { Route as ApiInternalPollsRouteImport } from './routes/api/internal/polls'
 import { Route as ApiInternalKahootRouteImport } from './routes/api/internal/kahoot'
 import { Route as ApiInternalFeelingsRouteImport } from './routes/api/internal/feelings'
@@ -48,6 +53,11 @@ import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
 
+const TestimonialsRoute = TestimonialsRouteImport.update({
+  id: '/testimonials',
+  path: '/testimonials',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
@@ -67,6 +77,21 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const TestimonialsWallRoute = TestimonialsWallRouteImport.update({
+  id: '/wall',
+  path: '/wall',
+  getParentRoute: () => TestimonialsRoute,
+} as any)
+const TestimonialsSubmitRoute = TestimonialsSubmitRouteImport.update({
+  id: '/submit',
+  path: '/submit',
+  getParentRoute: () => TestimonialsRoute,
+} as any)
+const TestimonialsHostRoute = TestimonialsHostRouteImport.update({
+  id: '/host',
+  path: '/host',
+  getParentRoute: () => TestimonialsRoute,
 } as any)
 const PartyPollsRoute = PartyPollsRouteImport.update({
   id: '/party/polls',
@@ -188,6 +213,11 @@ const ApiOgFeedbackRoute = ApiOgFeedbackRouteImport.update({
   path: '/api/og/feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiInternalTestimonialsRoute = ApiInternalTestimonialsRouteImport.update({
+  id: '/api/internal/testimonials',
+  path: '/api/internal/testimonials',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiInternalPollsRoute = ApiInternalPollsRouteImport.update({
   id: '/api/internal/polls',
   path: '/api/internal/polls',
@@ -244,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/$404': typeof R404Route
   '/certificates': typeof CertificatesRouteWithChildren
   '/mcp': typeof McpRoute
+  '/testimonials': typeof TestimonialsRouteWithChildren
   '/certificates/send': typeof CertificatesSendRoute
   '/certificates/settings': typeof CertificatesSettingsRoute
   '/demo/drizzle': typeof DemoDrizzleRoute
@@ -258,12 +289,16 @@ export interface FileRoutesByFullPath {
   '/party/kahoot-projector': typeof PartyKahootProjectorRoute
   '/party/poll-voter': typeof PartyPollVoterRoute
   '/party/polls': typeof PartyPollsRoute
+  '/testimonials/host': typeof TestimonialsHostRoute
+  '/testimonials/submit': typeof TestimonialsSubmitRoute
+  '/testimonials/wall': typeof TestimonialsWallRoute
   '/api/certificates/issuer': typeof ApiCertificatesIssuerRoute
   '/api/certificates/send': typeof ApiCertificatesSendRoute
   '/api/internal/feedback': typeof ApiInternalFeedbackRoute
   '/api/internal/feelings': typeof ApiInternalFeelingsRoute
   '/api/internal/kahoot': typeof ApiInternalKahootRoute
   '/api/internal/polls': typeof ApiInternalPollsRoute
+  '/api/internal/testimonials': typeof ApiInternalTestimonialsRoute
   '/api/og/feedback': typeof ApiOgFeedbackRoute
   '/api/og/feelings': typeof ApiOgFeelingsRoute
   '/api/og/kahoot': typeof ApiOgKahootRoute
@@ -284,6 +319,7 @@ export interface FileRoutesByTo {
   '/$404': typeof R404Route
   '/certificates': typeof CertificatesRouteWithChildren
   '/mcp': typeof McpRoute
+  '/testimonials': typeof TestimonialsRouteWithChildren
   '/certificates/send': typeof CertificatesSendRoute
   '/certificates/settings': typeof CertificatesSettingsRoute
   '/demo/drizzle': typeof DemoDrizzleRoute
@@ -298,12 +334,16 @@ export interface FileRoutesByTo {
   '/party/kahoot-projector': typeof PartyKahootProjectorRoute
   '/party/poll-voter': typeof PartyPollVoterRoute
   '/party/polls': typeof PartyPollsRoute
+  '/testimonials/host': typeof TestimonialsHostRoute
+  '/testimonials/submit': typeof TestimonialsSubmitRoute
+  '/testimonials/wall': typeof TestimonialsWallRoute
   '/api/certificates/issuer': typeof ApiCertificatesIssuerRoute
   '/api/certificates/send': typeof ApiCertificatesSendRoute
   '/api/internal/feedback': typeof ApiInternalFeedbackRoute
   '/api/internal/feelings': typeof ApiInternalFeelingsRoute
   '/api/internal/kahoot': typeof ApiInternalKahootRoute
   '/api/internal/polls': typeof ApiInternalPollsRoute
+  '/api/internal/testimonials': typeof ApiInternalTestimonialsRoute
   '/api/og/feedback': typeof ApiOgFeedbackRoute
   '/api/og/feelings': typeof ApiOgFeelingsRoute
   '/api/og/kahoot': typeof ApiOgKahootRoute
@@ -325,6 +365,7 @@ export interface FileRoutesById {
   '/$404': typeof R404Route
   '/certificates': typeof CertificatesRouteWithChildren
   '/mcp': typeof McpRoute
+  '/testimonials': typeof TestimonialsRouteWithChildren
   '/certificates/send': typeof CertificatesSendRoute
   '/certificates/settings': typeof CertificatesSettingsRoute
   '/demo/drizzle': typeof DemoDrizzleRoute
@@ -339,12 +380,16 @@ export interface FileRoutesById {
   '/party/kahoot-projector': typeof PartyKahootProjectorRoute
   '/party/poll-voter': typeof PartyPollVoterRoute
   '/party/polls': typeof PartyPollsRoute
+  '/testimonials/host': typeof TestimonialsHostRoute
+  '/testimonials/submit': typeof TestimonialsSubmitRoute
+  '/testimonials/wall': typeof TestimonialsWallRoute
   '/api/certificates/issuer': typeof ApiCertificatesIssuerRoute
   '/api/certificates/send': typeof ApiCertificatesSendRoute
   '/api/internal/feedback': typeof ApiInternalFeedbackRoute
   '/api/internal/feelings': typeof ApiInternalFeelingsRoute
   '/api/internal/kahoot': typeof ApiInternalKahootRoute
   '/api/internal/polls': typeof ApiInternalPollsRoute
+  '/api/internal/testimonials': typeof ApiInternalTestimonialsRoute
   '/api/og/feedback': typeof ApiOgFeedbackRoute
   '/api/og/feelings': typeof ApiOgFeelingsRoute
   '/api/og/kahoot': typeof ApiOgKahootRoute
@@ -367,6 +412,7 @@ export interface FileRouteTypes {
     | '/$404'
     | '/certificates'
     | '/mcp'
+    | '/testimonials'
     | '/certificates/send'
     | '/certificates/settings'
     | '/demo/drizzle'
@@ -381,12 +427,16 @@ export interface FileRouteTypes {
     | '/party/kahoot-projector'
     | '/party/poll-voter'
     | '/party/polls'
+    | '/testimonials/host'
+    | '/testimonials/submit'
+    | '/testimonials/wall'
     | '/api/certificates/issuer'
     | '/api/certificates/send'
     | '/api/internal/feedback'
     | '/api/internal/feelings'
     | '/api/internal/kahoot'
     | '/api/internal/polls'
+    | '/api/internal/testimonials'
     | '/api/og/feedback'
     | '/api/og/feelings'
     | '/api/og/kahoot'
@@ -407,6 +457,7 @@ export interface FileRouteTypes {
     | '/$404'
     | '/certificates'
     | '/mcp'
+    | '/testimonials'
     | '/certificates/send'
     | '/certificates/settings'
     | '/demo/drizzle'
@@ -421,12 +472,16 @@ export interface FileRouteTypes {
     | '/party/kahoot-projector'
     | '/party/poll-voter'
     | '/party/polls'
+    | '/testimonials/host'
+    | '/testimonials/submit'
+    | '/testimonials/wall'
     | '/api/certificates/issuer'
     | '/api/certificates/send'
     | '/api/internal/feedback'
     | '/api/internal/feelings'
     | '/api/internal/kahoot'
     | '/api/internal/polls'
+    | '/api/internal/testimonials'
     | '/api/og/feedback'
     | '/api/og/feelings'
     | '/api/og/kahoot'
@@ -447,6 +502,7 @@ export interface FileRouteTypes {
     | '/$404'
     | '/certificates'
     | '/mcp'
+    | '/testimonials'
     | '/certificates/send'
     | '/certificates/settings'
     | '/demo/drizzle'
@@ -461,12 +517,16 @@ export interface FileRouteTypes {
     | '/party/kahoot-projector'
     | '/party/poll-voter'
     | '/party/polls'
+    | '/testimonials/host'
+    | '/testimonials/submit'
+    | '/testimonials/wall'
     | '/api/certificates/issuer'
     | '/api/certificates/send'
     | '/api/internal/feedback'
     | '/api/internal/feelings'
     | '/api/internal/kahoot'
     | '/api/internal/polls'
+    | '/api/internal/testimonials'
     | '/api/og/feedback'
     | '/api/og/feelings'
     | '/api/og/kahoot'
@@ -488,6 +548,7 @@ export interface RootRouteChildren {
   R404Route: typeof R404Route
   CertificatesRoute: typeof CertificatesRouteWithChildren
   McpRoute: typeof McpRoute
+  TestimonialsRoute: typeof TestimonialsRouteWithChildren
   DemoDrizzleRoute: typeof DemoDrizzleRoute
   DemoMcpTodosRoute: typeof DemoMcpTodosRoute
   DemoNeonRoute: typeof DemoNeonRoute
@@ -506,6 +567,7 @@ export interface RootRouteChildren {
   ApiInternalFeelingsRoute: typeof ApiInternalFeelingsRoute
   ApiInternalKahootRoute: typeof ApiInternalKahootRoute
   ApiInternalPollsRoute: typeof ApiInternalPollsRoute
+  ApiInternalTestimonialsRoute: typeof ApiInternalTestimonialsRoute
   ApiOgFeedbackRoute: typeof ApiOgFeedbackRoute
   ApiOgFeelingsRoute: typeof ApiOgFeelingsRoute
   ApiOgKahootRoute: typeof ApiOgKahootRoute
@@ -523,6 +585,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/testimonials': {
+      id: '/testimonials'
+      path: '/testimonials'
+      fullPath: '/testimonials'
+      preLoaderRoute: typeof TestimonialsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mcp': {
       id: '/mcp'
       path: '/mcp'
@@ -550,6 +619,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/testimonials/wall': {
+      id: '/testimonials/wall'
+      path: '/wall'
+      fullPath: '/testimonials/wall'
+      preLoaderRoute: typeof TestimonialsWallRouteImport
+      parentRoute: typeof TestimonialsRoute
+    }
+    '/testimonials/submit': {
+      id: '/testimonials/submit'
+      path: '/submit'
+      fullPath: '/testimonials/submit'
+      preLoaderRoute: typeof TestimonialsSubmitRouteImport
+      parentRoute: typeof TestimonialsRoute
+    }
+    '/testimonials/host': {
+      id: '/testimonials/host'
+      path: '/host'
+      fullPath: '/testimonials/host'
+      preLoaderRoute: typeof TestimonialsHostRouteImport
+      parentRoute: typeof TestimonialsRoute
     }
     '/party/polls': {
       id: '/party/polls'
@@ -719,6 +809,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiOgFeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/internal/testimonials': {
+      id: '/api/internal/testimonials'
+      path: '/api/internal/testimonials'
+      fullPath: '/api/internal/testimonials'
+      preLoaderRoute: typeof ApiInternalTestimonialsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/internal/polls': {
       id: '/api/internal/polls'
       path: '/api/internal/polls'
@@ -808,11 +905,28 @@ const CertificatesRouteWithChildren = CertificatesRoute._addFileChildren(
   CertificatesRouteChildren,
 )
 
+interface TestimonialsRouteChildren {
+  TestimonialsHostRoute: typeof TestimonialsHostRoute
+  TestimonialsSubmitRoute: typeof TestimonialsSubmitRoute
+  TestimonialsWallRoute: typeof TestimonialsWallRoute
+}
+
+const TestimonialsRouteChildren: TestimonialsRouteChildren = {
+  TestimonialsHostRoute: TestimonialsHostRoute,
+  TestimonialsSubmitRoute: TestimonialsSubmitRoute,
+  TestimonialsWallRoute: TestimonialsWallRoute,
+}
+
+const TestimonialsRouteWithChildren = TestimonialsRoute._addFileChildren(
+  TestimonialsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   R404Route: R404Route,
   CertificatesRoute: CertificatesRouteWithChildren,
   McpRoute: McpRoute,
+  TestimonialsRoute: TestimonialsRouteWithChildren,
   DemoDrizzleRoute: DemoDrizzleRoute,
   DemoMcpTodosRoute: DemoMcpTodosRoute,
   DemoNeonRoute: DemoNeonRoute,
@@ -831,6 +945,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiInternalFeelingsRoute: ApiInternalFeelingsRoute,
   ApiInternalKahootRoute: ApiInternalKahootRoute,
   ApiInternalPollsRoute: ApiInternalPollsRoute,
+  ApiInternalTestimonialsRoute: ApiInternalTestimonialsRoute,
   ApiOgFeedbackRoute: ApiOgFeedbackRoute,
   ApiOgFeelingsRoute: ApiOgFeelingsRoute,
   ApiOgKahootRoute: ApiOgKahootRoute,
