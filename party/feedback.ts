@@ -223,18 +223,9 @@ export default class FeedbackServer implements Party.Server {
     await this.saveSessionState()
     await this.room.storage.put('hostId', this.hostId)
 
-    // Broadcast to all connections
-    this.room.broadcast(
-      JSON.stringify({
-        type: 'feedback_created',
-        session: this.session,
-      } as ServerMessage),
-    )
-
-    // Persist to DB (fire-and-forget)
-    ;(async () => {
-      try {
-        if (!this.session) return
+    // Persist to DB — awaited so dbSessionId is set before feedback_created reaches clients
+    try {
+      if (this.session) {
         const result = await callInternalApi('feedback', {
           type: 'create_session',
           roomId: this.room.id,
@@ -249,10 +240,18 @@ export default class FeedbackServer implements Party.Server {
           await this.room.storage.put('dbSessionId', this.dbSessionId)
         }
       }
-      catch (err) {
-        console.error('[feedback] DB create_session failed:', err)
-      }
-    })()
+    }
+    catch (err) {
+      console.error('[feedback] DB create_session failed:', err)
+    }
+
+    // Broadcast to all connections
+    this.room.broadcast(
+      JSON.stringify({
+        type: 'feedback_created',
+        session: this.session,
+      } as ServerMessage),
+    )
   }
 
   private async handleSubmitEmoji(
