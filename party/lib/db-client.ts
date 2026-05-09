@@ -10,14 +10,21 @@ export async function callInternalApi(
     return null
   }
 
-  const res = await fetch(`${appUrl}/api/internal/${domain}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-internal-secret': secret,
-    },
-    body: JSON.stringify(body),
-  })
+  let res: Response
+  try {
+    res = await fetch(`${appUrl}/api/internal/${domain}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-internal-secret': secret,
+      },
+      body: JSON.stringify(body),
+    })
+  }
+  catch (err) {
+    console.error(`[db-client] ${domain} fetch failed:`, err)
+    return null
+  }
 
   if (!res.ok) {
     const text = await res.text().catch(() => '')
@@ -25,5 +32,8 @@ export async function callInternalApi(
     return null
   }
 
-  return res.json()
+  return res.json().catch((err) => {
+    console.error(`[db-client] ${domain} json parse failed:`, err)
+    return null
+  })
 }
