@@ -1,5 +1,6 @@
 import type * as Party from 'partykit/server'
 import { timestamp } from '@setemiojo/utils'
+import { callInternalApi } from './lib/db-client'
 
 type FeedbackType = 'emoji' | 'text' | 'score'
 
@@ -62,24 +63,29 @@ export default class FeedbackServer implements Party.Server {
   private session: FeedbackSession | null = null
   private responders: Map<string, Responder> = new Map()
   private hostId: string | null = null
+  private dbSessionId: number | null = null
 
   constructor(readonly room: Party.Room) {}
 
   async onStart() {
-    // TODO: performance
-    // const storedSession = await this.room.storage.get<FeedbackSession>('session')
-    // if (storedSession) {
-    //   this.session = storedSession
-    // }
+    const storedSession = await this.room.storage.get<FeedbackSession>('session')
+    if (storedSession) {
+      this.session = storedSession
+    }
 
-    // const storedResponders = await this.room.storage.get<Array<[string, Responder]>>('responders')
-    // if (storedResponders) {
-    //   this.responders = new Map(storedResponders)
-    // }
+    const storedResponders = await this.room.storage.get<Array<[string, Responder]>>('responders')
+    if (storedResponders) {
+      this.responders = new Map(storedResponders)
+    }
 
     const storedHostId = await this.room.storage.get<string>('hostId')
     if (storedHostId) {
       this.hostId = storedHostId
+    }
+
+    const storedDbSessionId = await this.room.storage.get<number>('dbSessionId')
+    if (storedDbSessionId) {
+      this.dbSessionId = storedDbSessionId
     }
   }
 
@@ -224,6 +230,29 @@ export default class FeedbackServer implements Party.Server {
         session: this.session,
       } as ServerMessage),
     )
+
+    // Persist to DB (fire-and-forget)
+    ;(async () => {
+      try {
+        if (!this.session) return
+        const result = await callInternalApi('feedback', {
+          type: 'create_session',
+          roomId: this.room.id,
+          title: this.session.title,
+          feedbackType: this.session.type,
+          config: data.config,
+          createdBy: sender.id,
+        })
+        if (result?.ok) {
+          const dbSession = result.data as { id: number }
+          this.dbSessionId = dbSession.id
+          await this.room.storage.put('dbSessionId', this.dbSessionId)
+        }
+      }
+      catch (err) {
+        console.error('[feedback] DB create_session failed:', err)
+      }
+    })()
   }
 
   private async handleSubmitEmoji(
@@ -298,6 +327,24 @@ export default class FeedbackServer implements Party.Server {
         session: this.session,
       } as ServerMessage),
     )
+
+    // Persist to DB (fire-and-forget)
+    ;(async () => {
+      try {
+        if (this.dbSessionId) {
+          await callInternalApi('feedback', {
+            type: 'submit_response',
+            sessionId: this.dbSessionId,
+            respondentId: sender.id,
+            responseType: 'emoji',
+            emojiResponse: data.emoji,
+          })
+        }
+      }
+      catch (err) {
+        console.error('[feedback] DB submit_response(emoji) failed:', err)
+      }
+    })()
   }
 
   private async handleSubmitText(
@@ -364,6 +411,24 @@ export default class FeedbackServer implements Party.Server {
         session: this.session,
       } as ServerMessage),
     )
+
+    // Persist to DB (fire-and-forget)
+    ;(async () => {
+      try {
+        if (this.dbSessionId) {
+          await callInternalApi('feedback', {
+            type: 'submit_response',
+            sessionId: this.dbSessionId,
+            respondentId: sender.id,
+            responseType: 'text',
+            textResponse: data.text,
+          })
+        }
+      }
+      catch (err) {
+        console.error('[feedback] DB submit_response(text) failed:', err)
+      }
+    })()
   }
 
   private async handleSubmitScore(
@@ -440,6 +505,24 @@ export default class FeedbackServer implements Party.Server {
         session: this.session,
       } as ServerMessage),
     )
+
+    // Persist to DB (fire-and-forget)
+    ;(async () => {
+      try {
+        if (this.dbSessionId) {
+          await callInternalApi('feedback', {
+            type: 'submit_response',
+            sessionId: this.dbSessionId,
+            respondentId: sender.id,
+            responseType: 'score',
+            scoreResponse: data.score,
+          })
+        }
+      }
+      catch (err) {
+        console.error('[feedback] DB submit_response(score) failed:', err)
+      }
+    })()
   }
 
   private async handleCloseFeedback(sender: Party.Connection) {
@@ -472,6 +555,19 @@ export default class FeedbackServer implements Party.Server {
         session: this.session,
       } as ServerMessage),
     )
+
+    // Persist to DB (fire-and-forget)
+    ;(async () => {
+      try {
+        await callInternalApi('feedback', {
+          type: 'close_session',
+          roomId: this.room.id,
+        })
+      }
+      catch (err) {
+        console.error('[feedback] DB close_session failed:', err)
+      }
+    })()
   }
 
   private sendSessionState(conn: Party.Connection) {
