@@ -1,5 +1,5 @@
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
+import { createRootRoute, HeadContent, Outlet, Scripts, useLocation } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { Toaster } from 'sonner'
 
@@ -18,79 +18,28 @@ export const Route = createRootRoute({
   notFoundComponent: NotFoundRoute.options.component,
   head: () => ({
     meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        name: 'theme-color',
-        content: THEME_COLORS.light,
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        name: 'theme-color',
-        content: THEME_COLORS.dark,
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        title: 'Tools',
-      },
-      {
-        name: 'description',
-        content: 'Tools for the Interactive Teaching, Take student engagement to the next level',
-      },
-      {
-        name: 'keywords',
-        content: 'Tools, Interactive Teaching, Student Engagement, Next Level',
-      },
-      {
-        name: 'author',
-        content: 'Tools',
-      },
-      {
-        name: 'og:title',
-        content: 'Tools',
-      },
-      {
-        name: 'og:description',
-        content: 'Tools for the Interactive Teaching, Take student engagement to the next level',
-      },
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { name: 'theme-color', content: THEME_COLORS.light, media: '(prefers-color-scheme: light)' },
+      { name: 'theme-color', content: THEME_COLORS.dark, media: '(prefers-color-scheme: dark)' },
+      { title: 'Tools' },
+      { name: 'description', content: 'Tools for the Interactive Teaching, Take student engagement to the next level' },
+      { name: 'keywords', content: 'Tools, Interactive Teaching, Student Engagement, Next Level' },
+      { name: 'author', content: 'Tools' },
+      { name: 'og:title', content: 'Tools' },
+      { name: 'og:description', content: 'Tools for the Interactive Teaching, Take student engagement to the next level' },
     ],
     links: [
-      {
-        rel: 'stylesheet',
-        href: appCss,
-      },
-      {
-        rel: 'icon',
-        href: 'https://fav.farm/🛠',
-      },
-      {
-        rel: 'stylesheet',
-        href: 'https://rsms.me/inter/inter.css',
-      },
-      {
-        rel: 'apple-touch-icon',
-        sizes: '180x180',
-        href: 'https://fav.farm/🛠',
-      },
-      {
-        rel: 'icon',
-        type: 'image/png',
-        sizes: '32x32',
-        href: 'https://fav.farm/🛠',
-      },
-      {
-        rel: 'icon',
-        type: 'image/png',
-        sizes: '16x16',
-        href: 'https://fav.farm/🛠',
-      },
-      { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
+      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+      { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=JetBrains+Mono:wght@400;500&display=swap' },
+      { rel: 'stylesheet', href: appCss },
       { rel: 'icon', href: 'https://fav.farm/🛠' },
+      { rel: 'stylesheet', href: 'https://rsms.me/inter/inter.css' },
+      { rel: 'apple-touch-icon', sizes: '180x180', href: 'https://fav.farm/🛠' },
+      { rel: 'icon', type: 'image/png', sizes: '32x32', href: 'https://fav.farm/🛠' },
+      { rel: 'icon', type: 'image/png', sizes: '16x16', href: 'https://fav.farm/🛠' },
+      { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
     ],
     scripts: [
       {
@@ -132,15 +81,23 @@ function DocumentWrapper({ children }: { children: React.ReactNode }) {
 }
 
 function HTMLWrapper({ children }: { children: React.ReactNode }) {
+  const location = useLocation()
+  const bypassLayout = location.pathname === '/'
+    || location.pathname.startsWith('/party/')
+    || location.pathname.startsWith('/certificates/verify/')
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body suppressHydrationWarning>
-        <StackedLayout navbar={<Header />} sidebar={<AppSidebar />}>
-          {children}
-        </StackedLayout>
+        {bypassLayout
+          ? children
+          : (
+              <StackedLayout navbar={<Header />} sidebar={<AppSidebar />}>
+                {children}
+              </StackedLayout>
+            )}
         <Toaster position="top-center" richColors />
         <TanStackDevtools
           config={{
