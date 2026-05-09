@@ -29,7 +29,7 @@ export const getDb = () => {
 
 // Export a getter that initializes on first use
 export const db = new Proxy({} as ReturnType<typeof drizzle>, {
-  get(target, prop) {
+  get(_target, prop) {
     const dbInstance = getDb()
     return (dbInstance as any)[prop]
   }
