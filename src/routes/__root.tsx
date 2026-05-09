@@ -12,7 +12,7 @@ import Header from '../components/ui/Header'
 import { AppSidebar } from '../components/ui/app-sidebar'
 import { useTheme } from '../hooks/use-theme'
 import appCss from '../styles.css?url'
-import { Route as NotFoundRoute } from './$404'
+import { Route as NotFoundRoute } from './$'
 
 export const Route = createRootRoute({
   notFoundComponent: NotFoundRoute.options.component,

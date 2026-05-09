@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestimonialsRouteImport } from './routes/testimonials'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as CertificatesRouteImport } from './routes/certificates'
-import { Route as R404RouteImport } from './routes/$404'
+import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TestimonialsWallRouteImport } from './routes/testimonials.wall'
 import { Route as TestimonialsSubmitRouteImport } from './routes/testimonials.submit'
@@ -68,9 +68,9 @@ const CertificatesRoute = CertificatesRouteImport.update({
   path: '/certificates',
   getParentRoute: () => rootRouteImport,
 } as any)
-const R404Route = R404RouteImport.update({
-  id: '/$404',
-  path: '/$404',
+const SplatRoute = SplatRouteImport.update({
+  id: '/$',
+  path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -271,7 +271,7 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/$404': typeof R404Route
+  '/$': typeof SplatRoute
   '/certificates': typeof CertificatesRouteWithChildren
   '/mcp': typeof McpRoute
   '/testimonials': typeof TestimonialsRouteWithChildren
@@ -316,7 +316,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/$404': typeof R404Route
+  '/$': typeof SplatRoute
   '/certificates': typeof CertificatesRouteWithChildren
   '/mcp': typeof McpRoute
   '/testimonials': typeof TestimonialsRouteWithChildren
@@ -362,7 +362,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/$404': typeof R404Route
+  '/$': typeof SplatRoute
   '/certificates': typeof CertificatesRouteWithChildren
   '/mcp': typeof McpRoute
   '/testimonials': typeof TestimonialsRouteWithChildren
@@ -409,7 +409,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/$404'
+    | '/$'
     | '/certificates'
     | '/mcp'
     | '/testimonials'
@@ -454,7 +454,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/$404'
+    | '/$'
     | '/certificates'
     | '/mcp'
     | '/testimonials'
@@ -499,7 +499,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/$404'
+    | '/$'
     | '/certificates'
     | '/mcp'
     | '/testimonials'
@@ -545,7 +545,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  R404Route: typeof R404Route
+  SplatRoute: typeof SplatRoute
   CertificatesRoute: typeof CertificatesRouteWithChildren
   McpRoute: typeof McpRoute
   TestimonialsRoute: typeof TestimonialsRouteWithChildren
@@ -606,11 +606,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CertificatesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$404': {
-      id: '/$404'
-      path: '/$404'
-      fullPath: '/$404'
-      preLoaderRoute: typeof R404RouteImport
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -923,7 +923,7 @@ const TestimonialsRouteWithChildren = TestimonialsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  R404Route: R404Route,
+  SplatRoute: SplatRoute,
   CertificatesRoute: CertificatesRouteWithChildren,
   McpRoute: McpRoute,
   TestimonialsRoute: TestimonialsRouteWithChildren,
