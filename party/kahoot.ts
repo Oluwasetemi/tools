@@ -213,39 +213,37 @@ export default class KahootServer implements Party.Server {
     await this.saveGameState()
     await this.room.storage.put('hostId', this.hostId)
 
-    // Persist to DB (fire-and-forget)
-    ;(async () => {
-      try {
-        const result = await callInternalApi('kahoot', {
-          type: 'create_game',
-          roomId: this.room.id,
-          gameName: data.name,
-          questions: data.questions.map(q => ({
-            question: q.question,
-            options: q.options,
-            correctAnswer: q.correctAnswer,
-            timeLimit: q.timeLimit,
-            points: q.points,
-          })),
-          createdBy: sender.id,
+    // Persist to DB — awaited so dbGameId is set before game_created reaches clients
+    try {
+      const result = await callInternalApi('kahoot', {
+        type: 'create_game',
+        roomId: this.room.id,
+        gameName: data.name,
+        questions: data.questions.map(q => ({
+          question: q.question,
+          options: q.options,
+          correctAnswer: q.correctAnswer,
+          timeLimit: q.timeLimit,
+          points: q.points,
+        })),
+        createdBy: sender.id,
+      })
+      if (result?.ok && this.game) {
+        const { game: dbGame, questions: dbQuestions } = result.data as { game: { id: number }, questions: Array<{ id: number }> }
+        this.dbGameId = dbGame.id
+        this.game.questions.forEach((q, i) => {
+          this.dbQuestionIdMap.set(q.id, dbQuestions[i].id)
         })
-        if (result?.ok && this.game) {
-          const { game: dbGame, questions: dbQuestions } = result.data as { game: { id: number }, questions: Array<{ id: number }> }
-          this.dbGameId = dbGame.id
-          this.game.questions.forEach((q, i) => {
-            this.dbQuestionIdMap.set(q.id, dbQuestions[i].id)
-          })
-          await this.room.storage.put('dbState', {
-            gameId: this.dbGameId,
-            questionIds: Array.from(this.dbQuestionIdMap.entries()),
-            playerIds: [],
-          })
-        }
+        await this.room.storage.put('dbState', {
+          gameId: this.dbGameId,
+          questionIds: Array.from(this.dbQuestionIdMap.entries()),
+          playerIds: [],
+        })
       }
-      catch (err) {
-        console.error('[kahoot] DB create_game failed:', err)
-      }
-    })()
+    }
+    catch (err) {
+      console.error('[kahoot] DB create_game failed:', err)
+    }
 
     sender.send(
       JSON.stringify({
@@ -291,30 +289,28 @@ export default class KahootServer implements Party.Server {
     this.game.players.set(sender.id, player)
     await this.saveGameState()
 
-    // Persist to DB (fire-and-forget)
-    ;(async () => {
-      try {
-        if (this.dbGameId) {
-          const result = await callInternalApi('kahoot', {
-            type: 'add_player',
+    // Persist to DB — awaited so dbPlayerId is set before player_joined reaches clients
+    try {
+      if (this.dbGameId) {
+        const result = await callInternalApi('kahoot', {
+          type: 'add_player',
+          gameId: this.dbGameId,
+          playerName: data.name,
+        })
+        if (result?.ok) {
+          const dbPlayer = result.data as { id: number }
+          this.dbPlayerIdMap.set(sender.id, dbPlayer.id)
+          await this.room.storage.put('dbState', {
             gameId: this.dbGameId,
-            playerName: data.name,
+            questionIds: Array.from(this.dbQuestionIdMap.entries()),
+            playerIds: Array.from(this.dbPlayerIdMap.entries()),
           })
-          if (result?.ok) {
-            const dbPlayer = result.data as { id: number }
-            this.dbPlayerIdMap.set(sender.id, dbPlayer.id)
-            await this.room.storage.put('dbState', {
-              gameId: this.dbGameId,
-              questionIds: Array.from(this.dbQuestionIdMap.entries()),
-              playerIds: Array.from(this.dbPlayerIdMap.entries()),
-            })
-          }
         }
       }
-      catch (err) {
-        console.error('[kahoot] DB add_player failed:', err)
-      }
-    })()
+    }
+    catch (err) {
+      console.error('[kahoot] DB add_player failed:', err)
+    }
 
     this.room.broadcast(
       JSON.stringify({
@@ -562,6 +558,23 @@ export default class KahootServer implements Party.Server {
 
     await this.saveGameState()
 
+    // Persist results state to DB (fire-and-forget)
+    ;(async () => {
+      try {
+        if (this.dbGameId) {
+          await callInternalApi('kahoot', {
+            type: 'update_state',
+            roomId: this.room.id,
+            state: 'results',
+            currentQuestionIndex: this.game?.currentQuestionIndex,
+          })
+        }
+      }
+      catch (err) {
+        console.error('[kahoot] DB update_state(results) failed:', err)
+      }
+    })()
+
     this.room.broadcast(
       JSON.stringify({
         type: 'question_ended',
@@ -653,6 +666,23 @@ export default class KahootServer implements Party.Server {
     }
 
     await this.saveGameState()
+
+    // Persist reset state to DB (fire-and-forget — DB retains historical player scores)
+    ;(async () => {
+      try {
+        if (this.dbGameId) {
+          await callInternalApi('kahoot', {
+            type: 'update_state',
+            roomId: this.room.id,
+            state: 'waiting',
+            currentQuestionIndex: 0,
+          })
+        }
+      }
+      catch (err) {
+        console.error('[kahoot] DB update_state(restart) failed:', err)
+      }
+    })()
 
     // Broadcast that game has been reset to waiting
     this.room.broadcast(
