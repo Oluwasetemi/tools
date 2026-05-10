@@ -40,7 +40,9 @@ async function getPollsHistory(): Promise<PollRow[]> {
       .orderBy(pollOptions.optionOrder)
 
     const totalVotes = options.reduce((s, o) => s + o.votes, 0)
-    const winner = options.reduce((best, o) => o.votes > best.votes ? o : best, options[0] ?? { votes: -1, optionText: null })
+    const winner = options.length > 0
+      ? options.reduce((best, o) => o.votes > best.votes ? o : best)
+      : null
 
     result.push({
       id: poll.id,
