@@ -1,9 +1,10 @@
+import { getPartykitHost } from '@/lib/partykit-host'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { randomStr } from '@setemiojo/utils'
 import { toast } from 'sonner'
 import { PollHost } from '@/components/ui/poll-host'
-import { Copy, ExternalLink, RefreshCw } from 'lucide-react'
+import { Copy, ExternalLink, History, RefreshCw } from 'lucide-react'
 
 export const Route = createFileRoute('/party/polls')({
   component: PollsPage,
@@ -18,11 +19,12 @@ export const Route = createFileRoute('/party/polls')({
 })
 
 function PollsPage() {
-  const [roomId, setRoomId] = useState(() => {
-    if (typeof window === 'undefined') return `poll-${randomStr(7)}`
+  const [roomId, setRoomId] = useState('')
+
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    return params.get('room') || `poll-${randomStr(7)}`
-  })
+    setRoomId(params.get('room') || `poll-${randomStr(7)}`)
+  }, [])
   const [copied, setCopied] = useState(false)
 
   const origin = typeof window !== 'undefined' ? window.location.origin : ''
@@ -79,6 +81,13 @@ function PollsPage() {
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            <Link
+              to="/party/polls/history"
+              className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-white f-mono text-[10px] tracking-[0.1em] uppercase text-[#1A1008] shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 no-underline"
+            >
+              <History size={11} />
+              History
+            </Link>
             <button
               onClick={generateNewRoom}
               className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-white f-mono text-[10px] tracking-[0.1em] uppercase text-[#1A1008] shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
@@ -142,10 +151,12 @@ function PollsPage() {
 
       {/* Main component */}
       <div className="px-5 sm:px-8 py-6">
-        <PollHost
-          roomId={roomId}
-          host={import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'}
-        />
+        {roomId && (
+          <PollHost
+            roomId={roomId}
+            host={getPartykitHost()}
+          />
+        )}
       </div>
     </div>
   )
