@@ -1,9 +1,10 @@
+import { getPartykitHost } from '@/lib/partykit-host'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { randomStr } from '@setemiojo/utils'
 import { toast } from 'sonner'
 import { FeedbackHost } from '@/components/ui/feedback'
-import { Copy, ExternalLink, RefreshCw } from 'lucide-react'
+import { Copy, ExternalLink, History, RefreshCw } from 'lucide-react'
 
 export const Route = createFileRoute('/party/feedback-host')({
   component: FeedbackHostPage,
@@ -79,6 +80,13 @@ function FeedbackHostPage() {
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            <Link
+              to="/party/feedback-host/history"
+              className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-white f-mono text-[10px] tracking-[0.1em] uppercase text-[#1A1008] shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 no-underline"
+            >
+              <History size={11} />
+              History
+            </Link>
             <button
               onClick={generateNewRoom}
               className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-white f-mono text-[10px] tracking-[0.1em] uppercase text-[#1A1008] shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
@@ -144,7 +152,7 @@ function FeedbackHostPage() {
       <div className="px-5 sm:px-8 py-6">
         <FeedbackHost
           roomId={roomId}
-          host={import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'}
+          host={getPartykitHost()}
         />
       </div>
     </div>
