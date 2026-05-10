@@ -1,0 +1,12 @@
+procs:
+  vite:
+    shell: bun run dev:vite
+    autostart: true
+
+  partykit:
+    shell: bun run party:dev
+    autostart: true
+
+  drizzle:
+    shell: bun run db:studio
+    autostart: false

@@ -3,8 +3,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vite dev --port 3000",
-    "dev:all": "concurrently \"npm:party:dev\" \"npm:dev\" --names \"party,vite\" --prefix-colors \"magenta,cyan\"",
+    "dev": "mprocs",
+    "dev:vite": "vite dev --port 3000",
+    "dev:all": "concurrently \"npm:party:dev\" \"npm:dev:vite\" --names \"party,vite\" --prefix-colors \"magenta,cyan\"",
     "build": "vite build",
     "serve": "vite preview",
     "test": "vitest run",
