@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto'
 import { createFileRoute } from '@tanstack/react-router'
 import { eq, sql } from 'drizzle-orm'
 import { db } from '@/db'
@@ -29,9 +30,14 @@ function ok(data: unknown) {
   })
 }
 
+
+function checkSecret(provided: string | null): boolean {
+  const expected = process.env.INTERNAL_API_SECRET ?? ''
+  if (!provided || provided.length !== expected.length) return false
+  return timingSafeEqual(Buffer.from(provided), Buffer.from(expected))
+}
 export const POST = async ({ request }: { request: Request }) => {
-  const secret = request.headers.get('x-internal-secret')
-  if (!secret || secret !== process.env.INTERNAL_API_SECRET) return unauthorized()
+  if (!checkSecret(request.headers.get('x-internal-secret'))) return unauthorized()
 
   const body = await request.json() as { type: string } & Record<string, unknown>
 

@@ -52,8 +52,6 @@ import { Route as ApiInternalPollsRouteImport } from './routes/api/internal/poll
 import { Route as ApiInternalKahootRouteImport } from './routes/api/internal/kahoot'
 import { Route as ApiInternalFeelingsRouteImport } from './routes/api/internal/feelings'
 import { Route as ApiInternalFeedbackRouteImport } from './routes/api/internal/feedback'
-import { Route as ApiCertificatesSendRouteImport } from './routes/api/certificates/send'
-import { Route as ApiCertificatesIssuerRouteImport } from './routes/api/certificates/issuer'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
@@ -275,16 +273,6 @@ const ApiInternalFeedbackRoute = ApiInternalFeedbackRouteImport.update({
   path: '/api/internal/feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiCertificatesSendRoute = ApiCertificatesSendRouteImport.update({
-  id: '/api/certificates/send',
-  path: '/api/certificates/send',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiCertificatesIssuerRoute = ApiCertificatesIssuerRouteImport.update({
-  id: '/api/certificates/issuer',
-  path: '/api/certificates/issuer',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
   id: '/demo/start/ssr/',
   path: '/demo/start/ssr/',
@@ -331,8 +319,6 @@ export interface FileRoutesByFullPath {
   '/testimonials/submit': typeof TestimonialsSubmitRoute
   '/testimonials/wall': typeof TestimonialsWallRoute
   '/certificates/': typeof CertificatesIndexRoute
-  '/api/certificates/issuer': typeof ApiCertificatesIssuerRoute
-  '/api/certificates/send': typeof ApiCertificatesSendRoute
   '/api/internal/feedback': typeof ApiInternalFeedbackRoute
   '/api/internal/feelings': typeof ApiInternalFeelingsRoute
   '/api/internal/kahoot': typeof ApiInternalKahootRoute
@@ -381,8 +367,6 @@ export interface FileRoutesByTo {
   '/testimonials/submit': typeof TestimonialsSubmitRoute
   '/testimonials/wall': typeof TestimonialsWallRoute
   '/certificates': typeof CertificatesIndexRoute
-  '/api/certificates/issuer': typeof ApiCertificatesIssuerRoute
-  '/api/certificates/send': typeof ApiCertificatesSendRoute
   '/api/internal/feedback': typeof ApiInternalFeedbackRoute
   '/api/internal/feelings': typeof ApiInternalFeelingsRoute
   '/api/internal/kahoot': typeof ApiInternalKahootRoute
@@ -433,8 +417,6 @@ export interface FileRoutesById {
   '/testimonials/submit': typeof TestimonialsSubmitRoute
   '/testimonials/wall': typeof TestimonialsWallRoute
   '/certificates/': typeof CertificatesIndexRoute
-  '/api/certificates/issuer': typeof ApiCertificatesIssuerRoute
-  '/api/certificates/send': typeof ApiCertificatesSendRoute
   '/api/internal/feedback': typeof ApiInternalFeedbackRoute
   '/api/internal/feelings': typeof ApiInternalFeelingsRoute
   '/api/internal/kahoot': typeof ApiInternalKahootRoute
@@ -486,8 +468,6 @@ export interface FileRouteTypes {
     | '/testimonials/submit'
     | '/testimonials/wall'
     | '/certificates/'
-    | '/api/certificates/issuer'
-    | '/api/certificates/send'
     | '/api/internal/feedback'
     | '/api/internal/feelings'
     | '/api/internal/kahoot'
@@ -536,8 +516,6 @@ export interface FileRouteTypes {
     | '/testimonials/submit'
     | '/testimonials/wall'
     | '/certificates'
-    | '/api/certificates/issuer'
-    | '/api/certificates/send'
     | '/api/internal/feedback'
     | '/api/internal/feelings'
     | '/api/internal/kahoot'
@@ -587,8 +565,6 @@ export interface FileRouteTypes {
     | '/testimonials/submit'
     | '/testimonials/wall'
     | '/certificates/'
-    | '/api/certificates/issuer'
-    | '/api/certificates/send'
     | '/api/internal/feedback'
     | '/api/internal/feelings'
     | '/api/internal/kahoot'
@@ -632,8 +608,6 @@ export interface RootRouteChildren {
   PartyKahootProjectorRoute: typeof PartyKahootProjectorRoute
   PartyPollVoterRoute: typeof PartyPollVoterRoute
   PartyPollsRoute: typeof PartyPollsRouteWithChildren
-  ApiCertificatesIssuerRoute: typeof ApiCertificatesIssuerRoute
-  ApiCertificatesSendRoute: typeof ApiCertificatesSendRoute
   ApiInternalFeedbackRoute: typeof ApiInternalFeedbackRoute
   ApiInternalFeelingsRoute: typeof ApiInternalFeelingsRoute
   ApiInternalKahootRoute: typeof ApiInternalKahootRoute
@@ -957,20 +931,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInternalFeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/certificates/send': {
-      id: '/api/certificates/send'
-      path: '/api/certificates/send'
-      fullPath: '/api/certificates/send'
-      preLoaderRoute: typeof ApiCertificatesSendRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/certificates/issuer': {
-      id: '/api/certificates/issuer'
-      path: '/api/certificates/issuer'
-      fullPath: '/api/certificates/issuer'
-      preLoaderRoute: typeof ApiCertificatesIssuerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/demo/start/ssr/': {
       id: '/demo/start/ssr/'
       path: '/demo/start/ssr'
@@ -1103,8 +1063,6 @@ const rootRouteChildren: RootRouteChildren = {
   PartyKahootProjectorRoute: PartyKahootProjectorRoute,
   PartyPollVoterRoute: PartyPollVoterRoute,
   PartyPollsRoute: PartyPollsRouteWithChildren,
-  ApiCertificatesIssuerRoute: ApiCertificatesIssuerRoute,
-  ApiCertificatesSendRoute: ApiCertificatesSendRoute,
   ApiInternalFeedbackRoute: ApiInternalFeedbackRoute,
   ApiInternalFeelingsRoute: ApiInternalFeelingsRoute,
   ApiInternalKahootRoute: ApiInternalKahootRoute,

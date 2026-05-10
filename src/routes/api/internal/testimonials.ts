@@ -1,7 +1,16 @@
+import { timingSafeEqual } from 'node:crypto'
 import { createFileRoute } from '@tanstack/react-router'
 import { and, eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { testimonialSessions, testimonials } from '@/db/schema'
+
+function checkSecret(provided: string | null): boolean {
+  const expected = process.env.INTERNAL_API_SECRET ?? ''
+  if (!provided || provided.length !== expected.length) return false
+  return timingSafeEqual(Buffer.from(provided), Buffer.from(expected))
+}
+
+const VALID_MODERATION_ACTIONS = ['approved', 'rejected'] as const
 
 function unauthorized() {
   return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), {
@@ -25,8 +34,7 @@ function ok(data: unknown) {
 }
 
 export const POST = async ({ request }: { request: Request }) => {
-  const secret = request.headers.get('x-internal-secret')
-  if (!secret || secret !== process.env.INTERNAL_API_SECRET) return unauthorized()
+  if (!checkSecret(request.headers.get('x-internal-secret'))) return unauthorized()
 
   const body = await request.json() as { type: string } & Record<string, unknown>
 
@@ -60,10 +68,14 @@ export const POST = async ({ request }: { request: Request }) => {
       }
 
       case 'moderate_testimonial': {
+        const action = body.action as string
+        if (!VALID_MODERATION_ACTIONS.includes(action as typeof VALID_MODERATION_ACTIONS[number])) {
+          return badRequest(`Invalid action: must be one of ${VALID_MODERATION_ACTIONS.join(', ')}`)
+        }
         const [testimonial] = await db
           .update(testimonials)
           .set({
-            status: body.action as string,
+            status: action,
             moderatedAt: new Date(),
           })
           .where(

@@ -1,5 +1,11 @@
+import { createServerFn } from '@tanstack/react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { notNullish } from '@setemiojo/utils'
+import { Resend } from 'resend'
+import { eq } from 'drizzle-orm'
 import { useState } from 'react'
+import { db } from '@/db'
+import { certificateBatches, certificateIssuers, certificates } from '@/db/schema'
 
 interface SendResult {
   total: number
@@ -8,6 +14,158 @@ interface SendResult {
   skipped: string[]
   batchId: number
 }
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+}
+
+function parseCSV(text: string): Array<{ name: string; email: string }> {
+  const lines = text.split('\n').map(l => l.trim()).filter(notNullish)
+  const results: Array<{ name: string; email: string }> = []
+  for (const line of lines) {
+    const parts = line.split(',').map(p => p.trim())
+    const [name, email] = parts
+    if (name?.toLowerCase() === 'student_name' || name?.toLowerCase() === 'name') continue
+    if (!name || !email || !email.includes('@')) continue
+    results.push({ name, email })
+  }
+  return results
+}
+
+function buildEmailHtml(params: {
+  orgName: string
+  logoUrl: string
+  studentName: string
+  courseName: string
+  certificateUrl: string
+  certificateId: string
+}): string {
+  const orgName = escapeHtml(params.orgName)
+  const studentName = escapeHtml(params.studentName)
+  const courseName = escapeHtml(params.courseName)
+  const certificateId = escapeHtml(params.certificateId)
+  // certificateUrl is server-generated; logoUrl is validated before this call
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Your Certificate</title></head>
+<body style="font-family: Georgia, serif; background: #F7F3EC; padding: 40px; margin: 0;">
+  <div style="max-width: 600px; margin: 0 auto; background: #fff; border: 2px solid #1A1008; padding: 48px;">
+    <img src="${params.logoUrl}" alt="${orgName}" style="height: 60px; margin-bottom: 32px;" />
+    <h1 style="font-size: 28px; color: #1A1008; margin: 0 0 8px;">Congratulations, ${studentName}!</h1>
+    <p style="color: #555; font-size: 16px;">You have successfully completed:</p>
+    <h2 style="font-size: 22px; color: #D4380D; margin: 16px 0 32px;">${courseName}</h2>
+    <a href="${params.certificateUrl}"
+       style="display: inline-block; background: #D4380D; color: #fff; padding: 14px 32px; text-decoration: none; font-size: 14px; letter-spacing: 0.1em; font-family: monospace;">
+      View Your Certificate →
+    </a>
+    <p style="margin-top: 40px; font-family: monospace; font-size: 11px; color: #999;">
+      Certificate ID: ${certificateId}
+    </p>
+  </div>
+</body>
+</html>`
+}
+
+const sendCertificates = createServerFn({ method: 'POST' })
+  .handler(async (data: {
+    csvText: string
+    courseName: string
+    description: string
+    expiresAt?: string
+  }): Promise<SendResult> => {
+    if (!data.csvText || !data.courseName || !data.description) {
+      throw new Error('csvText, courseName, and description are required')
+    }
+
+    const students = parseCSV(data.csvText)
+    if (students.length === 0) throw new Error('No valid student rows found in CSV')
+    if (students.length > 500) throw new Error('Maximum 500 students per batch')
+
+    const [issuer] = await db.select().from(certificateIssuers).limit(1)
+    if (!issuer) throw new Error('No issuer profile found — set up settings first')
+
+    // Validate logoUrl is a safe https:// URL before using it in emails
+    if (!issuer.logoUrl.startsWith('https://')) {
+      throw new Error('Issuer logo URL must use https://. Please update settings.')
+    }
+
+    const appUrl = process.env.APP_URL || 'http://localhost:3000'
+    const resendApiKey = process.env.RESEND_API_KEY
+    const resend = resendApiKey ? new Resend(resendApiKey) : null
+
+    const [batch] = await db
+      .insert(certificateBatches)
+      .values({
+        issuerId: issuer.id,
+        courseName: data.courseName,
+        description: data.description,
+        totalCount: students.length,
+        successCount: 0,
+      })
+      .returning()
+
+    let successCount = 0
+    const skipped: string[] = []
+
+    for (const student of students) {
+      const [cert] = await db
+        .insert(certificates)
+        .values({
+          batchId: batch.id,
+          issuerId: issuer.id,
+          studentName: student.name,
+          studentEmail: student.email,
+          isValid: true,
+          expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+        })
+        .returning()
+
+      const certificateUrl = `${appUrl}/certificates/verify/${cert.id}`
+
+      if (resend) {
+        try {
+          await resend.emails.send({
+            from: `${issuer.orgName} <onboarding@resend.dev>`,
+            replyTo: issuer.replyToEmail,
+            to: student.email,
+            subject: `Your ${data.courseName} Certificate — ${issuer.orgName}`,
+            html: buildEmailHtml({
+              orgName: issuer.orgName,
+              logoUrl: issuer.logoUrl,
+              studentName: student.name,
+              courseName: data.courseName,
+              certificateUrl,
+              certificateId: cert.id,
+            }),
+          })
+          await db
+            .update(certificates)
+            .set({ emailSentAt: new Date() })
+            .where(eq(certificates.id, cert.id))
+          successCount++
+        }
+        catch (emailErr) {
+          console.error(`[certificates/send] Email failed for ${student.email}:`, emailErr)
+          skipped.push(student.email)
+        }
+      }
+      else {
+        skipped.push(student.email)
+      }
+    }
+
+    await db
+      .update(certificateBatches)
+      .set({ successCount })
+      .where(eq(certificateBatches.id, batch.id))
+
+    return { total: students.length, sent: successCount, failed: skipped.length, skipped, batchId: batch.id }
+  })
 
 function CertificateSendPage() {
   const [csvText, setCsvText] = useState('')
@@ -37,19 +195,8 @@ function CertificateSendPage() {
     setResult(null)
 
     try {
-      const res = await fetch('/api/certificates/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          csvText,
-          courseName,
-          description,
-          expiresAt: expiresAt || undefined,
-        }),
-      })
-      const data = await res.json()
-      if (!data.ok) throw new Error(data.error)
-      setResult(data.data as SendResult)
+      const data = await sendCertificates({ data: { csvText, courseName, description, expiresAt: expiresAt || undefined } })
+      setResult(data)
     }
     catch (err) {
       setError(err instanceof Error ? err.message : 'Send failed')

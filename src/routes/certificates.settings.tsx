@@ -1,5 +1,51 @@
+import { createServerFn } from '@tanstack/react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { eq } from 'drizzle-orm'
 import { useState } from 'react'
+import { db } from '@/db'
+import { certificateIssuers, certificates } from '@/db/schema'
+
+const saveIssuerProfile = createServerFn({ method: 'POST' })
+  .handler(async (data: {
+    orgName: string
+    logoUrl: string
+    instructorName: string
+    replyToEmail: string
+  }) => {
+    const { orgName, logoUrl, instructorName, replyToEmail } = data
+    if (!orgName || !logoUrl || !instructorName || !replyToEmail) {
+      throw new Error('All fields required: orgName, logoUrl, instructorName, replyToEmail')
+    }
+    if (!logoUrl.startsWith('https://')) {
+      throw new Error('Logo URL must use https://')
+    }
+
+    const existing = await db.select().from(certificateIssuers).limit(1)
+    if (existing.length > 0) {
+      const [updated] = await db
+        .update(certificateIssuers)
+        .set({ orgName, logoUrl, instructorName, replyToEmail })
+        .where(eq(certificateIssuers.id, existing[0].id))
+        .returning()
+      return { issuer: updated }
+    }
+    const [created] = await db
+      .insert(certificateIssuers)
+      .values({ orgName, logoUrl, instructorName, replyToEmail })
+      .returning()
+    return { issuer: created }
+  })
+
+const revokeCertificate = createServerFn({ method: 'POST' })
+  .handler(async (certId: string) => {
+    if (!certId) throw new Error('certId required')
+    const [updated] = await db
+      .update(certificates)
+      .set({ isValid: false })
+      .where(eq(certificates.id, certId))
+      .returning()
+    return { revoked: true, cert: updated }
+  })
 
 function CertificateSettingsPage() {
   const [orgName, setOrgName] = useState('')
@@ -16,13 +62,7 @@ function CertificateSettingsPage() {
     setError(null)
 
     try {
-      const res = await fetch('/api/certificates/issuer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orgName, logoUrl, instructorName, replyToEmail }),
-      })
-      const data = await res.json()
-      if (!data.ok) throw new Error(data.error)
+      await saveIssuerProfile({ data: { orgName, logoUrl, instructorName, replyToEmail } })
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     }
@@ -87,7 +127,7 @@ function CertificateSettingsPage() {
 
             <div>
               <label className="block f-mono text-[10px] tracking-[0.18em] uppercase text-[#1A1008]/50 mb-1.5">
-                Logo URL
+                Logo URL <span className="normal-case text-[#1A1008]/30">(must be https://)</span>
               </label>
               <input
                 type="url"
@@ -149,7 +189,7 @@ function CertificateSettingsPage() {
                 Certificate Header Preview
               </div>
               <div className="border-2 border-[#1A1008] bg-white p-8 text-center shadow-[5px_5px_0_#1A1008]">
-                {logoUrl && (
+                {logoUrl && logoUrl.startsWith('https://') && (
                   <img src={logoUrl} alt={orgName} className="h-12 mx-auto mb-4 object-contain" />
                 )}
                 <div className="f-display font-black text-[20px] text-[#1A1008]">{orgName || 'Organization Name'}</div>
@@ -168,3 +208,5 @@ function CertificateSettingsPage() {
 export const Route = createFileRoute('/certificates/settings')({
   component: CertificateSettingsPage,
 })
+
+export { revokeCertificate }
