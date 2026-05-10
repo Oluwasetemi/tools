@@ -77,7 +77,7 @@ function StatusChip({ cert }: { cert: CertRow }) {
     )
   }
   return (
-    <span className="border border-[#1B6B3A] bg-[#1B6B3A]/[0.08] px-2 py-0.5 f-mono text-[9px] tracking-wider uppercase text-[#1B6B3A]">
+    <span className="border border-[#B45309] bg-[#B45309]/[0.08] px-2 py-0.5 f-mono text-[9px] tracking-wider uppercase text-[#B45309]">
       Sent
     </span>
   )
@@ -113,123 +113,144 @@ function CertificatesDashboard() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-10 px-6">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#D4380D] mb-2">
-            Certificates
-          </div>
-          <h1 className="f-display font-black text-[36px] tracking-tight text-[#1A1008]">
-            Dashboard<span className="text-[#D4380D]">.</span>
-          </h1>
-        </div>
-        <div className="flex gap-2">
-          <Link
-            to="/certificates/settings"
-            className="border-2 border-[#1A1008] bg-white text-[#1A1008] f-mono text-[11px] tracking-[0.12em] uppercase px-4 py-2.5 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
-          >
-            Settings
-          </Link>
-          <Link
-            to="/certificates/send"
-            className="border-2 border-[#1A1008] bg-[#D4380D] text-white f-mono text-[11px] tracking-[0.12em] uppercase px-4 py-2.5 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
-          >
-            New Batch
-          </Link>
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#F7F3EC]">
+      {/* Tool accent stripe — amber */}
+      <div className="h-1 bg-[#B45309]" />
 
-      {/* Filter strip */}
-      <div className="flex gap-2 mb-6 border-b-2 border-[#1A1008]/10 pb-4">
-        {(['all', 'sent', 'failed', 'revoked'] as CertFilter[]).map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={[
-              'f-mono text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border-2 rounded-none transition-all duration-100',
-              filter === f
-                ? 'border-[#D4380D] bg-[#D4380D] text-white'
-                : 'border-[#1A1008]/20 bg-white text-[#1A1008]/50 hover:border-[#1A1008]/40',
-            ].join(' ')}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
+      {/* Top nav */}
+      <nav className="px-5 sm:px-8 h-10 flex items-center justify-between border-b border-[#1A1008]/10">
+        <Link
+          to="/"
+          className="f-display font-black text-[15px] tracking-tight text-[#1A1008] no-underline"
+        >
+          TOOLS<span className="text-[#D4380D]">.</span>
+        </Link>
+        <span className="f-mono text-[9px] tracking-[0.2em] uppercase text-[#1A1008]/30">
+          06 · Certificates
+        </span>
+      </nav>
 
-      {batches.length === 0
-        ? (
-            <div className="border-2 border-[#1A1008]/20 bg-white p-12 text-center">
-              <div className="text-4xl mb-4">🎓</div>
-              <h2 className="f-display font-black text-[22px] text-[#1A1008] mb-2">No certificates yet</h2>
-              <p className="f-mono text-[12px] text-[#1A1008]/40">
-                Start by{' '}
-                <Link to="/certificates/settings" className="text-[#D4380D] underline">
-                  setting up your issuer profile
-                </Link>
-                {' '}then{' '}
-                <Link to="/certificates/send" className="text-[#D4380D] underline">
-                  sending a batch
-                </Link>.
-              </p>
+      {/* Page header */}
+      <div className="px-5 sm:px-8 pt-8 pb-0 border-b-2 border-[#1A1008]">
+        <div className="flex flex-wrap items-start justify-between gap-4 pb-6">
+          <div>
+            <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#B45309] mb-2">
+              Issue & verify credentials
             </div>
-          )
-        : (
-            <div className="space-y-8">
-              {batches.map((batch) => {
-                const filteredCerts = batch.certs.filter(filterCert)
-                if (filteredCerts.length === 0) return null
+            <h1 className="f-display font-black text-[30px] sm:text-[40px] tracking-[-0.03em] text-[#1A1008] leading-tight">
+              Dashboard<span className="text-[#B45309]">.</span>
+            </h1>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 pt-1 sm:pt-2">
+            <Link
+              to="/certificates/settings"
+              className="border-2 border-[#1A1008] bg-white text-[#1A1008] f-mono text-[11px] tracking-[0.12em] uppercase px-4 py-2 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 no-underline"
+            >
+              Settings
+            </Link>
+            <Link
+              to="/certificates/send"
+              className="border-2 border-[#1A1008] bg-[#B45309] text-white f-mono text-[11px] tracking-[0.12em] uppercase px-4 py-2 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 no-underline"
+            >
+              New Batch
+            </Link>
+          </div>
+        </div>
+      </div>
 
-                return (
-                  <div key={batch.id}>
-                    {/* Batch header */}
-                    <div className="border-2 border-[#1A1008] bg-[#1A1008] px-5 py-3 flex items-center justify-between">
-                      <div>
-                        <span className="f-display font-bold text-[16px] text-white">{batch.courseName}</span>
-                        <span className="f-mono text-[10px] text-white/40 ml-4">
-                          {new Date(batch.sentAt).toLocaleDateString()}
+      {/* Content */}
+      <div className="px-5 sm:px-8 pt-8">
+        {/* Filter strip */}
+        <div className="flex gap-2 mb-6">
+          {(['all', 'sent', 'failed', 'revoked'] as CertFilter[]).map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={[
+                'f-mono text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border-2 rounded-none transition-all duration-100',
+                filter === f
+                  ? 'border-[#B45309] bg-[#B45309] text-white'
+                  : 'border-[#1A1008]/20 bg-white text-[#1A1008]/50 hover:border-[#1A1008]/40',
+              ].join(' ')}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+
+        {batches.length === 0
+          ? (
+              <div className="border-2 border-[#1A1008]/20 bg-white p-12 text-center">
+                <div className="text-4xl mb-4">🎓</div>
+                <h2 className="f-display font-black text-[22px] text-[#1A1008] mb-2">No certificates yet</h2>
+                <p className="f-mono text-[12px] text-[#1A1008]/40">
+                  Start by{' '}
+                  <Link to="/certificates/settings" className="text-[#B45309] underline">
+                    setting up your issuer profile
+                  </Link>
+                  {' '}then{' '}
+                  <Link to="/certificates/send" className="text-[#B45309] underline">
+                    sending a batch
+                  </Link>.
+                </p>
+              </div>
+            )
+          : (
+              <div className="space-y-8 pb-12">
+                {batches.map((batch) => {
+                  const filteredCerts = batch.certs.filter(filterCert)
+                  if (filteredCerts.length === 0) return null
+
+                  return (
+                    <div key={batch.id}>
+                      {/* Batch header */}
+                      <div className="border-2 border-[#1A1008] bg-[#1A1008] px-5 py-3 flex items-center justify-between">
+                        <div>
+                          <span className="f-display font-bold text-[16px] text-white">{batch.courseName}</span>
+                          <span className="f-mono text-[10px] text-white/40 ml-4">
+                            {new Date(batch.sentAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <span className="f-mono text-[10px] text-white/50">
+                          {batch.successCount} of {batch.totalCount} delivered
                         </span>
                       </div>
-                      <span className="f-mono text-[10px] text-white/50">
-                        {batch.successCount} of {batch.totalCount} delivered
-                      </span>
-                    </div>
 
-                    {/* Certificate rows */}
-                    <div className="border-2 border-t-0 border-[#1A1008]/20 bg-white divide-y divide-[#1A1008]/10">
-                      {filteredCerts.map(cert => (
-                        <div key={cert.id} className="px-5 py-3 flex items-center gap-4">
-                          <div className="flex-1 min-w-0">
-                            <div className="f-mono text-[13px] font-medium text-[#1A1008]">{cert.studentName}</div>
-                            <div className="f-mono text-[10px] text-[#1A1008]/40">{cert.studentEmail}</div>
-                          </div>
-                          <StatusChip cert={cert} />
-                          <a
-                            href={`/certificates/verify/${cert.id}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="f-mono text-[10px] text-[#D4380D] hover:underline shrink-0"
-                          >
-                            View ↗
-                          </a>
-                          {cert.isValid && (
-                            <button
-                              onClick={() => revoke(cert.id)}
-                              disabled={revoking === cert.id}
-                              className="f-mono text-[10px] text-[#1A1008]/30 hover:text-[#D4380D] transition-colors disabled:opacity-50 shrink-0"
+                      {/* Certificate rows */}
+                      <div className="border-2 border-t-0 border-[#1A1008]/20 bg-white divide-y divide-[#1A1008]/10">
+                        {filteredCerts.map(cert => (
+                          <div key={cert.id} className="px-5 py-3 flex items-center gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="f-mono text-[13px] font-medium text-[#1A1008]">{cert.studentName}</div>
+                              <div className="f-mono text-[10px] text-[#1A1008]/40">{cert.studentEmail}</div>
+                            </div>
+                            <StatusChip cert={cert} />
+                            <a
+                              href={`/certificates/verify/${cert.id}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="f-mono text-[10px] text-[#B45309] hover:underline shrink-0"
                             >
-                              {revoking === cert.id ? 'Revoking...' : 'Revoke'}
-                            </button>
-                          )}
-                        </div>
-                      ))}
+                              View ↗
+                            </a>
+                            {cert.isValid && (
+                              <button
+                                onClick={() => revoke(cert.id)}
+                                disabled={revoking === cert.id}
+                                className="f-mono text-[10px] text-[#1A1008]/30 hover:text-[#D4380D] transition-colors disabled:opacity-50 shrink-0"
+                              >
+                                {revoking === cert.id ? 'Revoking...' : 'Revoke'}
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
+                  )
+                })}
+              </div>
+            )}
+      </div>
     </div>
   )
 }

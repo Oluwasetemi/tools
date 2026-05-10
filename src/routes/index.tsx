@@ -5,7 +5,7 @@ export const Route = createFileRoute('/')({
   component: LandingPage,
 })
 
-const CYCLING_LABELS = ['QUIZ BATTLES', 'LIVE POLLS', 'LIVE FEEDBACK', 'EMOJI STREAMS'] as const
+const CYCLING_LABELS = ['QUIZ BATTLES', 'LIVE POLLS', 'LIVE FEEDBACK', 'EMOJI STREAMS', 'TESTIMONIALS', 'CERTIFICATES'] as const
 
 type Tool = {
   label: string
@@ -68,6 +68,30 @@ const tools: Tool[] = [
     hoverBgClass: 'bg-[#6D28D9]',
     barColorClass: 'bg-[#6D28D9]',
   },
+  {
+    label: '05',
+    name: 'Testimonials',
+    tagline: 'Collect & moderate reviews',
+    description:
+      'Gather real-time testimonials from attendees, moderate submissions as they arrive, and display approved quotes on a live wall.',
+    href: '/testimonials',
+    emoji: '💬',
+    accentColorClass: 'text-[#0E7490]',
+    hoverBgClass: 'bg-[#0E7490]',
+    barColorClass: 'bg-[#0E7490]',
+  },
+  {
+    label: '06',
+    name: 'Certificates',
+    tagline: 'Issue & verify credentials',
+    description:
+      'Send personalized course certificates by email in bulk, then let recipients verify their credential with a unique link.',
+    href: '/certificates',
+    emoji: '🎓',
+    accentColorClass: 'text-[#B45309]',
+    hoverBgClass: 'bg-[#B45309]',
+    barColorClass: 'bg-[#B45309]',
+  },
 ]
 
 function CyclingLabel() {
@@ -104,13 +128,13 @@ function ToolCard({ tool }: { tool: Tool }) {
   return (
     <Link
       to={tool.href}
-      className="block no-underline"
+      className="block no-underline h-full"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <div
         className={[
-          'relative border-2 border-[#1A1008] overflow-hidden',
+          'relative border-2 border-[#1A1008] overflow-hidden h-full flex flex-col',
           'transition-all duration-200 ease-out',
           hovered
             ? `${tool.hoverBgClass} shadow-none translate-x-[4px] translate-y-[4px]`
@@ -264,9 +288,10 @@ function LandingPage() {
         </h1>
         <div className="border-t-2 border-[#1A1008] pt-6 grid sm:grid-cols-[1fr_auto] gap-8 items-end a2">
           <p className="f-mono text-[13px] leading-[1.9] text-[#1A1008]/60 max-w-[440px]">
-            Four purpose-built tools for live classroom engagement. Quiz
-            battles, instant polls, structured feedback, and shared emotion
-            streams — all wired to WebSockets, zero accounts needed.
+            Six purpose-built tools for live classroom engagement. Quiz
+            battles, instant polls, structured feedback, emoji streams,
+            testimonials, and certificates — all wired to WebSockets,
+            zero accounts needed.
           </p>
           <div className="flex flex-col sm:items-end gap-3">
             <Link
@@ -307,7 +332,7 @@ function LandingPage() {
             The Suite
           </h2>
           <span className="f-mono text-[10px] tracking-[0.2em] uppercase text-[#1A1008]/35">
-            04 tools
+            06 tools
           </span>
         </div>
         <div className="grid sm:grid-cols-2 gap-4 a4">
@@ -364,7 +389,7 @@ function LandingPage() {
       <section className="border-t-2 border-[#1A1008] bg-[#1A1008] py-14 a5">
         <div className="px-5 sm:px-10 max-w-[1080px] mx-auto grid grid-cols-2 sm:grid-cols-4 gap-10">
           {[
-            { value: '4', label: 'Live tools' },
+            { value: '6', label: 'Live tools' },
             { value: '<50ms', label: 'Avg latency' },
             { value: '∞', label: 'Participants' },
             { value: '100%', label: 'Open source' },

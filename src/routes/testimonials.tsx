@@ -47,37 +47,44 @@ function TestimonialsDashboard() {
     <div className="min-h-screen bg-[#F7F3EC]">
       <div className="h-1 bg-[#6D28D9]" />
 
-      <nav className="border-b-2 border-[#1A1008] px-6 py-3 flex items-center gap-4">
-        <Link to="/" className="f-display font-black text-[13px] text-[#1A1008]">
-          ← TOOLS<span className="text-[#D4380D]">.</span>
+      <nav className="px-5 sm:px-8 h-10 flex items-center justify-between border-b border-[#1A1008]/10">
+        <Link to="/" className="f-display font-black text-[15px] tracking-tight text-[#1A1008] no-underline">
+          TOOLS<span className="text-[#D4380D]">.</span>
         </Link>
+        <span className="f-mono text-[9px] tracking-[0.2em] uppercase text-[#1A1008]/30">
+          05 · Testimonials
+        </span>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-6 py-10">
-        <div className="flex items-start justify-between mb-10">
+      {/* Page header */}
+      <div className="px-5 sm:px-8 pt-8 pb-0 border-b-2 border-[#1A1008]">
+        <div className="flex flex-wrap items-start justify-between gap-4 pb-6">
           <div>
             <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#6D28D9] mb-2">
               Real-time collection
             </div>
-            <h1 className="f-display font-black text-[48px] tracking-tight text-[#1A1008]">
+            <h1 className="f-display font-black text-[30px] sm:text-[40px] tracking-[-0.03em] text-[#1A1008] leading-tight">
               Testimonials<span className="text-[#6D28D9]">.</span>
             </h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 pt-1 sm:pt-2">
             <Link
               to="/testimonials/history"
-              className="border-2 border-[#1A1008] bg-white text-[#1A1008] f-mono text-[11px] tracking-[0.12em] uppercase px-5 py-2.5 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 no-underline"
+              className="border-2 border-[#1A1008] bg-white text-[#1A1008] f-mono text-[11px] tracking-[0.12em] uppercase px-4 py-2 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 no-underline"
             >
               History
             </Link>
             <button
               onClick={() => setCreating(!creating)}
-              className="border-2 border-[#1A1008] bg-[#6D28D9] text-white f-mono text-[11px] tracking-[0.12em] uppercase px-5 py-2.5 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
+              className="border-2 border-[#1A1008] bg-[#6D28D9] text-white f-mono text-[11px] tracking-[0.12em] uppercase px-4 py-2 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
             >
               + New Campaign
             </button>
           </div>
         </div>
+      </div>
+
+      <div className="px-5 sm:px-8 pt-8 pb-12">
 
         {creating && (
           <div className="border-2 border-[#1A1008] bg-white shadow-[5px_5px_0_#1A1008] p-6 mb-8">
