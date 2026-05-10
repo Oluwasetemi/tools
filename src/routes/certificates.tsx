@@ -147,7 +147,7 @@ function CertificatesDashboard() {
             key={f}
             onClick={() => setFilter(f)}
             className={[
-              'f-mono text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border-2 transition-all duration-100',
+              'f-mono text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border-2 rounded-none transition-all duration-100',
               filter === f
                 ? 'border-[#D4380D] bg-[#D4380D] text-white'
                 : 'border-[#1A1008]/20 bg-white text-[#1A1008]/50 hover:border-[#1A1008]/40',

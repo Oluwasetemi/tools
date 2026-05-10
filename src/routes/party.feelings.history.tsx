@@ -92,7 +92,7 @@ function FeelingsHistoryPage() {
                   <div key={session.id} className="border-2 border-[#1A1008] bg-white shadow-[3px_3px_0_#1A1008]">
                     <button
                       onClick={() => setExpanded(expanded === session.id ? null : session.id)}
-                      className="w-full px-5 py-4 flex items-start justify-between gap-4 text-left hover:bg-[#6D28D9]/[0.03] transition-colors"
+                      className="w-full px-5 py-4 flex items-start justify-between gap-4 text-left rounded-none hover:bg-[#6D28D9]/[0.03] transition-colors"
                     >
                       <div className="flex-1 min-w-0">
                         <p className="f-display font-bold text-[15px] text-[#1A1008]">
