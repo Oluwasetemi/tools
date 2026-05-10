@@ -63,12 +63,20 @@ function TestimonialsDashboard() {
               Testimonials<span className="text-[#6D28D9]">.</span>
             </h1>
           </div>
-          <button
-            onClick={() => setCreating(!creating)}
-            className="border-2 border-[#1A1008] bg-[#6D28D9] text-white f-mono text-[11px] tracking-[0.12em] uppercase px-5 py-2.5 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
-          >
-            + New Campaign
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/testimonials/history"
+              className="border-2 border-[#1A1008] bg-white text-[#1A1008] f-mono text-[11px] tracking-[0.12em] uppercase px-5 py-2.5 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 no-underline"
+            >
+              History
+            </Link>
+            <button
+              onClick={() => setCreating(!creating)}
+              className="border-2 border-[#1A1008] bg-[#6D28D9] text-white f-mono text-[11px] tracking-[0.12em] uppercase px-5 py-2.5 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
+            >
+              + New Campaign
+            </button>
+          </div>
         </div>
 
         {creating && (
