@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
@@ -25,7 +26,7 @@ interface SessionRow {
   responses: ResponseRow[]
 }
 
-async function getFeedbackHistory(): Promise<SessionRow[]> {
+const getFeedbackHistory = createServerFn({ method: 'GET' }).handler(async (): Promise<SessionRow[]> => {
   const sessions = await db
     .select()
     .from(feedbackSessions)
@@ -60,7 +61,7 @@ async function getFeedbackHistory(): Promise<SessionRow[]> {
     })
   }
   return result
-}
+})
 
 const TYPE_COLORS: Record<string, string> = {
   emoji: '#D4380D',
@@ -166,10 +167,7 @@ function FeedbackHistoryPage() {
 }
 
 export const Route = createFileRoute('/party/feedback-host/history')({
-  loader: async () => {
-    const sessionHistory = await getFeedbackHistory()
-    return { sessionHistory }
-  },
+  loader: async () => ({ sessionHistory: await getFeedbackHistory() }),
   head: () => ({ meta: [{ title: 'Feedback History — Tools' }] }),
   component: FeedbackHistoryPage,
 })

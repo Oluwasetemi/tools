@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
@@ -24,7 +25,7 @@ interface PollRow {
   winnerPct: number
 }
 
-async function getPollsHistory(): Promise<PollRow[]> {
+const getPollsHistory = createServerFn({ method: 'GET' }).handler(async (): Promise<PollRow[]> => {
   const pollList = await db
     .select()
     .from(polls)
@@ -63,7 +64,7 @@ async function getPollsHistory(): Promise<PollRow[]> {
     })
   }
   return result
-}
+})
 
 function PollHistoryPage() {
   const { pollHistory } = Route.useLoaderData()
@@ -164,10 +165,7 @@ function PollHistoryPage() {
 }
 
 export const Route = createFileRoute('/party/polls/history')({
-  loader: async () => {
-    const pollHistory = await getPollsHistory()
-    return { pollHistory }
-  },
+  loader: async () => ({ pollHistory: await getPollsHistory() }),
   head: () => ({ meta: [{ title: 'Poll History — Tools' }] }),
   component: PollHistoryPage,
 })

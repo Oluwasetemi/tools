@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
@@ -19,7 +20,7 @@ interface SessionRow {
   allEmojis: EmojiCount[]
 }
 
-async function getFeelingsHistory(): Promise<SessionRow[]> {
+const getFeelingsHistory = createServerFn({ method: 'GET' }).handler(async (): Promise<SessionRow[]> => {
   const sessions = await db
     .select()
     .from(feelingSessions)
@@ -52,7 +53,7 @@ async function getFeelingsHistory(): Promise<SessionRow[]> {
     })
   }
   return result
-}
+})
 
 function FeelingsHistoryPage() {
   const { sessionHistory } = Route.useLoaderData()
@@ -140,10 +141,7 @@ function FeelingsHistoryPage() {
 }
 
 export const Route = createFileRoute('/party/feelings/history')({
-  loader: async () => {
-    const sessionHistory = await getFeelingsHistory()
-    return { sessionHistory }
-  },
+  loader: async () => ({ sessionHistory: await getFeelingsHistory() }),
   head: () => ({ meta: [{ title: 'Feelings History — Tools' }] }),
   component: FeelingsHistoryPage,
 })

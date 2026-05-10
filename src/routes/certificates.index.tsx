@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
 import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
 import { db } from '@/db'
@@ -25,7 +26,7 @@ interface BatchData {
   certs: CertRow[]
 }
 
-async function getDashboardData(): Promise<BatchData[]> {
+const getDashboardData = createServerFn({ method: 'GET' }).handler(async (): Promise<BatchData[]> => {
   const batches = await db
     .select()
     .from(certificateBatches)
@@ -59,7 +60,7 @@ async function getDashboardData(): Promise<BatchData[]> {
   }
 
   return result
-}
+})
 
 function StatusChip({ cert }: { cert: CertRow }) {
   if (!cert.isValid) {
@@ -256,9 +257,6 @@ function CertificatesDashboard() {
 }
 
 export const Route = createFileRoute('/certificates/')({
-  loader: async () => {
-    const batches = await getDashboardData()
-    return { batches }
-  },
+  loader: async () => ({ batches: await getDashboardData() }),
   component: CertificatesDashboard,
 })

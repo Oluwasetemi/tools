@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
@@ -24,7 +25,7 @@ interface SessionRow {
   approved: TestimonialRow[]
 }
 
-async function getTestimonialsHistory(): Promise<SessionRow[]> {
+const getTestimonialsHistory = createServerFn({ method: 'GET' }).handler(async (): Promise<SessionRow[]> => {
   const sessions = await db
     .select()
     .from(testimonialSessions)
@@ -62,7 +63,7 @@ async function getTestimonialsHistory(): Promise<SessionRow[]> {
     })
   }
   return result
-}
+})
 
 function TestimonialsHistoryPage() {
   const { sessionHistory } = Route.useLoaderData()
@@ -159,10 +160,7 @@ function TestimonialsHistoryPage() {
 }
 
 export const Route = createFileRoute('/testimonials/history')({
-  loader: async () => {
-    const sessionHistory = await getTestimonialsHistory()
-    return { sessionHistory }
-  },
+  loader: async () => ({ sessionHistory: await getTestimonialsHistory() }),
   head: () => ({ meta: [{ title: 'Testimonial History — Tools' }] }),
   component: TestimonialsHistoryPage,
 })

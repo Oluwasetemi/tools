@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
@@ -24,7 +25,7 @@ interface GameRow {
   topPlayers: PlayerRow[]
 }
 
-async function getKahootHistory(): Promise<GameRow[]> {
+const getKahootHistory = createServerFn({ method: 'GET' }).handler(async (): Promise<GameRow[]> => {
   const games = await db
     .select()
     .from(kahootGames)
@@ -55,7 +56,7 @@ async function getKahootHistory(): Promise<GameRow[]> {
     })
   }
   return result
-}
+})
 
 function KahootHistoryPage() {
   const { gameHistory } = Route.useLoaderData()
@@ -152,10 +153,7 @@ function KahootHistoryPage() {
 }
 
 export const Route = createFileRoute('/party/kahoot-host/history')({
-  loader: async () => {
-    const gameHistory = await getKahootHistory()
-    return { gameHistory }
-  },
+  loader: async () => ({ gameHistory: await getKahootHistory() }),
   head: () => ({ meta: [{ title: 'Quiz History — Tools' }] }),
   component: KahootHistoryPage,
 })
