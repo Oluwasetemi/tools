@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { notNullish } from '@setemiojo/utils'
 import { Resend } from 'resend'
 import { eq } from 'drizzle-orm'
 import { db } from '@/db'
@@ -19,7 +20,7 @@ function badRequest(error: string) {
 }
 
 function parseCSV(text: string): Array<{ name: string; email: string }> {
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
+  const lines = text.split('\n').map(l => l.trim()).filter(notNullish)
   const results: Array<{ name: string; email: string }> = []
   for (const line of lines) {
     const parts = line.split(',').map(p => p.trim())

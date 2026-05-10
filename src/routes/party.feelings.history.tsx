@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { groupBy, p } from '@setemiojo/utils'
 import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
 import { db } from '@/db'
@@ -27,22 +28,18 @@ const getFeelingsHistory = createServerFn({ method: 'GET' }).handler(async (): P
     .orderBy(desc(feelingSessions.createdAt))
     .limit(50)
 
-  const result: SessionRow[] = []
-  for (const session of sessions) {
+  return p(sessions, { concurrency: 5 }).map(async (session) => {
     const emojis = await db
       .select()
       .from(feelingEmojis)
       .where(eq(feelingEmojis.sessionId, session.id))
 
-    const freq: Record<string, number> = {}
-    for (const e of emojis) {
-      freq[e.emoji] = (freq[e.emoji] ?? 0) + 1
-    }
-    const sorted: EmojiCount[] = Object.entries(freq)
-      .map(([emoji, count]) => ({ emoji, count }))
+    const grouped = groupBy(emojis, e => e.emoji)
+    const sorted: EmojiCount[] = Object.entries(grouped)
+      .map(([emoji, records]) => ({ emoji, count: records.length }))
       .sort((a, b) => b.count - a.count)
 
-    result.push({
+    return {
       id: session.id,
       roomId: session.roomId,
       createdAt: session.createdAt.toISOString(),
@@ -50,9 +47,8 @@ const getFeelingsHistory = createServerFn({ method: 'GET' }).handler(async (): P
       totalCount: emojis.length,
       top3: sorted.slice(0, 3),
       allEmojis: sorted,
-    })
-  }
-  return result
+    }
+  })
 })
 
 function FeelingsHistoryPage() {

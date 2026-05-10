@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { groupBy } from '@setemiojo/utils'
 import { eq, desc, sql } from 'drizzle-orm'
 import { db } from '@/db'
 import {
@@ -86,16 +87,11 @@ export const getFeelingResults = createServerFn({ method: 'GET' })
     ).size
 
     // Emoji frequency distribution
-    const emojiCounts = session.emojis.reduce((acc, record) => {
-      acc[record.emoji] = (acc[record.emoji] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
-
-    // Sort by frequency
-    const topEmojis = Object.entries(emojiCounts)
-      .sort(([, a], [, b]) => (b as number) - (a as number))
+    const emojiGroups = groupBy(session.emojis, r => r.emoji)
+    const topEmojis = Object.entries(emojiGroups)
+      .map(([emoji, records]) => ({ emoji, count: records.length }))
+      .sort((a, b) => b.count - a.count)
       .slice(0, 10)
-      .map(([emoji, count]) => ({ emoji, count }))
 
     // Timeline of emoji posts (grouped by minute)
     const timeline = session.emojis.reduce((acc, record) => {
@@ -173,14 +169,10 @@ export const getAllFeelingSessions = createServerFn({ method: 'GET' })
         session.emojis.map(e => e.participantId),
       ).size
 
-      const emojiCounts = session.emojis.reduce((acc, record) => {
-        acc[record.emoji] = (acc[record.emoji] || 0) + 1
-        return acc
-      }, {} as Record<string, number>)
-
-      const topEmoji = Object.entries(emojiCounts).sort(
-        ([, a], [, b]) => (b as number) - (a as number),
-      )[0]
+      const emojiGroups = groupBy(session.emojis, r => r.emoji)
+      const topEmoji = Object.entries(emojiGroups)
+        .map(([emoji, records]) => [emoji, records.length] as const)
+        .sort(([, a], [, b]) => b - a)[0]
 
       return {
         ...session,

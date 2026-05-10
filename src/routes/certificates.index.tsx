@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { p } from '@setemiojo/utils'
 import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
 import { db } from '@/db'
@@ -33,15 +34,14 @@ const getDashboardData = createServerFn({ method: 'GET' }).handler(async (): Pro
     .orderBy(desc(certificateBatches.sentAt))
     .limit(20)
 
-  const result: BatchData[] = []
-  for (const batch of batches) {
+  return p(batches, { concurrency: 5 }).map(async (batch) => {
     const certs = await db
       .select()
       .from(certificates)
       .where(eq(certificates.batchId, batch.id))
       .orderBy(certificates.studentName)
 
-    result.push({
+    return {
       id: batch.id,
       courseName: batch.courseName,
       sentAt: batch.sentAt.toISOString(),
@@ -56,10 +56,8 @@ const getDashboardData = createServerFn({ method: 'GET' }).handler(async (): Pro
         isValid: c.isValid,
         emailSentAt: c.emailSentAt?.toISOString() ?? null,
       })),
-    })
-  }
-
-  return result
+    }
+  })
 })
 
 function StatusChip({ cert }: { cert: CertRow }) {

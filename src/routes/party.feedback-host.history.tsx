@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { p } from '@setemiojo/utils'
 import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
 import { db } from '@/db'
@@ -33,15 +34,14 @@ const getFeedbackHistory = createServerFn({ method: 'GET' }).handler(async (): P
     .orderBy(desc(feedbackSessions.createdAt))
     .limit(50)
 
-  const result: SessionRow[] = []
-  for (const session of sessions) {
+  return p(sessions, { concurrency: 5 }).map(async (session) => {
     const responses = await db
       .select()
       .from(feedbackResponses)
       .where(eq(feedbackResponses.sessionId, session.id))
       .orderBy(desc(feedbackResponses.submittedAt))
 
-    result.push({
+    return {
       id: session.id,
       roomId: session.roomId,
       title: session.title,
@@ -58,9 +58,8 @@ const getFeedbackHistory = createServerFn({ method: 'GET' }).handler(async (): P
         score: r.scoreResponse ?? null,
         submittedAt: r.submittedAt.toISOString(),
       })),
-    })
-  }
-  return result
+    }
+  })
 })
 
 const TYPE_COLORS: Record<string, string> = {

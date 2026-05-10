@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { p } from '@setemiojo/utils'
 import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
 import { db } from '@/db'
@@ -32,8 +33,7 @@ const getPollsHistory = createServerFn({ method: 'GET' }).handler(async (): Prom
     .orderBy(desc(polls.createdAt))
     .limit(50)
 
-  const result: PollRow[] = []
-  for (const poll of pollList) {
+  return p(pollList, { concurrency: 5 }).map(async (poll) => {
     const options = await db
       .select()
       .from(pollOptions)
@@ -45,7 +45,7 @@ const getPollsHistory = createServerFn({ method: 'GET' }).handler(async (): Prom
       ? options.reduce((best, o) => o.votes > best.votes ? o : best)
       : null
 
-    result.push({
+    return {
       id: poll.id,
       roomId: poll.roomId,
       question: poll.question,
@@ -61,9 +61,8 @@ const getPollsHistory = createServerFn({ method: 'GET' }).handler(async (): Prom
       totalVotes,
       winnerText: winner && winner.votes > 0 ? winner.optionText : null,
       winnerPct: totalVotes > 0 && winner ? Math.round((winner.votes / totalVotes) * 100) : 0,
-    })
-  }
-  return result
+    }
+  })
 })
 
 function PollHistoryPage() {

@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { p, partition } from '@setemiojo/utils'
 import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
 import { db } from '@/db'
@@ -32,19 +33,17 @@ const getTestimonialsHistory = createServerFn({ method: 'GET' }).handler(async (
     .orderBy(desc(testimonialSessions.createdAt))
     .limit(50)
 
-  const result: SessionRow[] = []
-  for (const session of sessions) {
+  return p(sessions, { concurrency: 5 }).map(async (session) => {
     const items = await db
       .select()
       .from(testimonials)
       .where(eq(testimonials.sessionId, session.id))
       .orderBy(desc(testimonials.submittedAt))
 
-    const approved = items.filter(t => t.status === 'approved')
-    const pending = items.filter(t => t.status === 'pending')
-    const rejected = items.filter(t => t.status === 'rejected')
+    const [approved, rest] = partition(items, t => t.status === 'approved')
+    const [pending, rejected] = partition(rest, t => t.status === 'pending')
 
-    result.push({
+    return {
       id: session.id,
       roomId: session.roomId,
       title: session.title,
@@ -60,9 +59,8 @@ const getTestimonialsHistory = createServerFn({ method: 'GET' }).handler(async (
         status: t.status,
         submittedAt: t.submittedAt.toISOString(),
       })),
-    })
-  }
-  return result
+    }
+  })
 })
 
 function TestimonialsHistoryPage() {

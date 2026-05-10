@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { p } from '@setemiojo/utils'
 import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
 import { db } from '@/db'
@@ -32,8 +33,7 @@ const getKahootHistory = createServerFn({ method: 'GET' }).handler(async (): Pro
     .orderBy(desc(kahootGames.createdAt))
     .limit(50)
 
-  const result: GameRow[] = []
-  for (const game of games) {
+  return p(games, { concurrency: 5 }).map(async (game) => {
     const players = await db
       .select()
       .from(kahootPlayers)
@@ -41,7 +41,7 @@ const getKahootHistory = createServerFn({ method: 'GET' }).handler(async (): Pro
       .orderBy(desc(kahootPlayers.score))
       .limit(10)
 
-    result.push({
+    return {
       id: game.id,
       roomId: game.roomId,
       gameName: game.gameName,
@@ -52,10 +52,9 @@ const getKahootHistory = createServerFn({ method: 'GET' }).handler(async (): Pro
       playerCount: players.length,
       winner: players[0]?.playerName ?? null,
       winnerScore: players[0]?.score ?? 0,
-      topPlayers: players.map(p => ({ id: p.id, name: p.playerName, score: p.score })),
-    })
-  }
-  return result
+      topPlayers: players.map(pl => ({ id: pl.id, name: pl.playerName, score: pl.score })),
+    }
+  })
 })
 
 function KahootHistoryPage() {
