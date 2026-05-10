@@ -14,9 +14,11 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CertificatesIndexRouteImport } from './routes/certificates.index'
 import { Route as TestimonialsWallRouteImport } from './routes/testimonials.wall'
 import { Route as TestimonialsSubmitRouteImport } from './routes/testimonials.submit'
 import { Route as TestimonialsHostRouteImport } from './routes/testimonials.host'
+import { Route as TestimonialsHistoryRouteImport } from './routes/testimonials.history'
 import { Route as PartyPollsRouteImport } from './routes/party.polls'
 import { Route as PartyPollVoterRouteImport } from './routes/party.poll-voter'
 import { Route as PartyKahootProjectorRouteImport } from './routes/party.kahoot-projector'
@@ -32,6 +34,10 @@ import { Route as DemoDrizzleRouteImport } from './routes/demo/drizzle'
 import { Route as CertificatesSettingsRouteImport } from './routes/certificates.settings'
 import { Route as CertificatesSendRouteImport } from './routes/certificates.send'
 import { Route as ApiOgIndexRouteImport } from './routes/api/og/index'
+import { Route as PartyPollsHistoryRouteImport } from './routes/party.polls.history'
+import { Route as PartyKahootHostHistoryRouteImport } from './routes/party.kahoot-host.history'
+import { Route as PartyFeelingsHistoryRouteImport } from './routes/party.feelings.history'
+import { Route as PartyFeedbackHostHistoryRouteImport } from './routes/party.feedback-host.history'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
@@ -78,6 +84,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CertificatesIndexRoute = CertificatesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CertificatesRoute,
+} as any)
 const TestimonialsWallRoute = TestimonialsWallRouteImport.update({
   id: '/wall',
   path: '/wall',
@@ -91,6 +102,11 @@ const TestimonialsSubmitRoute = TestimonialsSubmitRouteImport.update({
 const TestimonialsHostRoute = TestimonialsHostRouteImport.update({
   id: '/host',
   path: '/host',
+  getParentRoute: () => TestimonialsRoute,
+} as any)
+const TestimonialsHistoryRoute = TestimonialsHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
   getParentRoute: () => TestimonialsRoute,
 } as any)
 const PartyPollsRoute = PartyPollsRouteImport.update({
@@ -168,6 +184,27 @@ const ApiOgIndexRoute = ApiOgIndexRouteImport.update({
   path: '/api/og/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartyPollsHistoryRoute = PartyPollsHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => PartyPollsRoute,
+} as any)
+const PartyKahootHostHistoryRoute = PartyKahootHostHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => PartyKahootHostRoute,
+} as any)
+const PartyFeelingsHistoryRoute = PartyFeelingsHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => PartyFeelingsRoute,
+} as any)
+const PartyFeedbackHostHistoryRoute =
+  PartyFeedbackHostHistoryRouteImport.update({
+    id: '/history',
+    path: '/history',
+    getParentRoute: () => PartyFeedbackHostRoute,
+  } as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
   id: '/demo/start/server-funcs',
   path: '/demo/start/server-funcs',
@@ -282,16 +319,18 @@ export interface FileRoutesByFullPath {
   '/demo/neon': typeof DemoNeonRoute
   '/demo/table': typeof DemoTableRoute
   '/party/feedback-client': typeof PartyFeedbackClientRoute
-  '/party/feedback-host': typeof PartyFeedbackHostRoute
-  '/party/feelings': typeof PartyFeelingsRoute
-  '/party/kahoot-host': typeof PartyKahootHostRoute
+  '/party/feedback-host': typeof PartyFeedbackHostRouteWithChildren
+  '/party/feelings': typeof PartyFeelingsRouteWithChildren
+  '/party/kahoot-host': typeof PartyKahootHostRouteWithChildren
   '/party/kahoot-player': typeof PartyKahootPlayerRoute
   '/party/kahoot-projector': typeof PartyKahootProjectorRoute
   '/party/poll-voter': typeof PartyPollVoterRoute
-  '/party/polls': typeof PartyPollsRoute
+  '/party/polls': typeof PartyPollsRouteWithChildren
+  '/testimonials/history': typeof TestimonialsHistoryRoute
   '/testimonials/host': typeof TestimonialsHostRoute
   '/testimonials/submit': typeof TestimonialsSubmitRoute
   '/testimonials/wall': typeof TestimonialsWallRoute
+  '/certificates/': typeof CertificatesIndexRoute
   '/api/certificates/issuer': typeof ApiCertificatesIssuerRoute
   '/api/certificates/send': typeof ApiCertificatesSendRoute
   '/api/internal/feedback': typeof ApiInternalFeedbackRoute
@@ -308,6 +347,10 @@ export interface FileRoutesByFullPath {
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/party/feedback-host/history': typeof PartyFeedbackHostHistoryRoute
+  '/party/feelings/history': typeof PartyFeelingsHistoryRoute
+  '/party/kahoot-host/history': typeof PartyKahootHostHistoryRoute
+  '/party/polls/history': typeof PartyPollsHistoryRoute
   '/api/og/': typeof ApiOgIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
@@ -317,7 +360,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
-  '/certificates': typeof CertificatesRouteWithChildren
   '/mcp': typeof McpRoute
   '/testimonials': typeof TestimonialsRouteWithChildren
   '/certificates/send': typeof CertificatesSendRoute
@@ -327,16 +369,18 @@ export interface FileRoutesByTo {
   '/demo/neon': typeof DemoNeonRoute
   '/demo/table': typeof DemoTableRoute
   '/party/feedback-client': typeof PartyFeedbackClientRoute
-  '/party/feedback-host': typeof PartyFeedbackHostRoute
-  '/party/feelings': typeof PartyFeelingsRoute
-  '/party/kahoot-host': typeof PartyKahootHostRoute
+  '/party/feedback-host': typeof PartyFeedbackHostRouteWithChildren
+  '/party/feelings': typeof PartyFeelingsRouteWithChildren
+  '/party/kahoot-host': typeof PartyKahootHostRouteWithChildren
   '/party/kahoot-player': typeof PartyKahootPlayerRoute
   '/party/kahoot-projector': typeof PartyKahootProjectorRoute
   '/party/poll-voter': typeof PartyPollVoterRoute
-  '/party/polls': typeof PartyPollsRoute
+  '/party/polls': typeof PartyPollsRouteWithChildren
+  '/testimonials/history': typeof TestimonialsHistoryRoute
   '/testimonials/host': typeof TestimonialsHostRoute
   '/testimonials/submit': typeof TestimonialsSubmitRoute
   '/testimonials/wall': typeof TestimonialsWallRoute
+  '/certificates': typeof CertificatesIndexRoute
   '/api/certificates/issuer': typeof ApiCertificatesIssuerRoute
   '/api/certificates/send': typeof ApiCertificatesSendRoute
   '/api/internal/feedback': typeof ApiInternalFeedbackRoute
@@ -353,6 +397,10 @@ export interface FileRoutesByTo {
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/party/feedback-host/history': typeof PartyFeedbackHostHistoryRoute
+  '/party/feelings/history': typeof PartyFeelingsHistoryRoute
+  '/party/kahoot-host/history': typeof PartyKahootHostHistoryRoute
+  '/party/polls/history': typeof PartyPollsHistoryRoute
   '/api/og': typeof ApiOgIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
@@ -373,16 +421,18 @@ export interface FileRoutesById {
   '/demo/neon': typeof DemoNeonRoute
   '/demo/table': typeof DemoTableRoute
   '/party/feedback-client': typeof PartyFeedbackClientRoute
-  '/party/feedback-host': typeof PartyFeedbackHostRoute
-  '/party/feelings': typeof PartyFeelingsRoute
-  '/party/kahoot-host': typeof PartyKahootHostRoute
+  '/party/feedback-host': typeof PartyFeedbackHostRouteWithChildren
+  '/party/feelings': typeof PartyFeelingsRouteWithChildren
+  '/party/kahoot-host': typeof PartyKahootHostRouteWithChildren
   '/party/kahoot-player': typeof PartyKahootPlayerRoute
   '/party/kahoot-projector': typeof PartyKahootProjectorRoute
   '/party/poll-voter': typeof PartyPollVoterRoute
-  '/party/polls': typeof PartyPollsRoute
+  '/party/polls': typeof PartyPollsRouteWithChildren
+  '/testimonials/history': typeof TestimonialsHistoryRoute
   '/testimonials/host': typeof TestimonialsHostRoute
   '/testimonials/submit': typeof TestimonialsSubmitRoute
   '/testimonials/wall': typeof TestimonialsWallRoute
+  '/certificates/': typeof CertificatesIndexRoute
   '/api/certificates/issuer': typeof ApiCertificatesIssuerRoute
   '/api/certificates/send': typeof ApiCertificatesSendRoute
   '/api/internal/feedback': typeof ApiInternalFeedbackRoute
@@ -399,6 +449,10 @@ export interface FileRoutesById {
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/party/feedback-host/history': typeof PartyFeedbackHostHistoryRoute
+  '/party/feelings/history': typeof PartyFeelingsHistoryRoute
+  '/party/kahoot-host/history': typeof PartyKahootHostHistoryRoute
+  '/party/polls/history': typeof PartyPollsHistoryRoute
   '/api/og/': typeof ApiOgIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
@@ -427,9 +481,11 @@ export interface FileRouteTypes {
     | '/party/kahoot-projector'
     | '/party/poll-voter'
     | '/party/polls'
+    | '/testimonials/history'
     | '/testimonials/host'
     | '/testimonials/submit'
     | '/testimonials/wall'
+    | '/certificates/'
     | '/api/certificates/issuer'
     | '/api/certificates/send'
     | '/api/internal/feedback'
@@ -446,6 +502,10 @@ export interface FileRouteTypes {
     | '/demo/api/names'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/party/feedback-host/history'
+    | '/party/feelings/history'
+    | '/party/kahoot-host/history'
+    | '/party/polls/history'
     | '/api/og/'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
@@ -455,7 +515,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/$'
-    | '/certificates'
     | '/mcp'
     | '/testimonials'
     | '/certificates/send'
@@ -472,9 +531,11 @@ export interface FileRouteTypes {
     | '/party/kahoot-projector'
     | '/party/poll-voter'
     | '/party/polls'
+    | '/testimonials/history'
     | '/testimonials/host'
     | '/testimonials/submit'
     | '/testimonials/wall'
+    | '/certificates'
     | '/api/certificates/issuer'
     | '/api/certificates/send'
     | '/api/internal/feedback'
@@ -491,6 +552,10 @@ export interface FileRouteTypes {
     | '/demo/api/names'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/party/feedback-host/history'
+    | '/party/feelings/history'
+    | '/party/kahoot-host/history'
+    | '/party/polls/history'
     | '/api/og'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
@@ -517,9 +582,11 @@ export interface FileRouteTypes {
     | '/party/kahoot-projector'
     | '/party/poll-voter'
     | '/party/polls'
+    | '/testimonials/history'
     | '/testimonials/host'
     | '/testimonials/submit'
     | '/testimonials/wall'
+    | '/certificates/'
     | '/api/certificates/issuer'
     | '/api/certificates/send'
     | '/api/internal/feedback'
@@ -536,6 +603,10 @@ export interface FileRouteTypes {
     | '/demo/api/names'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/party/feedback-host/history'
+    | '/party/feelings/history'
+    | '/party/kahoot-host/history'
+    | '/party/polls/history'
     | '/api/og/'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
@@ -554,13 +625,13 @@ export interface RootRouteChildren {
   DemoNeonRoute: typeof DemoNeonRoute
   DemoTableRoute: typeof DemoTableRoute
   PartyFeedbackClientRoute: typeof PartyFeedbackClientRoute
-  PartyFeedbackHostRoute: typeof PartyFeedbackHostRoute
-  PartyFeelingsRoute: typeof PartyFeelingsRoute
-  PartyKahootHostRoute: typeof PartyKahootHostRoute
+  PartyFeedbackHostRoute: typeof PartyFeedbackHostRouteWithChildren
+  PartyFeelingsRoute: typeof PartyFeelingsRouteWithChildren
+  PartyKahootHostRoute: typeof PartyKahootHostRouteWithChildren
   PartyKahootPlayerRoute: typeof PartyKahootPlayerRoute
   PartyKahootProjectorRoute: typeof PartyKahootProjectorRoute
   PartyPollVoterRoute: typeof PartyPollVoterRoute
-  PartyPollsRoute: typeof PartyPollsRoute
+  PartyPollsRoute: typeof PartyPollsRouteWithChildren
   ApiCertificatesIssuerRoute: typeof ApiCertificatesIssuerRoute
   ApiCertificatesSendRoute: typeof ApiCertificatesSendRoute
   ApiInternalFeedbackRoute: typeof ApiInternalFeedbackRoute
@@ -620,6 +691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/certificates/': {
+      id: '/certificates/'
+      path: '/'
+      fullPath: '/certificates/'
+      preLoaderRoute: typeof CertificatesIndexRouteImport
+      parentRoute: typeof CertificatesRoute
+    }
     '/testimonials/wall': {
       id: '/testimonials/wall'
       path: '/wall'
@@ -639,6 +717,13 @@ declare module '@tanstack/react-router' {
       path: '/host'
       fullPath: '/testimonials/host'
       preLoaderRoute: typeof TestimonialsHostRouteImport
+      parentRoute: typeof TestimonialsRoute
+    }
+    '/testimonials/history': {
+      id: '/testimonials/history'
+      path: '/history'
+      fullPath: '/testimonials/history'
+      preLoaderRoute: typeof TestimonialsHistoryRouteImport
       parentRoute: typeof TestimonialsRoute
     }
     '/party/polls': {
@@ -745,6 +830,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/og/'
       preLoaderRoute: typeof ApiOgIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/party/polls/history': {
+      id: '/party/polls/history'
+      path: '/history'
+      fullPath: '/party/polls/history'
+      preLoaderRoute: typeof PartyPollsHistoryRouteImport
+      parentRoute: typeof PartyPollsRoute
+    }
+    '/party/kahoot-host/history': {
+      id: '/party/kahoot-host/history'
+      path: '/history'
+      fullPath: '/party/kahoot-host/history'
+      preLoaderRoute: typeof PartyKahootHostHistoryRouteImport
+      parentRoute: typeof PartyKahootHostRoute
+    }
+    '/party/feelings/history': {
+      id: '/party/feelings/history'
+      path: '/history'
+      fullPath: '/party/feelings/history'
+      preLoaderRoute: typeof PartyFeelingsHistoryRouteImport
+      parentRoute: typeof PartyFeelingsRoute
+    }
+    '/party/feedback-host/history': {
+      id: '/party/feedback-host/history'
+      path: '/history'
+      fullPath: '/party/feedback-host/history'
+      preLoaderRoute: typeof PartyFeedbackHostHistoryRouteImport
+      parentRoute: typeof PartyFeedbackHostRoute
     }
     '/demo/start/server-funcs': {
       id: '/demo/start/server-funcs'
@@ -892,12 +1005,14 @@ declare module '@tanstack/react-router' {
 interface CertificatesRouteChildren {
   CertificatesSendRoute: typeof CertificatesSendRoute
   CertificatesSettingsRoute: typeof CertificatesSettingsRoute
+  CertificatesIndexRoute: typeof CertificatesIndexRoute
   CertificatesVerifyIdRoute: typeof CertificatesVerifyIdRoute
 }
 
 const CertificatesRouteChildren: CertificatesRouteChildren = {
   CertificatesSendRoute: CertificatesSendRoute,
   CertificatesSettingsRoute: CertificatesSettingsRoute,
+  CertificatesIndexRoute: CertificatesIndexRoute,
   CertificatesVerifyIdRoute: CertificatesVerifyIdRoute,
 }
 
@@ -906,12 +1021,14 @@ const CertificatesRouteWithChildren = CertificatesRoute._addFileChildren(
 )
 
 interface TestimonialsRouteChildren {
+  TestimonialsHistoryRoute: typeof TestimonialsHistoryRoute
   TestimonialsHostRoute: typeof TestimonialsHostRoute
   TestimonialsSubmitRoute: typeof TestimonialsSubmitRoute
   TestimonialsWallRoute: typeof TestimonialsWallRoute
 }
 
 const TestimonialsRouteChildren: TestimonialsRouteChildren = {
+  TestimonialsHistoryRoute: TestimonialsHistoryRoute,
   TestimonialsHostRoute: TestimonialsHostRoute,
   TestimonialsSubmitRoute: TestimonialsSubmitRoute,
   TestimonialsWallRoute: TestimonialsWallRoute,
@@ -919,6 +1036,53 @@ const TestimonialsRouteChildren: TestimonialsRouteChildren = {
 
 const TestimonialsRouteWithChildren = TestimonialsRoute._addFileChildren(
   TestimonialsRouteChildren,
+)
+
+interface PartyFeedbackHostRouteChildren {
+  PartyFeedbackHostHistoryRoute: typeof PartyFeedbackHostHistoryRoute
+}
+
+const PartyFeedbackHostRouteChildren: PartyFeedbackHostRouteChildren = {
+  PartyFeedbackHostHistoryRoute: PartyFeedbackHostHistoryRoute,
+}
+
+const PartyFeedbackHostRouteWithChildren =
+  PartyFeedbackHostRoute._addFileChildren(PartyFeedbackHostRouteChildren)
+
+interface PartyFeelingsRouteChildren {
+  PartyFeelingsHistoryRoute: typeof PartyFeelingsHistoryRoute
+}
+
+const PartyFeelingsRouteChildren: PartyFeelingsRouteChildren = {
+  PartyFeelingsHistoryRoute: PartyFeelingsHistoryRoute,
+}
+
+const PartyFeelingsRouteWithChildren = PartyFeelingsRoute._addFileChildren(
+  PartyFeelingsRouteChildren,
+)
+
+interface PartyKahootHostRouteChildren {
+  PartyKahootHostHistoryRoute: typeof PartyKahootHostHistoryRoute
+}
+
+const PartyKahootHostRouteChildren: PartyKahootHostRouteChildren = {
+  PartyKahootHostHistoryRoute: PartyKahootHostHistoryRoute,
+}
+
+const PartyKahootHostRouteWithChildren = PartyKahootHostRoute._addFileChildren(
+  PartyKahootHostRouteChildren,
+)
+
+interface PartyPollsRouteChildren {
+  PartyPollsHistoryRoute: typeof PartyPollsHistoryRoute
+}
+
+const PartyPollsRouteChildren: PartyPollsRouteChildren = {
+  PartyPollsHistoryRoute: PartyPollsHistoryRoute,
+}
+
+const PartyPollsRouteWithChildren = PartyPollsRoute._addFileChildren(
+  PartyPollsRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
@@ -932,13 +1096,13 @@ const rootRouteChildren: RootRouteChildren = {
   DemoNeonRoute: DemoNeonRoute,
   DemoTableRoute: DemoTableRoute,
   PartyFeedbackClientRoute: PartyFeedbackClientRoute,
-  PartyFeedbackHostRoute: PartyFeedbackHostRoute,
-  PartyFeelingsRoute: PartyFeelingsRoute,
-  PartyKahootHostRoute: PartyKahootHostRoute,
+  PartyFeedbackHostRoute: PartyFeedbackHostRouteWithChildren,
+  PartyFeelingsRoute: PartyFeelingsRouteWithChildren,
+  PartyKahootHostRoute: PartyKahootHostRouteWithChildren,
   PartyKahootPlayerRoute: PartyKahootPlayerRoute,
   PartyKahootProjectorRoute: PartyKahootProjectorRoute,
   PartyPollVoterRoute: PartyPollVoterRoute,
-  PartyPollsRoute: PartyPollsRoute,
+  PartyPollsRoute: PartyPollsRouteWithChildren,
   ApiCertificatesIssuerRoute: ApiCertificatesIssuerRoute,
   ApiCertificatesSendRoute: ApiCertificatesSendRoute,
   ApiInternalFeedbackRoute: ApiInternalFeedbackRoute,
