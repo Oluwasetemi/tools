@@ -1,3 +1,4 @@
+import { getPartykitHost } from '@/lib/partykit-host'
 import { createFileRoute } from '@tanstack/react-router'
 import { KahootProjector } from '@/components/ui/kahoot-projector'
 
@@ -15,7 +16,7 @@ function KahootProjectorPage() {
     <div className="min-h-screen">
       <KahootProjector
         roomId={roomId}
-        host={import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'}
+        host={getPartykitHost()}
       />
     </div>
   )

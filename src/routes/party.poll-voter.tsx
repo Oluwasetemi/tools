@@ -1,3 +1,4 @@
+import { getPartykitHost } from '@/lib/partykit-host'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { PollVoter } from '@/components/ui/poll-voter'
 
@@ -31,7 +32,7 @@ function PollVoterPage() {
       <div className="flex-1 py-8 px-4">
         <PollVoter
           roomId={roomId}
-          host={import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'}
+          host={getPartykitHost()}
         />
       </div>
     </div>

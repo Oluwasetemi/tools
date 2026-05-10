@@ -1,3 +1,4 @@
+import { getPartykitHost } from '@/lib/partykit-host'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { KahootPlayer } from '@/components/ui/kahoot-player'
 
@@ -34,7 +35,7 @@ function KahootPlayerPage() {
       <div className="flex-1">
         <KahootPlayer
           roomId={roomId}
-          host={import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'}
+          host={getPartykitHost()}
         />
       </div>
     </div>

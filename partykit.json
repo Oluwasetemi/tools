@@ -11,7 +11,7 @@
     "testimonials": "party/testimonials.ts"
   },
   "vars": {
-    "APP_URL": "",
-    "INTERNAL_API_SECRET": ""
+    "APP_URL": "http://localhost:3000",
+    "INTERNAL_API_SECRET": "dev-secret-change-in-production"
   }
 }

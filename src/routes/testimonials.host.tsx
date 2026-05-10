@@ -1,9 +1,10 @@
+import { getPartykitHost } from '@/lib/partykit-host'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Copy } from 'lucide-react'
 import { useState } from 'react'
 import { TestimonialHost } from '@/components/ui/testimonial-host'
 
-const PARTYKIT_HOST = import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'
+const PARTYKIT_HOST = getPartykitHost()
 
 function TestimonialsHostPage() {
   const { room } = Route.useSearch()

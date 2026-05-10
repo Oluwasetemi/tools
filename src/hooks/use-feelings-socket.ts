@@ -23,7 +23,7 @@ interface UseFeelingsSocketReturn {
 
 export function useFeelingsSocket(
   roomId: string,
-  host: string = 'localhost:1999',
+  host: string,
 ): UseFeelingsSocketReturn {
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([])
   const [connectionCount, setConnectionCount] = useState(0)
@@ -37,6 +37,7 @@ export function useFeelingsSocket(
       if (typeof event.data !== 'string')
         return
 
+      console.log('[feelings-socket] message:', event.data.slice(0, 200))
       const data: ServerMessage = JSON.parse(event.data)
 
       switch (data.type) {
@@ -67,11 +68,15 @@ export function useFeelingsSocket(
     },
 
     onOpen() {
-      console.warn('Connected to feelings server')
+      console.log('[feelings-socket] connected — room:', roomId, 'host:', host)
     },
 
-    onError(error) {
-      console.error('Feelings socket error:', error)
+    onClose(event: any) {
+      console.log('[feelings-socket] closed — code:', event.code, 'reason:', event.reason)
+    },
+
+    onError(error: any) {
+      console.error('[feelings-socket] error:', error)
     },
   })
 

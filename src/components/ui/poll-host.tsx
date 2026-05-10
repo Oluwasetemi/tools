@@ -2,7 +2,7 @@ import type PartySocket from 'partysocket'
 import { isTruthy } from '@setemiojo/utils'
 import { Plus, Trash2 } from 'lucide-react'
 import usePartySocket from 'partysocket/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface PollOption {
   id: string
@@ -39,9 +39,16 @@ export function PollHost({ roomId, host = 'localhost:1999' }: PollHostProps) {
   const [poll, setPoll] = useState<Poll | null>(null)
   const [connectionCount, setConnectionCount] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [closeInfo, setCloseInfo] = useState<string | null>(null)
 
   const [question, setQuestion] = useState('')
   const [options, setOptions] = useState(['', ''])
+
+  useEffect(() => {
+    const wsUrl = `ws://${host}/parties/polls/${roomId}`
+    console.log('[poll-host] CLIENT MOUNTED — roomId:', roomId, 'host:', host)
+    console.log('[poll-host] expected WS URL:', wsUrl)
+  }, [roomId, host])
 
   const socket = usePartySocket({
     host,
@@ -49,6 +56,7 @@ export function PollHost({ roomId, host = 'localhost:1999' }: PollHostProps) {
     party: 'polls',
     onMessage(event: MessageEvent) {
       if (typeof event.data !== 'string') return
+      console.log('[poll-host] message:', event.data.slice(0, 200))
       const data: ServerMessage = JSON.parse(event.data)
       switch (data.type) {
         case 'poll_created':
@@ -67,8 +75,19 @@ export function PollHost({ roomId, host = 'localhost:1999' }: PollHostProps) {
           break
       }
     },
-    onOpen() { setError(null) },
-    onError() { setError('Connection error') },
+    onOpen(event: Event) {
+      const ws = event.target as WebSocket
+      console.log('[poll-host] WS OPEN — actual url:', ws?.url, '| readyState:', ws?.readyState)
+      setError(null)
+    },
+    onClose(event: CloseEvent) {
+      console.log('[poll-host] closed — code:', event.code, 'reason:', event.reason, 'wasClean:', event.wasClean)
+      setCloseInfo(`closed: code=${event.code} reason="${event.reason}" wasClean=${event.wasClean}`)
+    },
+    onError(err: Event) {
+      console.error('[poll-host] error:', err)
+      setError(`WS error — check browser console`)
+    },
   })
 
   const createPoll = () => {
@@ -104,10 +123,20 @@ export function PollHost({ roomId, host = 'localhost:1999' }: PollHostProps) {
     </div>
   )
 
+  // ── Debug bar (remove once working) ──────────────────────────────────────
+  const DebugBar = (
+    <div style={{ background: '#1A1008', color: '#F7F3EC', padding: '6px 12px', fontFamily: 'monospace', fontSize: '11px', marginBottom: '8px', lineHeight: '1.6' }}>
+      <div>DEBUG — host: {host} | room: {roomId} | socket: {socket?.readyState ?? 'null'} | connections: {connectionCount}</div>
+      {closeInfo && <div style={{ color: '#ff6b6b' }}>⚠ {closeInfo}</div>}
+      {error && <div style={{ color: '#ff6b6b' }}>ERROR: {error}</div>}
+    </div>
+  )
+
   // ── Poll creation form ─────────────────────────────────────────────────────
   if (!poll) {
     return (
       <div>
+        {DebugBar}
         {StatusStrip}
         {ErrorBanner}
         <form onSubmit={(e) => { e.preventDefault(); createPoll() }}>
@@ -175,6 +204,7 @@ export function PollHost({ roomId, host = 'localhost:1999' }: PollHostProps) {
   // ── Active / ended poll ────────────────────────────────────────────────────
   return (
     <div>
+      {DebugBar}
       {StatusStrip}
       {ErrorBanner}
 

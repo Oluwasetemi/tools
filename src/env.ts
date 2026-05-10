@@ -2,7 +2,7 @@ import { z } from 'zod/v4'
 
 const EnvSchema = z.object({
   VITE_DATABASE_URL: z.string().url('VITE_DATABASE_URL must be a valid URL'),
-  VITE_PARTYKIT_HOST: z.string().min(1, 'VITE_PARTYKIT_HOST is required'),
+  VITE_PARTYKIT_HOST: z.string().optional(),
 })
 
 export type Env = z.infer<typeof EnvSchema>

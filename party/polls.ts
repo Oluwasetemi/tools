@@ -40,8 +40,10 @@ export default class PollsServer implements Party.Server {
   constructor(readonly room: Party.Room) {}
 
   async onStart() {
+    console.log(`[polls] onStart — room: ${this.room.id}`)
     const storedPoll = await this.room.storage.get<Poll>('poll')
     if (storedPoll) {
+      console.log(`[polls] onStart — restored poll: ${storedPoll.question}`)
       this.poll = storedPoll
     }
 
@@ -63,10 +65,7 @@ export default class PollsServer implements Party.Server {
 
   onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
     console.log(
-      `Connected to poll room:
-  id: ${conn.id}
-  room: ${this.room.id}
-  url: ${new URL(ctx.request.url).pathname}`,
+      `[polls] onConnect — id: ${conn.id} room: ${this.room.id} url: ${new URL(ctx.request.url).pathname}`,
     )
 
     // Send current poll state to new connection
@@ -90,6 +89,8 @@ export default class PollsServer implements Party.Server {
   async onMessage(message: string | ArrayBuffer, sender: Party.Connection) {
     if (typeof message !== 'string')
       return
+
+    console.log(`[polls] onMessage — room: ${this.room.id} sender: ${sender.id} msg: ${message.slice(0, 200)}`)
 
     try {
       const data: ClientMessage = JSON.parse(message)

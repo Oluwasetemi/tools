@@ -28,6 +28,7 @@ export function useFeedbackSocket(
       if (typeof event.data !== 'string')
         return
 
+      console.log('[feedback-socket] message received:', event.data.slice(0, 200))
       const data: ServerMessage = JSON.parse(event.data)
 
       switch (data.type) {
@@ -52,12 +53,16 @@ export function useFeedbackSocket(
     },
 
     onOpen() {
-      console.warn('Connected to feedback server')
+      console.log('[feedback-socket] connected — room:', roomId, 'host:', host)
       setError(null)
     },
 
+    onClose(event) {
+      console.log('[feedback-socket] closed — code:', event.code, 'reason:', event.reason)
+    },
+
     onError(error) {
-      console.error('Feedback socket error:', error)
+      console.error('[feedback-socket] error:', error)
       const errorMessage = 'Failed to connect to feedback server'
       setError(errorMessage)
       toast.error(errorMessage)

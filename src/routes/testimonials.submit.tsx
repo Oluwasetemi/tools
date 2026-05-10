@@ -1,7 +1,8 @@
+import { getPartykitHost } from '@/lib/partykit-host'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { TestimonialSubmit } from '@/components/ui/testimonial-submit'
 
-const PARTYKIT_HOST = import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'
+const PARTYKIT_HOST = getPartykitHost()
 
 function TestimonialsSubmitPage() {
   const { room } = Route.useSearch()

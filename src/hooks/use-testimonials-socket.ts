@@ -39,7 +39,7 @@ interface UseTestimonialsSocketReturn {
 
 export function useTestimonialsSocket(
   roomId: string,
-  host: string = 'localhost:1999',
+  host: string,
 ): UseTestimonialsSocketReturn {
   const [session, setSession] = useState<TestimonialSession | null>(null)
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
@@ -53,6 +53,7 @@ export function useTestimonialsSocket(
 
     onMessage(event: MessageEvent) {
       if (typeof event.data !== 'string') return
+      console.log('[testimonials-socket] message:', event.data.slice(0, 200))
       const data: ServerMessage = JSON.parse(event.data)
 
       switch (data.type) {
@@ -91,6 +92,19 @@ export function useTestimonialsSocket(
           setError(data.message)
           break
       }
+    },
+
+    onOpen() {
+      console.log('[testimonials-socket] connected — room:', roomId, 'host:', host)
+    },
+
+    onClose(event: CloseEvent) {
+      console.log('[testimonials-socket] closed — code:', event.code, 'reason:', event.reason)
+    },
+
+    onError(err: Event) {
+      console.error('[testimonials-socket] error:', err)
+      setError('Connection error')
     },
   })
 

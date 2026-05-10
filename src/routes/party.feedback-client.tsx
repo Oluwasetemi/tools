@@ -1,3 +1,4 @@
+import { getPartykitHost } from '@/lib/partykit-host'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { FeedbackClient } from '@/components/ui/feedback-client'
 
@@ -31,7 +32,7 @@ function FeedbackClientPage() {
       <div className="flex-1">
         <FeedbackClient
           roomId={roomId}
-          host={import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'}
+          host={getPartykitHost()}
         />
       </div>
     </div>

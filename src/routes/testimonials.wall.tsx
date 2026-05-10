@@ -1,7 +1,8 @@
+import { getPartykitHost } from '@/lib/partykit-host'
 import { createFileRoute } from '@tanstack/react-router'
 import { TestimonialWall } from '@/components/ui/testimonial-wall'
 
-const PARTYKIT_HOST = import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'
+const PARTYKIT_HOST = getPartykitHost()
 
 function TestimonialsWallPage() {
   const { room } = Route.useSearch()

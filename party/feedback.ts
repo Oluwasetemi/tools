@@ -68,6 +68,7 @@ export default class FeedbackServer implements Party.Server {
   constructor(readonly room: Party.Room) {}
 
   async onStart() {
+    console.log(`[feedback] onStart — room: ${this.room.id}`)
     const storedSession = await this.room.storage.get<FeedbackSession>('session')
     if (storedSession) {
       this.session = storedSession
@@ -90,11 +91,8 @@ export default class FeedbackServer implements Party.Server {
   }
 
   onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
-    console.warn(
-      `Connected to feedback room:
-  id: ${conn.id}
-  room: ${this.room.id}
-  url: ${new URL(ctx.request.url).pathname}`,
+    console.log(
+      `[feedback] onConnect — id: ${conn.id} room: ${this.room.id} url: ${new URL(ctx.request.url).pathname}`,
     )
 
     if (this.session) {
@@ -120,6 +118,8 @@ export default class FeedbackServer implements Party.Server {
   async onMessage(message: string | ArrayBuffer, sender: Party.Connection) {
     if (typeof message !== 'string')
       return
+
+    console.log(`[feedback] onMessage — room: ${this.room.id} sender: ${sender.id} msg: ${message.slice(0, 200)}`)
 
     try {
       const data: ClientMessage = JSON.parse(message)

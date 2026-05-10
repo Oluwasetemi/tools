@@ -5,14 +5,19 @@ export async function callInternalApi(
   const appUrl = process.env.APP_URL
   const secret = process.env.INTERNAL_API_SECRET
 
+  console.log(`[db-client] ${domain} call — APP_URL="${appUrl}" secret="${secret ? '***set***' : 'MISSING'}"`)
+
   if (!appUrl || !secret) {
-    console.error('[db-client] APP_URL or INTERNAL_API_SECRET not set')
+    console.error('[db-client] APP_URL or INTERNAL_API_SECRET not set — skipping DB call')
     return null
   }
 
+  const url = `${appUrl}/api/internal/${domain}`
+  console.log(`[db-client] POST ${url}`, JSON.stringify(body))
+
   let res: Response
   try {
-    res = await fetch(`${appUrl}/api/internal/${domain}`, {
+    res = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -27,9 +32,11 @@ export async function callInternalApi(
     return null
   }
 
+  console.log(`[db-client] ${domain} response: ${res.status} ${res.statusText}`)
+
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    console.error(`[db-client] ${domain} ${res.status}:`, text)
+    console.error(`[db-client] ${domain} ${res.status} error body:`, text)
     return null
   }
 
