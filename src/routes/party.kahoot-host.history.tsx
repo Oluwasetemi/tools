@@ -14,7 +14,7 @@ interface GameRow {
   id: number
   roomId: string
   gameName: string
-  state: string
+  state: 'waiting' | 'question' | 'results' | 'leaderboard' | 'ended'
   createdAt: string
   startedAt: string | null
   endedAt: string | null
