@@ -1,5 +1,6 @@
+import { getPartykitHost } from '@/lib/partykit-host'
 import { randomStr } from '@setemiojo/utils'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { EmojiStream } from '@/components/ui/emoji-stream'
@@ -37,9 +38,15 @@ function FeelingsPage() {
     <div className="fixed inset-0">
       <EmojiStream
         roomId={roomId}
-        host={import.meta.env.VITE_PARTYKIT_HOST || 'localhost:1999'}
+        host={getPartykitHost()}
         onCopyLink={handleCopyLink}
       />
+      <Link
+        to="/party/feelings/history"
+        className="absolute top-3 right-3 z-50 flex items-center gap-1.5 px-3 py-1.5 border-2 border-[#1A1008]/40 bg-black/30 backdrop-blur-sm text-white f-mono text-[10px] tracking-[0.1em] uppercase hover:bg-black/50 transition-colors no-underline"
+      >
+        History
+      </Link>
     </div>
   )
 }
