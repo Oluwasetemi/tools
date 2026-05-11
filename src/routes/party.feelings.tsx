@@ -11,6 +11,9 @@ export const Route = createFileRoute('/party/feelings')({
     meta: [
       { title: 'Feeling Stream — Pop & Broadcast Emojis' },
       { name: 'description', content: 'Pop emojis and broadcast your feelings in real-time.' },
+      { property: 'og:title', content: 'Feeling Stream — Pop & Broadcast Emojis' },
+      { property: 'og:description', content: 'Pop emojis and broadcast your feelings in real-time.' },
+      { property: 'og:image', content: '/api/og/feelings' },
     ],
   }),
 })

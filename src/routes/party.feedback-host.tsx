@@ -14,6 +14,7 @@ export const Route = createFileRoute('/party/feedback-host')({
       { name: 'description', content: 'Collect real-time feedback with emoji reactions, text responses, and score ratings.' },
       { property: 'og:title', content: 'Live Feedback — Host Dashboard' },
       { property: 'og:description', content: 'Collect real-time feedback with emoji reactions, text responses, and score ratings.' },
+      { property: 'og:image', content: '/api/og/feedback' },
     ],
   }),
 })

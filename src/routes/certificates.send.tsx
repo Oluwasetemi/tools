@@ -390,5 +390,11 @@ function CertificateSendPage() {
 }
 
 export const Route = createFileRoute('/certificates/send')({
+  head: () => ({
+    meta: [
+      { title: 'Send Certificates — New Batch' },
+      { name: 'description', content: 'Upload a CSV of students and send personalised course completion certificates by email in bulk.' },
+    ],
+  }),
   component: CertificateSendPage,
 })

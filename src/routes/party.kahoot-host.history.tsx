@@ -153,6 +153,6 @@ function KahootHistoryPage() {
 
 export const Route = createFileRoute('/party/kahoot-host/history')({
   loader: async () => ({ gameHistory: await getKahootHistory() }),
-  head: () => ({ meta: [{ title: 'Quiz History — Tools' }] }),
+  head: () => ({ meta: [{ title: 'Quiz History — Tools' }, { name: 'description', content: 'Browse past quiz game sessions, scores, and leaderboard results.' }] }),
   component: KahootHistoryPage,
 })

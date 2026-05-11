@@ -2,6 +2,17 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
 export const Route = createFileRoute('/')({
+  head: () => ({
+    meta: [
+      { title: 'Tools — Live Classroom Engagement for Educators' },
+      { name: 'description', content: 'Six purpose-built tools for live classroom engagement: quiz battles, instant polls, structured feedback, emoji streams, testimonials, and certificate delivery.' },
+      { property: 'og:title', content: 'Tools — Live Classroom Engagement for Educators' },
+      { property: 'og:description', content: 'Six purpose-built tools for live classroom engagement: quiz battles, instant polls, structured feedback, emoji streams, testimonials, and certificate delivery.' },
+      { property: 'og:image', content: '/og-image.png' },
+      { property: 'og:url', content: 'https://oostools.netlify.app/' },
+      { property: 'og:type', content: 'website' },
+    ],
+  }),
   component: LandingPage,
 })
 

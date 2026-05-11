@@ -256,5 +256,14 @@ function CertificatesDashboard() {
 
 export const Route = createFileRoute('/certificates/')({
   loader: async () => ({ batches: await getDashboardData() }),
+  head: () => ({
+    meta: [
+      { title: 'Certificates — Dashboard' },
+      { name: 'description', content: 'Issue and manage course completion certificates. View all batches, track delivery, and verify individual certificates.' },
+      { property: 'og:title', content: 'Certificates — Dashboard' },
+      { property: 'og:description', content: 'Issue and manage course completion certificates. View all batches, track delivery, and verify individual certificates.' },
+      { property: 'og:image', content: '/api/og/certificates' },
+    ],
+  }),
   component: CertificatesDashboard,
 })

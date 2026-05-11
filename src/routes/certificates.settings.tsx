@@ -206,6 +206,12 @@ function CertificateSettingsPage() {
 }
 
 export const Route = createFileRoute('/certificates/settings')({
+  head: () => ({
+    meta: [
+      { title: 'Certificate Settings — Issuer Profile' },
+      { name: 'description', content: 'Configure your organisation name, logo, and contact details for all issued certificates.' },
+    ],
+  }),
   component: CertificateSettingsPage,
 })
 

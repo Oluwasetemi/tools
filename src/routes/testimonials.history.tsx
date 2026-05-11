@@ -159,6 +159,6 @@ function TestimonialsHistoryPage() {
 
 export const Route = createFileRoute('/testimonials/history')({
   loader: async () => ({ sessionHistory: await getTestimonialsHistory() }),
-  head: () => ({ meta: [{ title: 'Testimonial History — Tools' }] }),
+  head: () => ({ meta: [{ title: 'Testimonial History — Tools' }, { name: 'description', content: 'Browse all testimonial campaigns and review approved student feedback.' }] }),
   component: TestimonialsHistoryPage,
 })

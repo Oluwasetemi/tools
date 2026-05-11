@@ -167,6 +167,6 @@ function FeedbackHistoryPage() {
 
 export const Route = createFileRoute('/party/feedback-host/history')({
   loader: async () => ({ sessionHistory: await getFeedbackHistory() }),
-  head: () => ({ meta: [{ title: 'Feedback History — Tools' }] }),
+  head: () => ({ meta: [{ title: 'Feedback History — Tools' }, { name: 'description', content: 'Browse past feedback sessions, response breakdowns, and participant activity.' }] }),
   component: FeedbackHistoryPage,
 })

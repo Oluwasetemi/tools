@@ -179,7 +179,13 @@ function TestimonialsDashboard() {
 
 export const Route = createFileRoute('/testimonials')({
   head: () => ({
-    meta: [{ title: 'Testimonials — Tools' }],
+    meta: [
+      { title: 'Testimonials — Collect & Display Student Feedback' },
+      { name: 'description', content: 'Collect, moderate, and display student testimonials live. Share your teaching impact with a public wall.' },
+      { property: 'og:title', content: 'Testimonials — Collect & Display Student Feedback' },
+      { property: 'og:description', content: 'Collect, moderate, and display student testimonials live. Share your teaching impact with a public wall.' },
+      { property: 'og:image', content: '/api/og/testimonials' },
+    ],
   }),
   component: TestimonialsDashboard,
 })

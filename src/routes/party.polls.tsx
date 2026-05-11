@@ -14,6 +14,7 @@ export const Route = createFileRoute('/party/polls')({
       { name: 'description', content: 'Create real-time polls and see votes update live. Instant feedback with live results.' },
       { property: 'og:title', content: 'Live Poll — Host Dashboard' },
       { property: 'og:description', content: 'Create real-time polls and see votes update live. Instant feedback with live results.' },
+      { property: 'og:image', content: '/api/og/polls' },
     ],
   }),
 })

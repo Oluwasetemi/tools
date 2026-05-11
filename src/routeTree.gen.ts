@@ -43,10 +43,12 @@ import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as DemoApiMcpTodosRouteImport } from './routes/demo/api.mcp-todos'
 import { Route as CertificatesVerifyIdRouteImport } from './routes/certificates.verify.$id'
+import { Route as ApiOgTestimonialsRouteImport } from './routes/api/og/testimonials'
 import { Route as ApiOgPollsRouteImport } from './routes/api/og/polls'
 import { Route as ApiOgKahootRouteImport } from './routes/api/og/kahoot'
 import { Route as ApiOgFeelingsRouteImport } from './routes/api/og/feelings'
 import { Route as ApiOgFeedbackRouteImport } from './routes/api/og/feedback'
+import { Route as ApiOgCertificatesRouteImport } from './routes/api/og/certificates'
 import { Route as ApiInternalTestimonialsRouteImport } from './routes/api/internal/testimonials'
 import { Route as ApiInternalPollsRouteImport } from './routes/api/internal/polls'
 import { Route as ApiInternalKahootRouteImport } from './routes/api/internal/kahoot'
@@ -228,6 +230,11 @@ const CertificatesVerifyIdRoute = CertificatesVerifyIdRouteImport.update({
   path: '/verify/$id',
   getParentRoute: () => CertificatesRoute,
 } as any)
+const ApiOgTestimonialsRoute = ApiOgTestimonialsRouteImport.update({
+  id: '/api/og/testimonials',
+  path: '/api/og/testimonials',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiOgPollsRoute = ApiOgPollsRouteImport.update({
   id: '/api/og/polls',
   path: '/api/og/polls',
@@ -246,6 +253,11 @@ const ApiOgFeelingsRoute = ApiOgFeelingsRouteImport.update({
 const ApiOgFeedbackRoute = ApiOgFeedbackRouteImport.update({
   id: '/api/og/feedback',
   path: '/api/og/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOgCertificatesRoute = ApiOgCertificatesRouteImport.update({
+  id: '/api/og/certificates',
+  path: '/api/og/certificates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiInternalTestimonialsRoute = ApiInternalTestimonialsRouteImport.update({
@@ -324,10 +336,12 @@ export interface FileRoutesByFullPath {
   '/api/internal/kahoot': typeof ApiInternalKahootRoute
   '/api/internal/polls': typeof ApiInternalPollsRoute
   '/api/internal/testimonials': typeof ApiInternalTestimonialsRoute
+  '/api/og/certificates': typeof ApiOgCertificatesRoute
   '/api/og/feedback': typeof ApiOgFeedbackRoute
   '/api/og/feelings': typeof ApiOgFeelingsRoute
   '/api/og/kahoot': typeof ApiOgKahootRoute
   '/api/og/polls': typeof ApiOgPollsRoute
+  '/api/og/testimonials': typeof ApiOgTestimonialsRoute
   '/certificates/verify/$id': typeof CertificatesVerifyIdRoute
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
@@ -372,10 +386,12 @@ export interface FileRoutesByTo {
   '/api/internal/kahoot': typeof ApiInternalKahootRoute
   '/api/internal/polls': typeof ApiInternalPollsRoute
   '/api/internal/testimonials': typeof ApiInternalTestimonialsRoute
+  '/api/og/certificates': typeof ApiOgCertificatesRoute
   '/api/og/feedback': typeof ApiOgFeedbackRoute
   '/api/og/feelings': typeof ApiOgFeelingsRoute
   '/api/og/kahoot': typeof ApiOgKahootRoute
   '/api/og/polls': typeof ApiOgPollsRoute
+  '/api/og/testimonials': typeof ApiOgTestimonialsRoute
   '/certificates/verify/$id': typeof CertificatesVerifyIdRoute
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
@@ -422,10 +438,12 @@ export interface FileRoutesById {
   '/api/internal/kahoot': typeof ApiInternalKahootRoute
   '/api/internal/polls': typeof ApiInternalPollsRoute
   '/api/internal/testimonials': typeof ApiInternalTestimonialsRoute
+  '/api/og/certificates': typeof ApiOgCertificatesRoute
   '/api/og/feedback': typeof ApiOgFeedbackRoute
   '/api/og/feelings': typeof ApiOgFeelingsRoute
   '/api/og/kahoot': typeof ApiOgKahootRoute
   '/api/og/polls': typeof ApiOgPollsRoute
+  '/api/og/testimonials': typeof ApiOgTestimonialsRoute
   '/certificates/verify/$id': typeof CertificatesVerifyIdRoute
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
@@ -473,10 +491,12 @@ export interface FileRouteTypes {
     | '/api/internal/kahoot'
     | '/api/internal/polls'
     | '/api/internal/testimonials'
+    | '/api/og/certificates'
     | '/api/og/feedback'
     | '/api/og/feelings'
     | '/api/og/kahoot'
     | '/api/og/polls'
+    | '/api/og/testimonials'
     | '/certificates/verify/$id'
     | '/demo/api/mcp-todos'
     | '/demo/api/names'
@@ -521,10 +541,12 @@ export interface FileRouteTypes {
     | '/api/internal/kahoot'
     | '/api/internal/polls'
     | '/api/internal/testimonials'
+    | '/api/og/certificates'
     | '/api/og/feedback'
     | '/api/og/feelings'
     | '/api/og/kahoot'
     | '/api/og/polls'
+    | '/api/og/testimonials'
     | '/certificates/verify/$id'
     | '/demo/api/mcp-todos'
     | '/demo/api/names'
@@ -570,10 +592,12 @@ export interface FileRouteTypes {
     | '/api/internal/kahoot'
     | '/api/internal/polls'
     | '/api/internal/testimonials'
+    | '/api/og/certificates'
     | '/api/og/feedback'
     | '/api/og/feelings'
     | '/api/og/kahoot'
     | '/api/og/polls'
+    | '/api/og/testimonials'
     | '/certificates/verify/$id'
     | '/demo/api/mcp-todos'
     | '/demo/api/names'
@@ -613,10 +637,12 @@ export interface RootRouteChildren {
   ApiInternalKahootRoute: typeof ApiInternalKahootRoute
   ApiInternalPollsRoute: typeof ApiInternalPollsRoute
   ApiInternalTestimonialsRoute: typeof ApiInternalTestimonialsRoute
+  ApiOgCertificatesRoute: typeof ApiOgCertificatesRoute
   ApiOgFeedbackRoute: typeof ApiOgFeedbackRoute
   ApiOgFeelingsRoute: typeof ApiOgFeelingsRoute
   ApiOgKahootRoute: typeof ApiOgKahootRoute
   ApiOgPollsRoute: typeof ApiOgPollsRoute
+  ApiOgTestimonialsRoute: typeof ApiOgTestimonialsRoute
   DemoApiMcpTodosRoute: typeof DemoApiMcpTodosRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
@@ -868,6 +894,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CertificatesVerifyIdRouteImport
       parentRoute: typeof CertificatesRoute
     }
+    '/api/og/testimonials': {
+      id: '/api/og/testimonials'
+      path: '/api/og/testimonials'
+      fullPath: '/api/og/testimonials'
+      preLoaderRoute: typeof ApiOgTestimonialsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/og/polls': {
       id: '/api/og/polls'
       path: '/api/og/polls'
@@ -894,6 +927,13 @@ declare module '@tanstack/react-router' {
       path: '/api/og/feedback'
       fullPath: '/api/og/feedback'
       preLoaderRoute: typeof ApiOgFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/og/certificates': {
+      id: '/api/og/certificates'
+      path: '/api/og/certificates'
+      fullPath: '/api/og/certificates'
+      preLoaderRoute: typeof ApiOgCertificatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/internal/testimonials': {
@@ -1068,10 +1108,12 @@ const rootRouteChildren: RootRouteChildren = {
   ApiInternalKahootRoute: ApiInternalKahootRoute,
   ApiInternalPollsRoute: ApiInternalPollsRoute,
   ApiInternalTestimonialsRoute: ApiInternalTestimonialsRoute,
+  ApiOgCertificatesRoute: ApiOgCertificatesRoute,
   ApiOgFeedbackRoute: ApiOgFeedbackRoute,
   ApiOgFeelingsRoute: ApiOgFeelingsRoute,
   ApiOgKahootRoute: ApiOgKahootRoute,
   ApiOgPollsRoute: ApiOgPollsRoute,
+  ApiOgTestimonialsRoute: ApiOgTestimonialsRoute,
   DemoApiMcpTodosRoute: DemoApiMcpTodosRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,

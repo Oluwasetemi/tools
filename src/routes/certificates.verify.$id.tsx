@@ -163,5 +163,11 @@ export const Route = createFileRoute('/certificates/verify/$id')({
     const cert = await getCertData(params.id)
     return { cert }
   },
+  head: ({ loaderData }) => ({
+    meta: [
+      { title: loaderData?.cert ? `${loaderData.cert.studentName} — Certificate Verification` : 'Certificate Verification' },
+      { name: 'description', content: loaderData?.cert ? `Verify the completion certificate issued to ${loaderData.cert.studentName} for ${loaderData.cert.courseName}.` : 'Verify the authenticity of a course completion certificate.' },
+    ],
+  }),
   component: CertificateVerifyPage,
 })

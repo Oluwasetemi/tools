@@ -14,6 +14,7 @@ export const Route = createFileRoute('/party/kahoot-host')({
       { name: 'description', content: 'Create and host Kahoot-style quiz games with real-time scoring and live leaderboards.' },
       { property: 'og:title', content: 'Kahoot Quiz — Host Dashboard' },
       { property: 'og:description', content: 'Create and host Kahoot-style quiz games with real-time scoring and live leaderboards.' },
+      { property: 'og:image', content: '/api/og/kahoot' },
     ],
   }),
 })

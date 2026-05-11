@@ -1,6 +1,7 @@
 {
-  "short_name": "TanStack App",
-  "name": "Create TanStack App Sample",
+  "short_name": "Tools",
+  "name": "Tools — Live Classroom Engagement",
+  "description": "Purpose-built tools for live classroom engagement: quiz battles, instant polls, structured feedback, emoji streams, testimonials, and certificates.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -18,8 +19,8 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#1A1008",
+  "background_color": "#F7F3EC"
 }
