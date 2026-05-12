@@ -36,6 +36,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/router-plugin": "^1.136.8",
     "@vercel/og": "^0.8.6",
+    "better-auth": "^1.6.10",
     "clsx": "^2.1.1",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
