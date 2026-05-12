@@ -163,7 +163,7 @@ function PollHistoryPage() {
   )
 }
 
-export const Route = createFileRoute('/party/polls/history')({
+export const Route = createFileRoute('/_authed/party/polls/history')({
   loader: async () => ({ pollHistory: await getPollsHistory() }),
   head: () => ({ meta: [{ title: 'Poll History — Tools' }, { name: 'description', content: 'Browse past live poll sessions, results, and vote distributions.' }] }),
   component: PollHistoryPage,

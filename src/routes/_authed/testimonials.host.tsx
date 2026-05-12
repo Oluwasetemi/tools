@@ -64,7 +64,7 @@ function TestimonialsHostPage() {
   )
 }
 
-export const Route = createFileRoute('/testimonials/host')({
+export const Route = createFileRoute('/_authed/testimonials/host')({
   validateSearch: (search: Record<string, unknown>) => ({
     room: (search.room as string) || 'default-room',
   }),

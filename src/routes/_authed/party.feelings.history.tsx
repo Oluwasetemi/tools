@@ -136,7 +136,7 @@ function FeelingsHistoryPage() {
   )
 }
 
-export const Route = createFileRoute('/party/feelings/history')({
+export const Route = createFileRoute('/_authed/party/feelings/history')({
   loader: async () => ({ sessionHistory: await getFeelingsHistory() }),
   head: () => ({ meta: [{ title: 'Feelings History — Tools' }, { name: 'description', content: 'Browse past emoji stream sessions and see which emojis resonated most.' }] }),
   component: FeelingsHistoryPage,

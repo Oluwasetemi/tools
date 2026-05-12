@@ -389,7 +389,7 @@ function CertificateSendPage() {
   )
 }
 
-export const Route = createFileRoute('/certificates/send')({
+export const Route = createFileRoute('/_authed/certificates/send')({
   head: () => ({
     meta: [
       { title: 'Send Certificates — New Batch' },

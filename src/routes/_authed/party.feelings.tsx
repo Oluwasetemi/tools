@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { EmojiStream } from '@/components/ui/emoji-stream'
 
-export const Route = createFileRoute('/party/feelings')({
+export const Route = createFileRoute('/_authed/party/feelings')({
   component: FeelingsPage,
   head: () => ({
     meta: [

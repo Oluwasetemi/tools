@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { PollHost } from '@/components/ui/poll-host'
 import { Copy, ExternalLink, History, RefreshCw } from 'lucide-react'
 
-export const Route = createFileRoute('/party/polls')({
+export const Route = createFileRoute('/_authed/party/polls')({
   component: PollsPage,
   head: () => ({
     meta: [

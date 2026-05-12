@@ -177,7 +177,7 @@ function TestimonialsDashboard() {
   )
 }
 
-export const Route = createFileRoute('/testimonials')({
+export const Route = createFileRoute('/_authed/testimonials')({
   head: () => ({
     meta: [
       { title: 'Testimonials — Collect & Display Student Feedback' },

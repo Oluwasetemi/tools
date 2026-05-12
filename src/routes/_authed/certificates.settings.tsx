@@ -205,7 +205,7 @@ function CertificateSettingsPage() {
   )
 }
 
-export const Route = createFileRoute('/certificates/settings')({
+export const Route = createFileRoute('/_authed/certificates/settings')({
   head: () => ({
     meta: [
       { title: 'Certificate Settings — Issuer Profile' },

@@ -254,7 +254,7 @@ function CertificatesDashboard() {
   )
 }
 
-export const Route = createFileRoute('/certificates/')({
+export const Route = createFileRoute('/_authed/certificates/')({
   loader: async () => ({ batches: await getDashboardData() }),
   head: () => ({
     meta: [
