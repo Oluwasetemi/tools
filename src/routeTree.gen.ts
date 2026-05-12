@@ -25,6 +25,7 @@ import { Route as DemoNeonRouteImport } from './routes/demo/neon'
 import { Route as DemoMcpTodosRouteImport } from './routes/demo/mcp-todos'
 import { Route as DemoDrizzleRouteImport } from './routes/demo/drizzle'
 import { Route as AuthedTestimonialsRouteImport } from './routes/_authed/testimonials'
+import { Route as AuthedScheduleRouteImport } from './routes/_authed/schedule'
 import { Route as AuthedCertificatesRouteImport } from './routes/_authed/certificates'
 import { Route as ApiOgIndexRouteImport } from './routes/api/og/index'
 import { Route as AuthedCertificatesIndexRouteImport } from './routes/_authed/certificates.index'
@@ -47,6 +48,7 @@ import { Route as ApiInternalFeedbackRouteImport } from './routes/api/internal/f
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AuthedTestimonialsHostRouteImport } from './routes/_authed/testimonials.host'
 import { Route as AuthedTestimonialsHistoryRouteImport } from './routes/_authed/testimonials.history'
+import { Route as AuthedScheduleNewRouteImport } from './routes/_authed/schedule.new'
 import { Route as AuthedPartyPollsRouteImport } from './routes/_authed/party.polls'
 import { Route as AuthedPartyKahootHostRouteImport } from './routes/_authed/party.kahoot-host'
 import { Route as AuthedPartyFeelingsRouteImport } from './routes/_authed/party.feelings'
@@ -139,6 +141,11 @@ const DemoDrizzleRoute = DemoDrizzleRouteImport.update({
 const AuthedTestimonialsRoute = AuthedTestimonialsRouteImport.update({
   id: '/testimonials',
   path: '/testimonials',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedScheduleRoute = AuthedScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedCertificatesRoute = AuthedCertificatesRouteImport.update({
@@ -252,6 +259,11 @@ const AuthedTestimonialsHistoryRoute =
     path: '/history',
     getParentRoute: () => AuthedTestimonialsRoute,
   } as any)
+const AuthedScheduleNewRoute = AuthedScheduleNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AuthedScheduleRoute,
+} as any)
 const AuthedPartyPollsRoute = AuthedPartyPollsRouteImport.update({
   id: '/party/polls',
   path: '/party/polls',
@@ -333,6 +345,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/certificates': typeof AuthedCertificatesRouteWithChildren
+  '/schedule': typeof AuthedScheduleRouteWithChildren
   '/testimonials': typeof AuthedTestimonialsRouteWithChildren
   '/demo/drizzle': typeof DemoDrizzleRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
@@ -350,6 +363,7 @@ export interface FileRoutesByFullPath {
   '/party/feelings': typeof AuthedPartyFeelingsRouteWithChildren
   '/party/kahoot-host': typeof AuthedPartyKahootHostRouteWithChildren
   '/party/polls': typeof AuthedPartyPollsRouteWithChildren
+  '/schedule/new': typeof AuthedScheduleNewRoute
   '/testimonials/history': typeof AuthedTestimonialsHistoryRoute
   '/testimonials/host': typeof AuthedTestimonialsHostRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -385,6 +399,7 @@ export interface FileRoutesByTo {
   '/$': typeof SplatRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/schedule': typeof AuthedScheduleRouteWithChildren
   '/testimonials': typeof AuthedTestimonialsRouteWithChildren
   '/demo/drizzle': typeof DemoDrizzleRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
@@ -402,6 +417,7 @@ export interface FileRoutesByTo {
   '/party/feelings': typeof AuthedPartyFeelingsRouteWithChildren
   '/party/kahoot-host': typeof AuthedPartyKahootHostRouteWithChildren
   '/party/polls': typeof AuthedPartyPollsRouteWithChildren
+  '/schedule/new': typeof AuthedScheduleNewRoute
   '/testimonials/history': typeof AuthedTestimonialsHistoryRoute
   '/testimonials/host': typeof AuthedTestimonialsHostRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -440,6 +456,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/_authed/certificates': typeof AuthedCertificatesRouteWithChildren
+  '/_authed/schedule': typeof AuthedScheduleRouteWithChildren
   '/_authed/testimonials': typeof AuthedTestimonialsRouteWithChildren
   '/demo/drizzle': typeof DemoDrizzleRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
@@ -457,6 +474,7 @@ export interface FileRoutesById {
   '/_authed/party/feelings': typeof AuthedPartyFeelingsRouteWithChildren
   '/_authed/party/kahoot-host': typeof AuthedPartyKahootHostRouteWithChildren
   '/_authed/party/polls': typeof AuthedPartyPollsRouteWithChildren
+  '/_authed/schedule/new': typeof AuthedScheduleNewRoute
   '/_authed/testimonials/history': typeof AuthedTestimonialsHistoryRoute
   '/_authed/testimonials/host': typeof AuthedTestimonialsHostRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -495,6 +513,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/mcp'
     | '/certificates'
+    | '/schedule'
     | '/testimonials'
     | '/demo/drizzle'
     | '/demo/mcp-todos'
@@ -512,6 +531,7 @@ export interface FileRouteTypes {
     | '/party/feelings'
     | '/party/kahoot-host'
     | '/party/polls'
+    | '/schedule/new'
     | '/testimonials/history'
     | '/testimonials/host'
     | '/api/auth/$'
@@ -547,6 +567,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/login'
     | '/mcp'
+    | '/schedule'
     | '/testimonials'
     | '/demo/drizzle'
     | '/demo/mcp-todos'
@@ -564,6 +585,7 @@ export interface FileRouteTypes {
     | '/party/feelings'
     | '/party/kahoot-host'
     | '/party/polls'
+    | '/schedule/new'
     | '/testimonials/history'
     | '/testimonials/host'
     | '/api/auth/$'
@@ -601,6 +623,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/mcp'
     | '/_authed/certificates'
+    | '/_authed/schedule'
     | '/_authed/testimonials'
     | '/demo/drizzle'
     | '/demo/mcp-todos'
@@ -618,6 +641,7 @@ export interface FileRouteTypes {
     | '/_authed/party/feelings'
     | '/_authed/party/kahoot-host'
     | '/_authed/party/polls'
+    | '/_authed/schedule/new'
     | '/_authed/testimonials/history'
     | '/_authed/testimonials/host'
     | '/api/auth/$'
@@ -803,6 +827,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedTestimonialsRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/schedule': {
+      id: '/_authed/schedule'
+      path: '/schedule'
+      fullPath: '/schedule'
+      preLoaderRoute: typeof AuthedScheduleRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/certificates': {
       id: '/_authed/certificates'
       path: '/certificates'
@@ -957,6 +988,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedTestimonialsHistoryRouteImport
       parentRoute: typeof AuthedTestimonialsRoute
     }
+    '/_authed/schedule/new': {
+      id: '/_authed/schedule/new'
+      path: '/new'
+      fullPath: '/schedule/new'
+      preLoaderRoute: typeof AuthedScheduleNewRouteImport
+      parentRoute: typeof AuthedScheduleRoute
+    }
     '/_authed/party/polls': {
       id: '/_authed/party/polls'
       path: '/party/polls'
@@ -1073,6 +1111,18 @@ const AuthedCertificatesRouteChildren: AuthedCertificatesRouteChildren = {
 const AuthedCertificatesRouteWithChildren =
   AuthedCertificatesRoute._addFileChildren(AuthedCertificatesRouteChildren)
 
+interface AuthedScheduleRouteChildren {
+  AuthedScheduleNewRoute: typeof AuthedScheduleNewRoute
+}
+
+const AuthedScheduleRouteChildren: AuthedScheduleRouteChildren = {
+  AuthedScheduleNewRoute: AuthedScheduleNewRoute,
+}
+
+const AuthedScheduleRouteWithChildren = AuthedScheduleRoute._addFileChildren(
+  AuthedScheduleRouteChildren,
+)
+
 interface AuthedTestimonialsRouteChildren {
   AuthedTestimonialsHistoryRoute: typeof AuthedTestimonialsHistoryRoute
   AuthedTestimonialsHostRoute: typeof AuthedTestimonialsHostRoute
@@ -1137,6 +1187,7 @@ const AuthedPartyPollsRouteWithChildren =
 
 interface AuthedRouteChildren {
   AuthedCertificatesRoute: typeof AuthedCertificatesRouteWithChildren
+  AuthedScheduleRoute: typeof AuthedScheduleRouteWithChildren
   AuthedTestimonialsRoute: typeof AuthedTestimonialsRouteWithChildren
   AuthedPartyFeedbackHostRoute: typeof AuthedPartyFeedbackHostRouteWithChildren
   AuthedPartyFeelingsRoute: typeof AuthedPartyFeelingsRouteWithChildren
@@ -1146,6 +1197,7 @@ interface AuthedRouteChildren {
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedCertificatesRoute: AuthedCertificatesRouteWithChildren,
+  AuthedScheduleRoute: AuthedScheduleRouteWithChildren,
   AuthedTestimonialsRoute: AuthedTestimonialsRouteWithChildren,
   AuthedPartyFeedbackHostRoute: AuthedPartyFeedbackHostRouteWithChildren,
   AuthedPartyFeelingsRoute: AuthedPartyFeelingsRouteWithChildren,

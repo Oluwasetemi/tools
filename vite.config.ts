@@ -4,8 +4,6 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import type { Plugin } from 'vite'
 import { defineConfig } from 'vite'
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import viteTsConfigPaths from 'vite-tsconfig-paths'
 
 // Stub server-only Node.js packages in browser bundles so they don't crash
 // client-side hydration. These modules are only called inside server functions.
@@ -58,6 +56,17 @@ const config = defineConfig({
   define: {
     global: 'globalThis',
   },
+  resolve: {
+    // Native Vite 6+ tsconfig path alias resolution
+    tsconfigPaths: true,
+    // Browser-compatible polyfills for Node.js built-ins used by dependencies.
+    // These are explicit module aliases — no esbuild/oxc banner conflicts.
+    alias: {
+      buffer: 'buffer',
+      process: 'process/browser',
+      util: 'util',
+    },
+  },
   server: {
     // Pre-load all routes at startup so Vite crawls all deps before the first browser
     // request, preventing the lazy re-optimization that re-hashes React and breaks imports.
@@ -95,20 +104,6 @@ const config = defineConfig({
   },
   plugins: [
     serverOnlyStubPlugin(),
-    // Alias buffer/process/util to browser-compatible versions.
-    // Globals disabled — Buffer global is injected via bufferGlobalPlugin instead.
-    // Crypto excluded — browser has native crypto, and the Node polyfill drags in
-    // cipher-base/readable-stream which crash on process.version.slice().
-    // Re-enable the Buffer global shim — with warmup, deps are discovered at startup
-    // so there's no in-flight re-optimization that breaks the esbuild banner.
-    nodePolyfills({
-      include: ['buffer', 'process', 'util'],
-      globals: { Buffer: true, global: false, process: false },
-    }),
-    // this is the plugin that enables path aliases
-    viteTsConfigPaths({
-      projects: ['./tsconfig.json'],
-    }),
     tailwindcss(),
     tanstackStart(),
     netlify(),
