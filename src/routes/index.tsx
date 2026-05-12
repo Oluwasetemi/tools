@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { useSession } from '@/lib/auth-client'
 
 export const Route = createFileRoute('/')({
   head: () => ({
@@ -241,6 +242,8 @@ function ToolCard({ tool }: { tool: Tool }) {
 }
 
 function LandingPage() {
+  const { data: session } = useSession()
+
   return (
     <div className="min-h-screen bg-[#F7F3EC] text-[#1A1008] overflow-x-hidden">
       <style>{`
@@ -351,6 +354,16 @@ function LandingPage() {
             <ToolCard key={tool.href} tool={tool} />
           ))}
         </div>
+        {session && (
+          <div className="px-5 sm:px-8 py-6 border-t border-[#1A1008]/10">
+            <Link
+              to="/schedule"
+              className="f-mono text-[10px] tracking-[0.15em] uppercase border-2 border-[#1A1008] text-[#1A1008] px-5 py-2.5 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 inline-block no-underline"
+            >
+              My Schedule →
+            </Link>
+          </div>
+        )}
       </section>
 
       {/* ── How it works ─────────────────────────── */}
