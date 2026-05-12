@@ -3,6 +3,8 @@ import { boolean, integer, jsonb, pgEnum, pgTable, serial, text, timestamp, varc
 // Enums
 export const feedbackTypeEnum = pgEnum('feedback_type', ['emoji', 'text', 'score'])
 export const gameStateEnum = pgEnum('game_state', ['waiting', 'question', 'results', 'leaderboard', 'ended'])
+export const toolTypeEnum = pgEnum('tool_type', ['kahoot', 'poll', 'feedback', 'feelings', 'testimonials', 'certificates'])
+export const sessionStatusEnum = pgEnum('session_status', ['planned', 'active', 'ended'])
 
 // Kahoot Tables
 export const kahootGames = pgTable('kahoot_games', {
@@ -168,4 +170,19 @@ export const testimonials = pgTable('testimonials', {
   status: text('status').notNull().default('pending'),
   submittedAt: timestamp('submitted_at').defaultNow().notNull(),
   moderatedAt: timestamp('moderated_at'),
+})
+
+// Planned Sessions — teacher pre-configured sessions awaiting launch
+export const plannedSessions = pgTable('planned_sessions', {
+  id: serial('id').primaryKey(),
+  ownerId: text('owner_id').notNull(),
+  toolType: toolTypeEnum('tool_type').notNull(),
+  title: text('title').notNull(),
+  config: jsonb('config').notNull().$type<Record<string, unknown>>(),
+  status: sessionStatusEnum('status').notNull().default('planned'),
+  scheduledFor: timestamp('scheduled_for'),
+  roomId: varchar('room_id', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  startedAt: timestamp('started_at'),
+  endedAt: timestamp('ended_at'),
 })
