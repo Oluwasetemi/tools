@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { asc, eq } from 'drizzle-orm'
 import { randomStr } from '@setemiojo/utils'
 import { db } from '@/db'
 import { plannedSessions } from '@/db/schema'
@@ -47,7 +47,6 @@ export async function startPlannedSession(input: { id: number; ownerId: string }
     .select()
     .from(plannedSessions)
     .where(eq(plannedSessions.id, input.id))
-    .orderBy(plannedSessions.id)
 
   const session = rows[0]
   if (!session) throw new Error('Planned session not found')
@@ -77,5 +76,5 @@ export async function getTeacherSchedule(ownerId: string) {
     .select()
     .from(plannedSessions)
     .where(eq(plannedSessions.ownerId, ownerId))
-    .orderBy(plannedSessions.scheduledFor, plannedSessions.createdAt)
+    .orderBy(asc(plannedSessions.scheduledFor), asc(plannedSessions.createdAt))
 }

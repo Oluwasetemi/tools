@@ -8,7 +8,7 @@ vi.mock('@/db', () => ({
   db: {
     insert: () => ({ values: () => ({ returning: mockInsert }) }),
     update: () => ({ set: () => ({ where: () => ({ returning: mockUpdate }) }) }),
-    select: () => ({ from: () => ({ where: () => ({ orderBy: mockSelect }) }) }),
+    select: () => ({ from: () => ({ where: mockSelect }) }),
   },
 }))
 vi.mock('@/db/schema', () => ({
