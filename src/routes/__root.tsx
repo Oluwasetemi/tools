@@ -93,6 +93,8 @@ function HTMLWrapper({ children }: { children: React.ReactNode }) {
     || location.pathname.startsWith('/party/')
     || location.pathname.startsWith('/certificates')
     || location.pathname.startsWith('/testimonials')
+    || location.pathname === '/login'
+    || location.pathname.startsWith('/schedule')
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
