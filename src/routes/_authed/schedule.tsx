@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
-import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { getRequest } from '@tanstack/react-start/server'
+import { useState } from 'react'
 import { auth } from '@/lib/auth'
 import { getTeacherSchedule, startPlannedSession } from '@/server/session-planner'
 
@@ -9,7 +10,7 @@ const TOOL_LABELS: Record<string, { name: string; emoji: string; accent: string 
   poll: { name: 'Live Poll', emoji: '📊', accent: '#0C3D6B' },
   feedback: { name: 'Feedback', emoji: '💬', accent: '#1B6B3A' },
   feelings: { name: 'Feeling Stream', emoji: '✨', accent: '#6D28D9' },
-  testimonials: { name: 'Testimonials', emoji: '🗣', accent: '#6D28D9' },
+  testimonials: { name: 'Testimonials', emoji: '🗣', accent: '#B45309' },
   certificates: { name: 'Certificates', emoji: '🏅', accent: '#B45309' },
 }
 
@@ -40,15 +41,17 @@ const launchSession = createServerFn({ method: 'POST' }).handler(async ({ data: 
 
 function SchedulePage() {
   const { sessions } = Route.useLoaderData()
-  const router = useRouter()
+  const [starting, setStarting] = useState<number | null>(null)
 
   const planned = sessions.filter(s => s.status === 'planned')
   const active = sessions.filter(s => s.status === 'active')
   const recent = sessions.filter(s => s.status === 'ended').slice(0, 10)
 
   const handleStart = async (id: number) => {
+    if (starting !== null) return
+    setStarting(id)
     const result = await launchSession({ data: id })
-    router.navigate({ to: result.redirectTo as any })
+    window.location.href = result.redirectTo
   }
 
   return (
@@ -129,9 +132,10 @@ function SchedulePage() {
                         </div>
                         <button
                           onClick={() => handleStart(s.id)}
-                          className="shrink-0 border-2 border-[#1A1008] bg-[#1A1008] text-white f-mono text-[10px] tracking-[0.15em] uppercase px-5 py-2 shadow-[3px_3px_0_#D4380D] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
+                          disabled={starting !== null}
+                          className="shrink-0 border-2 border-[#1A1008] bg-[#1A1008] text-white f-mono text-[10px] tracking-[0.15em] uppercase px-5 py-2 shadow-[3px_3px_0_#D4380D] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-x-0 disabled:translate-y-0 disabled:shadow-[3px_3px_0_#D4380D]"
                         >
-                          Start →
+                          {starting === s.id ? 'Starting...' : 'Start →'}
                         </button>
                       </div>
                     )
