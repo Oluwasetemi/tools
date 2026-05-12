@@ -12,5 +12,16 @@ describe('plannedSessions schema', () => {
     expect(cols).toContain('status')
     expect(cols).toContain('scheduledFor')
     expect(cols).toContain('roomId')
+    expect(cols).toContain('createdAt')
+    expect(cols).toContain('startedAt')
+    expect(cols).toContain('endedAt')
+  })
+
+  it('toolTypeEnum has correct values', () => {
+    expect(toolTypeEnum.enumValues).toEqual(['kahoot', 'poll', 'feedback', 'feelings', 'testimonials', 'certificates'])
+  })
+
+  it('sessionStatusEnum has correct values', () => {
+    expect(sessionStatusEnum.enumValues).toEqual(['planned', 'active', 'ended'])
   })
 })
