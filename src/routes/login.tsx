@@ -17,7 +17,7 @@ function LoginPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (session) navigate({ to: '/schedule' })
+    if (session) navigate({ to: '/schedule', replace: true })
   }, [session, navigate])
 
   return (
@@ -36,14 +36,14 @@ function LoginPage() {
               onClick={() => signIn.social({ provider: 'google', callbackURL: '/schedule' })}
               className="w-full border-2 border-[#1A1008] bg-white text-[#1A1008] f-mono text-[12px] tracking-[0.12em] uppercase px-6 py-3 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 flex items-center justify-center gap-3"
             >
-              <span>G</span> Continue with Google
+              <span aria-hidden="true">G</span> Continue with Google
             </button>
 
             <button
               onClick={() => signIn.social({ provider: 'github', callbackURL: '/schedule' })}
               className="w-full border-2 border-[#1A1008] bg-[#1A1008] text-white f-mono text-[12px] tracking-[0.12em] uppercase px-6 py-3 shadow-[3px_3px_0_#D4380D] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 flex items-center justify-center gap-3"
             >
-              <span>⌥</span> Continue with GitHub
+              <span aria-hidden="true">⌥</span> Continue with GitHub
             </button>
           </div>
         </div>
