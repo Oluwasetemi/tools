@@ -28,18 +28,29 @@ export function TestimonialSubmit({ roomId, host = 'localhost:1999' }: Testimoni
   }
 
   if (!session) {
+    const isConnError = error === 'Connection error'
     return (
       <div className="flex-1 flex items-center justify-center p-6 min-h-[60vh]">
-        <div className="border-2 border-[#1A1008] bg-white shadow-[5px_5px_0_#1A1008] p-10 max-w-sm w-full text-center">
-          <div className="w-12 h-12 border-2 border-[#6D28D9] mx-auto mb-6 flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-[#6D28D9] border-t-transparent rounded-full animate-spin" />
+        <div className={`border-2 ${isConnError ? 'border-[#D4380D]' : 'border-[#1A1008]'} bg-white shadow-[5px_5px_0_${isConnError ? '#D4380D' : '#1A1008'}] p-10 max-w-sm w-full text-center`}>
+          <div className={`w-12 h-12 border-2 ${isConnError ? 'border-[#D4380D]' : 'border-[#6D28D9]'} mx-auto mb-6 flex items-center justify-center`}>
+            {isConnError
+              ? <span className="text-[#D4380D] text-xl font-bold">!</span>
+              : <div className="w-5 h-5 border-2 border-[#6D28D9] border-t-transparent rounded-full animate-spin" />}
           </div>
           <h2 className="f-display font-black text-[22px] tracking-tight text-[#1A1008] mb-2">
-            Session not started yet
+            {isConnError ? 'Connection failed' : 'Session not started yet'}
           </h2>
           <p className="f-mono text-[12px] text-[#1A1008]/50 leading-loose">
-            The host will open the session shortly.
+            {isConnError
+              ? 'Cannot reach the session server. Check that the host server is running.'
+              : 'The host will open the session shortly.'}
           </p>
+          <button
+            onClick={() => socket?.send(JSON.stringify({ type: 'get_state' }))}
+            className="mt-6 border-2 border-[#1A1008] bg-white text-[#1A1008] f-mono text-[10px] tracking-[0.15em] uppercase px-4 py-2 shadow-[2px_2px_0_#1A1008] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-100"
+          >
+            Refresh
+          </button>
         </div>
       </div>
     )

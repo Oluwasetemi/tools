@@ -53,16 +53,18 @@ export function useTestimonialsSocket(
 
     onMessage(event: MessageEvent) {
       if (typeof event.data !== 'string') return
-      console.log('[testimonials-socket] message:', event.data.slice(0, 200))
       const data: ServerMessage = JSON.parse(event.data)
+      console.log(`[DBG-T] ← msg type="${data.type}"`, data)
 
       switch (data.type) {
         case 'session_created':
+          console.log('[DBG-T] session_created → setting session:', data.session)
           setSession(data.session)
           setError(null)
           break
 
         case 'session_state':
+          console.log('[DBG-T] session_state → session:', data.session, 'testimonials:', data.testimonials.length)
           setSession(data.session)
           setTestimonials(data.testimonials)
           break
@@ -95,15 +97,15 @@ export function useTestimonialsSocket(
     },
 
     onOpen() {
-      console.log('[testimonials-socket] connected — room:', roomId, 'host:', host)
+      console.log(`[DBG-T] WS OPEN — room="${roomId}" host="${host}"`)
     },
 
     onClose(event: CloseEvent) {
-      console.log('[testimonials-socket] closed — code:', event.code, 'reason:', event.reason)
+      console.warn(`[DBG-T] WS CLOSED — code=${event.code} reason="${event.reason}"`)
     },
 
     onError(err: Event) {
-      console.error('[testimonials-socket] error:', err)
+      console.error('[DBG-T] WS ERROR:', err)
       setError('Connection error')
     },
   })

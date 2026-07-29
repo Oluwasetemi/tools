@@ -3,6 +3,9 @@ import { signIn, useSession } from '@/lib/auth-client'
 import { useEffect } from 'react'
 
 export const Route = createFileRoute('/login')({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: search.redirect as string | undefined,
+  }),
   head: () => ({
     meta: [
       { title: 'Sign In — Tools' },
@@ -15,10 +18,12 @@ export const Route = createFileRoute('/login')({
 function LoginPage() {
   const { data: session } = useSession()
   const navigate = useNavigate()
+  const { redirect: redirectTo } = Route.useSearch()
+  const destination = redirectTo || '/schedule'
 
   useEffect(() => {
-    if (session) navigate({ to: '/schedule', replace: true })
-  }, [session, navigate])
+    if (session) navigate({ to: destination as '/', replace: true })
+  }, [session, navigate, destination])
 
   return (
     <div className="min-h-screen bg-[#F7F3EC] flex items-center justify-center px-5">
@@ -33,14 +38,14 @@ function LoginPage() {
 
           <div className="space-y-3">
             <button
-              onClick={() => signIn.social({ provider: 'google', callbackURL: '/schedule' })}
+              onClick={() => signIn.social({ provider: 'google', callbackURL: destination })}
               className="w-full border-2 border-[#1A1008] bg-white text-[#1A1008] f-mono text-[12px] tracking-[0.12em] uppercase px-6 py-3 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 flex items-center justify-center gap-3"
             >
               <span aria-hidden="true">G</span> Continue with Google
             </button>
 
             <button
-              onClick={() => signIn.social({ provider: 'github', callbackURL: '/schedule' })}
+              onClick={() => signIn.social({ provider: 'github', callbackURL: destination })}
               className="w-full border-2 border-[#1A1008] bg-[#1A1008] text-white f-mono text-[12px] tracking-[0.12em] uppercase px-6 py-3 shadow-[3px_3px_0_#D4380D] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 flex items-center justify-center gap-3"
             >
               <span aria-hidden="true">⌥</span> Continue with GitHub

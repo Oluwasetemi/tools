@@ -50,9 +50,11 @@ export default class TestimonialsServer implements Party.Server {
     this.testimonials = new Map(stored)
     this.hostId = await this.room.storage.get<string>('hostId') ?? null
     this.dbSessionId = await this.room.storage.get<number>('dbSessionId') ?? null
+    console.log(`[DBG-T] onStart room="${this.room.id}" session=${this.session ? `"${this.session.title}"` : 'null'} testimonials=${this.testimonials.size}`)
   }
 
   onConnect(conn: Party.Connection) {
+    console.log(`[DBG-T] onConnect conn="${conn.id}" room="${this.room.id}" session=${this.session ? `"${this.session.title}"` : 'null'}`)
     conn.send(JSON.stringify({
       type: 'session_state',
       session: this.session,
@@ -70,6 +72,7 @@ export default class TestimonialsServer implements Party.Server {
 
     try {
       const data: ClientMessage = JSON.parse(message)
+      console.log(`[DBG-T] onMessage type="${data.type}" from="${sender.id}"`)
       switch (data.type) {
         case 'create_session':
           await this.handleCreateSession(data.title, sender)
@@ -98,7 +101,9 @@ export default class TestimonialsServer implements Party.Server {
   }
 
   private async handleCreateSession(title: string, sender: Party.Connection) {
+    console.log(`[DBG-T] handleCreateSession title="${title}" existingSession=${this.session ? `"${this.session.title}" active=${this.session.isActive}` : 'null'}`)
     if (this.session && this.session.isActive) {
+      console.log('[DBG-T] handleCreateSession → already active, rejecting')
       sender.send(JSON.stringify({ type: 'error', message: 'Session already active' } as ServerMessage))
       return
     }
@@ -114,6 +119,7 @@ export default class TestimonialsServer implements Party.Server {
 
     await this.room.storage.put('session', this.session)
     await this.room.storage.put('hostId', this.hostId)
+    console.log(`[DBG-T] handleCreateSession → session created, broadcasting to ${[...this.room.getConnections()].length} connections`)
 
     try {
       const result = await callInternalApi('testimonials', {

@@ -16,10 +16,12 @@ const TOOLS = [
 
 type ToolValue = typeof TOOLS[number]['value']
 
-const savePlannedSession = createServerFn({ method: 'POST' }).handler(async (input: {
-  toolType: ToolValue
-  title: string
-  scheduledFor: string | null
+const savePlannedSession = createServerFn({ method: 'POST' }).handler(async ({ data: input }: {
+  data: {
+    toolType: ToolValue
+    title: string
+    scheduledFor: string | null
+  }
 }) => {
   const request = getRequest()
   if (!request) throw new Error('Not authenticated')

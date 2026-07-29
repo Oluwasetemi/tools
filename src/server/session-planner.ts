@@ -8,7 +8,7 @@ const TOOL_HOST_ROUTES: Record<string, string> = {
   poll: '/party/polls',
   feedback: '/party/feedback-host',
   feelings: '/party/feelings',
-  testimonials: '/testimonials',
+  testimonials: '/testimonials/host',
   certificates: '/certificates',
 }
 

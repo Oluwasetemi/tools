@@ -10,6 +10,7 @@ interface TestimonialHostProps {
 export function TestimonialHost({ roomId, host = 'localhost:1999' }: TestimonialHostProps) {
   const { socket, session, testimonials, connectionCount, error } = useTestimonialsSocket(roomId, host)
   const [showTitle, setShowTitle] = useState('')
+  const [creating, setCreating] = useState(false)
   const [showApproved, setShowApproved] = useState(false)
   const [showRejected, setShowRejected] = useState(false)
 
@@ -20,7 +21,10 @@ export function TestimonialHost({ roomId, host = 'localhost:1999' }: Testimonial
   const createSession = (e: React.FormEvent) => {
     e.preventDefault()
     if (!socket || !showTitle.trim()) return
-    socket.send(JSON.stringify({ type: 'create_session', title: showTitle.trim() }))
+    setCreating(true)
+    const msg = { type: 'create_session', title: showTitle.trim() }
+    console.log('[DBG-T] HOST → sending create_session:', msg, 'socket.readyState:', socket.readyState)
+    socket.send(JSON.stringify(msg))
   }
 
   const moderate = (id: string, action: 'approve' | 'reject') => {
@@ -57,13 +61,25 @@ export function TestimonialHost({ roomId, host = 'localhost:1999' }: Testimonial
   )
 
   if (!session) {
+    const isConnError = error === 'Connection error'
     return (
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="border-2 border-[#1A1008] bg-white shadow-[5px_5px_0_#1A1008] p-10 max-w-md w-full">
-          <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#6D28D9] mb-2">Host Controls</div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#6D28D9]">Host Controls</div>
+            <div className="flex items-center gap-1.5">
+              <div className={`w-1.5 h-1.5 rounded-full ${isConnError ? 'bg-[#D4380D]' : 'bg-[#1B6B3A] animate-pulse'}`} />
+              <span className="f-mono text-[9px] text-[#1A1008]/40">{isConnError ? 'disconnected' : 'connected'}</span>
+            </div>
+          </div>
           <h2 className="f-display font-black text-[24px] text-[#1A1008] mb-6">
             Start Campaign<span className="text-[#6D28D9]">.</span>
           </h2>
+          {isConnError && (
+            <div className="border-2 border-[#D4380D] bg-[#D4380D]/[0.06] px-4 py-3 mb-4">
+              <p className="f-mono text-[11px] text-[#D4380D]">Cannot connect to PartyKit. Make sure the dev server is running (<code>bun run dev</code>).</p>
+            </div>
+          )}
           <form onSubmit={createSession} className="space-y-4">
             <div>
               <label className="block f-mono text-[10px] tracking-[0.18em] uppercase text-[#1A1008]/40 mb-1.5">
@@ -81,10 +97,10 @@ export function TestimonialHost({ roomId, host = 'localhost:1999' }: Testimonial
             </div>
             <button
               type="submit"
-              disabled={!showTitle.trim()}
+              disabled={!showTitle.trim() || isConnError || creating}
               className="w-full border-2 border-[#1A1008] bg-[#6D28D9] text-white f-mono text-[12px] tracking-[0.12em] uppercase py-3 shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-x-0 disabled:translate-y-0 disabled:shadow-[3px_3px_0_#1A1008]"
             >
-              Open Campaign
+              {creating ? 'Opening…' : 'Open Campaign'}
             </button>
           </form>
         </div>

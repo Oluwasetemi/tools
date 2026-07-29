@@ -1,0 +1,164 @@
+import { getPartykitHost } from '@/lib/partykit-host'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
+import { randomStr } from '@setemiojo/utils'
+import { toast } from 'sonner'
+import { PollHost } from '@/components/ui/poll-host'
+import { Copy, ExternalLink, History, RefreshCw } from 'lucide-react'
+
+export const Route = createFileRoute('/_authed/party/polls/')({
+  component: PollsPage,
+  head: () => ({
+    meta: [
+      { title: 'Live Poll — Host Dashboard' },
+      { name: 'description', content: 'Create real-time polls and see votes update live. Instant feedback with live results.' },
+      { property: 'og:title', content: 'Live Poll — Host Dashboard' },
+      { property: 'og:description', content: 'Create real-time polls and see votes update live. Instant feedback with live results.' },
+      { property: 'og:image', content: '/api/og/polls' },
+    ],
+  }),
+})
+
+function PollsPage() {
+  const [roomId, setRoomId] = useState('')
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    setRoomId(params.get('room') || `poll-${randomStr(7)}`)
+  }, [])
+  const [copied, setCopied] = useState(false)
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : ''
+  const voterUrl = `${origin}/party/poll-voter?room=${roomId}`
+
+  const copyUrl = () => {
+    navigator.clipboard.writeText(voterUrl)
+    setCopied(true)
+    toast.success('Voter link copied!')
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const generateNewRoom = () => {
+    const newRoomId = `poll-${randomStr(7)}`
+    setRoomId(newRoomId)
+    window.history.pushState({}, '', `?room=${newRoomId}`)
+  }
+
+  return (
+    <div className="min-h-screen bg-[#F7F3EC]">
+      {/* Tool accent stripe — ink blue */}
+      <div className="h-1 bg-[#0C3D6B]" />
+
+      {/* Top nav */}
+      <nav className="px-5 sm:px-8 h-10 flex items-center justify-between border-b border-[#1A1008]/10">
+        <Link
+          to="/"
+          className="f-display font-black text-[15px] tracking-tight text-[#1A1008] no-underline"
+        >
+          TOOLS<span className="text-[#D4380D]">.</span>
+        </Link>
+        <span className="f-mono text-[9px] tracking-[0.2em] uppercase text-[#1A1008]/30">
+          02 · Poll Host
+        </span>
+      </nav>
+
+      {/* Page header */}
+      <div className="px-5 sm:px-8 pt-8 pb-0 border-b-2 border-[#1A1008]">
+        <div className="flex flex-wrap items-start justify-between gap-4 pb-6">
+          <div>
+            <h1 className="f-display font-black text-[30px] sm:text-[40px] tracking-[-0.03em] text-[#1A1008] leading-tight">
+              Live Poll<span className="text-[#0C3D6B]">.</span>
+            </h1>
+            <button
+              onClick={copyUrl}
+              className="flex items-center gap-2 mt-2 group"
+              title="Click to copy voter URL"
+            >
+              <span className="f-mono text-[10px] tracking-wider uppercase text-[#1A1008]/35">Room</span>
+              <code className="f-mono text-[12px] font-medium text-[#0C3D6B] bg-[#0C3D6B]/[0.08] px-2 py-0.5 border border-[#0C3D6B]/25 group-hover:bg-[#0C3D6B]/[0.14] transition-colors">
+                {roomId}
+              </code>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link
+              to="/party/polls/history"
+              className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-white f-mono text-[10px] tracking-[0.1em] uppercase text-[#1A1008] shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 no-underline"
+            >
+              <History size={11} />
+              History
+            </Link>
+            <button
+              onClick={generateNewRoom}
+              className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-white f-mono text-[10px] tracking-[0.1em] uppercase text-[#1A1008] shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
+            >
+              <RefreshCw size={11} />
+              New Room
+            </button>
+            <button
+              onClick={copyUrl}
+              className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-white f-mono text-[10px] tracking-[0.1em] uppercase text-[#1A1008] shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150"
+            >
+              <Copy size={11} />
+              {copied ? 'Copied!' : 'Copy URL'}
+            </button>
+            <a
+              href={voterUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-2 border-2 border-[#1A1008] bg-[#0C3D6B] text-white f-mono text-[10px] tracking-[0.1em] uppercase shadow-[3px_3px_0_#1A1008] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 no-underline"
+            >
+              <ExternalLink size={11} />
+              Open Voter ↗
+            </a>
+          </div>
+        </div>
+
+        {/* Share URL bar */}
+        <div className="pb-5">
+          <div className="flex items-stretch border-2 border-[#1A1008] bg-white shadow-[3px_3px_0_#1A1008]">
+            <div className="px-3 py-2.5 border-r border-[#1A1008]/15 bg-[#1A1008]/[0.02] shrink-0 flex items-center">
+              <span className="f-mono text-[9px] tracking-[0.22em] uppercase text-[#1A1008]/35">Share</span>
+            </div>
+            <code className="px-3 py-2.5 f-mono text-[11px] text-[#1A1008]/60 flex-1 min-w-0 truncate flex items-center">
+              {voterUrl}
+            </code>
+            <button
+              onClick={copyUrl}
+              className="px-4 py-2.5 bg-[#0C3D6B] text-white f-mono text-[10px] tracking-[0.12em] uppercase shrink-0 border-l-2 border-[#1A1008] hover:bg-[#0a3259] transition-colors"
+            >
+              {copied ? '✓' : 'Copy'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick steps */}
+      <div className="px-5 sm:px-8 py-4 border-b border-[#1A1008]/10 bg-[#1A1008]/[0.015]">
+        <div className="flex gap-8 flex-wrap">
+          {[
+            { n: '01', text: 'Enter a question and options below' },
+            { n: '02', text: 'Share the voter link with participants' },
+            { n: '03', text: 'End the poll at any time' },
+          ].map(s => (
+            <div key={s.n} className="flex items-center gap-2">
+              <span className="f-mono text-[10px] tracking-wider text-[#0C3D6B]">{s.n}</span>
+              <span className="f-mono text-[11px] text-[#1A1008]/50">{s.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Main component */}
+      <div className="px-5 sm:px-8 py-6">
+        {roomId && (
+          <PollHost
+            roomId={roomId}
+            host={getPartykitHost()}
+          />
+        )}
+      </div>
+    </div>
+  )
+}
